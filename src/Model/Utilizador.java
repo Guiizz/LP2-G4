@@ -2,7 +2,7 @@ package Model;
 
 import java.time.LocalDate;
 
-public class Pessoa {
+public class Utilizador {
 
     //Atributos da Classe
 
@@ -15,7 +15,7 @@ public class Pessoa {
 
     //Construtores
 
-    public Pessoa(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password) {
+    public Utilizador(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password) {
         this.nome = nome;
         this.dataNascimento = dataNascimento;
         this.nif = nif;
@@ -83,4 +83,3 @@ public class Pessoa {
         return super.toString();
     }
 }
-
