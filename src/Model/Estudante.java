@@ -8,17 +8,12 @@ public class Estudante extends Utilizador {
     private String numMecanografico;
     private int anoCurricular;
     private Curso curso;
-    private List <Avaliacao> notas;
 
-    public Estudante(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password, String numMecanografico, int anoLetivo, String curso, double notas) {
+    public Estudante(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password, String numMecanografico, int anoCurricular, Curso curso) {
         super(nome, dataNascimento, nif, morada, email, password);
-
-        this.numMecanografico = "" + contadorSequencial++;
-        this.setEmail(this.numMecanografico + "@issmf.pt");
-        this.setPassword("pass123");
-        this.anoCurricular = 1;
+        this.numMecanografico = numMecanografico;
+        this.anoCurricular = anoCurricular;
         this.curso = curso;
-        this.notas = new ArrayList<>();
     }
 
     public static int getContadorSequencial() {
@@ -49,16 +44,8 @@ public class Estudante extends Utilizador {
         return curso;
     }
 
-    public void setCurso(String curso) {
+    public void setCurso(Curso curso) {
         this.curso = curso;
-    }
-
-    public List<Avaliacao> getNotas() {
-        return notas;
-    }
-
-    public void setNotas(double notas) {
-        this.notas = notas;
     }
 
     @Override
