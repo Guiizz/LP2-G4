@@ -5,11 +5,8 @@ import java.util.ArrayList;
 public class Curso {
 
     private String nomeCurso;
-
     private Departamento departamento;
-
     private int duracao;
-
     private List <UnidadeCurricular> unidades;
 
 
@@ -46,5 +43,15 @@ public class Curso {
 
     public List<UnidadeCurricular> getUnidades() {
         return unidades;
+    }
+
+    @Override
+    public String toStringDetalhado() {
+        return "=== Curso ===\n" +
+                "Nome do Curso: " + nomeCurso + "\n" +
+                "Departamento: " + departamento + "\n" +
+                "Duracao:" + duracao + "\n" +
+                "Unidades:" + unidades + "\n" +
+                "=============";
     }
 }
