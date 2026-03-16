@@ -4,16 +4,12 @@ import java.time.LocalDate;
 
 public class Utilizador {
 
-    //Atributos da Classe
-
     private String nome;
     private LocalDate dataNascimento;
     private String nif;
     private String morada;
     private String email;
     private String password;
-
-    //Construtores
 
     public Utilizador(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password) {
         this.nome = nome;
@@ -25,8 +21,6 @@ public class Utilizador {
 
 
     }
-
-    //Getters e Setters
 
     public String getNome() {
         return nome;
@@ -76,10 +70,14 @@ public class Utilizador {
         this.password = password;
     }
 
-    //Detalhar o toString
-
     @Override
     public String toString() {
-        return super.toString();
+        return "==== Utilizador ====\n" +
+                "Nome: " + nome + "\n" +
+                "Data de Nascimento: " + dataNascimento + "\n" +
+                "NIF: " + nif + "\n" +
+                "Morada: " + morada + "\n" +
+                "Email: " + email + "\n" +
+                "===================";
     }
 }
