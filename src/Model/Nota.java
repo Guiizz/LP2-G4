@@ -6,7 +6,7 @@ public class Nota {
 
     public Nota(double valor) {
         this.valor = valor;
-        this.aprovado = valor >= 10.0; // Considera aprovado se a nota for 10 ou superior
+        this.aprovado = valor >= 10.0;
     }
 
     public double getValor() {
