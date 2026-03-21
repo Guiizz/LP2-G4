@@ -1,6 +1,6 @@
 package Model;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -12,8 +12,6 @@ public class Avaliacao {
     private List<UnidadeCurricular> uc;
     private double peso;
     private Date data;
-    private double nota;
-    private boolean aprovado;
 
     /**
      * Construtor
@@ -21,12 +19,10 @@ public class Avaliacao {
      * @param peso
      * @param data
      */
-    public Avaliacao(List<UnidadeCurricular> uc, double peso, Date data, double nota) {
+    public Avaliacao(List<UnidadeCurricular> uc, double peso, Date data) {
         this.uc = uc;
         this.peso = peso;
         this.data = data;
-        this.nota = nota;
-        this.aprovado = nota >= 10.0;
     }
 
     public List<UnidadeCurricular> getUc() {return uc;}
@@ -39,33 +35,12 @@ public class Avaliacao {
 
     public void setData(Date data) {this.data = data;}
 
-    public double getNota() {
-        return nota;
-    }
-
-    public void setNota(double nota) {
-        this.nota = nota;
-    }
-
-    /**
-     * Devolve a data formatada para dd/MM/yyyy
-     * @return data
-     */
-
-    public String getDataFormatada() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        return sdf.format(this.data);
-    }
-
-
     @Override
     public String toString() {
         return  "===== Momento de Avaliação =====\n"+
                 "Cadeira: "+ uc + "\n" +
                 "Peso: " + peso + "\n" +
-                "Data: " + getDataFormatada() + "\n" +
-                "Nota Final: " + nota + "\n" +
-                "Aprovado: " + (aprovado ? "Sim" : "Não") + "\n" +
+                "Data: " + data + "\n" +
                 "================================";
     }
 }
