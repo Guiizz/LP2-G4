@@ -20,8 +20,10 @@ public class Avaliacao {
      * @param uc
      * @param peso
      * @param data
+     * @param nota
+     * @param aprovado
      */
-    public Avaliacao(List<UnidadeCurricular> uc, double peso, Date data, double nota) {
+    public Avaliacao(List<UnidadeCurricular> uc, double peso, Date data, double nota,boolean aprovado) {
         this.uc = uc;
         this.peso = peso;
         this.data = data;
@@ -48,24 +50,21 @@ public class Avaliacao {
     }
 
     /**
-     * Devolve a data formatada para dd/MM/yyyy
-     * @return data
+     * Devolve a data formatada em dd/MM/yyyy
+     * @return data formatada
      */
-
     public String getDataFormatada() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         return sdf.format(this.data);
     }
 
-
     @Override
-    public String toString() {
+    public String toStringAvaliacao() {
         return  "===== Momento de Avaliação =====\n"+
                 "Cadeira: "+ uc + "\n" +
                 "Peso: " + peso + "\n" +
-                "Data: " + getDataFormatada() + "\n" +
-                "Nota Final: " + nota + "\n" +
-                "Aprovado: " + (aprovado ? "Sim" : "Não") + "\n" +
+                "Nota: " + nota + "\n" +
+                "Data: " + data + "\n" +
                 "================================";
     }
 }
