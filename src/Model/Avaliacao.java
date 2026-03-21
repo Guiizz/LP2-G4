@@ -59,7 +59,7 @@ public class Avaliacao {
     }
 
     @Override
-    public String toStringAvaliacao() {
+    public String toString() {
         return  "===== Momento de Avaliação =====\n"+
                 "Cadeira: "+ uc + "\n" +
                 "Peso: " + peso + "\n" +
