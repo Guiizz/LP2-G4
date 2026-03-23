@@ -31,6 +31,10 @@ public class Avaliacao {
         this.aprovado = nota >= 10.0;
     }
 
+    /**
+     * Gets e Sets
+     * @return
+     */
     public List<UnidadeCurricular> getUc() {return uc;}
 
     public double getPeso() {return peso;}
@@ -58,6 +62,10 @@ public class Avaliacao {
         return sdf.format(this.data);
     }
 
+    /**
+     * toSting Avaliação
+     * @return
+     */
     @Override
     public String toString() {
         return  "===== Momento de Avaliação =====\n"+
