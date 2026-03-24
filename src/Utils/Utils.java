@@ -50,4 +50,55 @@ public class Utils {
             throw new IllegalArgumentException("A morada não pode ser vazia.");
         }
     }
+
+    /**
+     * Valida o formato do email institucional (@issmf.pt).
+     * @param email O email a validar.
+     * @throws IllegalArgumentException Se o email for nulo, vazio ou com formato inválido.
+     */
+    public static void validarEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("O email não pode ser vazio.");
+        }
+        if (!email.endsWith("@issmf.pt")) {
+            throw new IllegalArgumentException("Email inválido. Deve ter o formato @issmf.pt.");
+        }
+    }
+
+    /**
+     * Valida se uma nota está dentro do intervalo permitido (0 a 20).
+     * @param nota A nota a validar.
+     * @throws IllegalArgumentException Se a nota estiver fora do intervalo.
+     */
+    public static void validarNota(double nota) {
+        if (nota < 0 || nota > 20) {
+            throw new IllegalArgumentException("Nota inválida. Nota deve ser entre 0 e 20.");
+        }
+    }
+
+    /**
+     * Valida se uma palavra-passe não é nula ou vazia.
+     * @param password A palavra-passe a validar.
+     * @throws IllegalArgumentException Se a palavra-passe for nula ou vazia.
+     */
+    public static void validarPassword(String password) {
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("A palavra-passe não pode ser vazia.");
+        }
+    }
+
+    // validação das siglas.
+    /**
+     * Valida a sigla de uma entidade (ex: departamento ou docente).
+     * A sigla deve conter exatamente 3 caracteres alfabéticos (letras).
+     *
+     * @param sigla A sigla a validar.
+     * @throws IllegalArgumentException Se a sigla for nula, tiver comprimento diferente de 3
+     *                                  ou contiver caracteres que não sejam letras.
+     */
+    public static void validarSigla(String sigla) {
+        if (sigla == null || !sigla.matches("[A-Za-z]{3}")) {
+            throw new IllegalArgumentException("Sigla inválida. Deve conter exatamente 3 letras.");
+        }
+    }
 }

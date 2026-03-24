@@ -11,18 +11,15 @@ public class Estudante extends Utilizador {
     private static int contadorSequencial = 260001;
     private String numMecanografico;
     private int anoAtual;
-    private Curso curso;
     private ArrayList<Inscricao> inscricoes;
-
     /**
      * Construtor da classe Estudante.
      * @param nome Nome do estudante.
      * @param dataNascimento Data de nascimento do estudante.
      * @param nif Número de Identificação fiscal do estudante.
      * @param morada Morada do estudante.
-     * @param curso Curso que o estudante se está a inscrever.
      */
-    public Estudante(String nome, LocalDate dataNascimento, String nif, String morada, Curso curso) {
+    public Estudante(String nome, LocalDate dataNascimento, String nif, String morada) {
         super(nome, dataNascimento, nif, morada, "","");
         this.numMecanografico = String.valueOf(contadorSequencial++);
         String emailAutomatico = this.numMecanografico + "@issmf.pt";
@@ -30,7 +27,6 @@ public class Estudante extends Utilizador {
         this.setEmail(emailAutomatico);
         this.setPassword(passAutomatica);
         this.anoAtual = 1;
-        this.curso = curso;
         this.inscricoes = new ArrayList<>();
     }
 
@@ -75,22 +71,6 @@ public class Estudante extends Utilizador {
     }
 
     /**
-     * Obtém o curso em que o estudante está matriculado.
-     * @return o objeto (Curso).
-     */
-    public Curso getCurso() {
-        return curso;
-    }
-
-    /**
-     * Altera o curso em que o estudante está matriculado.
-     * @param curso O novo objeto Curso a associar ao estudante.
-     */
-    public void setCurso(Curso curso) {
-        this.curso = curso;
-    }
-
-    /**
      * Obtém o histórico de inscrições do estudante.
      * @return Uma lista com todas as inscrições associadas ao estudante.
      */
@@ -113,12 +93,13 @@ public class Estudante extends Utilizador {
     @Override
     public String toString() {
         return "=== Ficha de Estudante ===\n" +
-                "Nome: " + getNome() + "\n" +
                 "NºMecanográfico: " + getNumMecanografico() + "\n" +
+                "Nome: " + getNome() + "\n" +
                 "E-mail: " + getEmail() + "\n" +
-                "Morada: " + getMorada() + "\n" +
-                "Curso:" + getCurso().getNomeCurso() + "\n" +
                 "Ano: " + getAnoAtual() + "\n" +
+                "Data de Nascimento: " + getDataNascimento() + "\n" +
+                "NIF " + getNif() + "\n" +
+                "Morada: " + getMorada() + "\n" +
                 "=========================";
     }
 }
