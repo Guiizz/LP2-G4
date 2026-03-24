@@ -88,4 +88,17 @@ public class Utils {
     }
 
     // validação das siglas.
+    /**
+     * Valida a sigla de uma entidade (ex: departamento ou docente).
+     * A sigla deve conter exatamente 3 caracteres alfabéticos (letras).
+     *
+     * @param sigla A sigla a validar.
+     * @throws IllegalArgumentException Se a sigla for nula, tiver comprimento diferente de 3
+     *                                  ou contiver caracteres que não sejam letras.
+     */
+    public static void validarSigla(String sigla) {
+        if (sigla == null || !sigla.matches("[A-Za-z]{3}")) {
+            throw new IllegalArgumentException("Sigla inválida. Deve conter exatamente 3 letras.");
+        }
+    }
 }
