@@ -1,7 +1,6 @@
 package Model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Docente extends Utilizador {
@@ -48,23 +47,6 @@ public class Docente extends Utilizador {
     }
 
     /**
-     * toStringDetalhado
-     * @return
-     */
-    @Override
-    public String toStringDetalhado() {
-        return  "===== Ficha do Docente =====\n" +
-                "Nome: " + getNome() + "\n" +
-                "Data de Nascimento: " + getDataNascimento() + "\n" +
-                "NIF: " + getNif() + "\n" +
-                "Morada: " + getMorada() + "\n" +
-                "Email: " + getEmail() + "\n" +
-                "Sigla: " + sigla + "\n" +
-                "Unidades Lecionadas: " + unidadesLecionadas + "\n" +
-                "============================";
-    }
-
-    /**
      * toString
      * @return
      */
@@ -73,6 +55,22 @@ public class Docente extends Utilizador {
         return "===== Ficha do Docente =====\n" +
                 "Nome: " + getNome() + "\n" +
                 "Email: " + getEmail() + "\n" +
+                "Unidades Lecionadas: " + unidadesLecionadas + "\n" +
+                "============================";
+    }
+
+    /**
+     * toStringDetalhado
+     * @return
+     */
+    public String toStringDetalhado() {
+        return  "===== Ficha do Docente =====\n" +
+                "Nome: " + getNome() + "\n" +
+                "Data de Nascimento: " + getDataNascimento() + "\n" +
+                "NIF: " + getNif() + "\n" +
+                "Morada: " + getMorada() + "\n" +
+                "Email: " + getEmail() + "\n" +
+                "Sigla: " + sigla + "\n" +
                 "Unidades Lecionadas: " + unidadesLecionadas + "\n" +
                 "============================";
     }
