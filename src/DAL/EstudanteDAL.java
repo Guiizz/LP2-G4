@@ -49,10 +49,15 @@ public class EstudanteDAL {
 
     /**
      * Remove o estudante da lista pelo número mecanográfico.
-     * @param estudante O estudante a remover.
+     * @param numMecanografico O número mecanográfico do aluno a remover.
      */
-    public void removerEstudante(Estudante estudante){
-        estudantes.remove(estudante);
+    public void removerEstudante(String numMecanografico){
+        for (int i = 0; i < estudantes.size(); i++){
+            if (estudantes.get(i).getNumMecanografico().equals(numMecanografico)){
+                estudantes.remove(i);
+                return;
+            }
+        }
     }
 
     /**
