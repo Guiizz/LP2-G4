@@ -1,5 +1,7 @@
 package Model;
 
+import java.util.ArrayList;
+
 /**
  * Registo de inscrição de um estudante num determinado ano letivo.
  */
@@ -7,6 +9,7 @@ public class Inscricao {
     private int anoLetivo;
     private int anoDeCurso;
     private Curso curso;
+    private ArrayList<Avaliacao> avaliacoes;
 
     /**
      * Construtor da classe Inscricao.
@@ -18,6 +21,7 @@ public class Inscricao {
         this.anoLetivo = anoLetivo;
         this.anoDeCurso = anoDeCurso;
         this.curso = curso;
+        this.avaliacoes = new ArrayList<>();
     }
 
     /**
@@ -43,6 +47,14 @@ public class Inscricao {
     public Curso getCurso() {
         return curso;
     }
+
+    public ArrayList<Avaliacao> getAvaliacoes() {
+        return avaliacoes;
+    }
+
+public void adicionarAvaliacao(Avaliacao avaliacao){
+        this.avaliacoes.add(avaliacao);
+}
 
     /**
      * Formato em texto da ficha Inscricao
