@@ -21,12 +21,12 @@ public class Docente extends Utilizador {
      * @param unidadesLecionadas
      */
     public Docente(String nome, LocalDate dataNascimento, String nif, String morada, String sigla, List<UnidadeCurricular> unidadesLecionadas) {
+        this.sigla = sigla;
         super(nome, dataNascimento, nif, morada,"", "");
         String emailAutomatico = this.sigla + "@issmf.pt";
         String passwordAutomatico = "Issmf" + this.sigla;
         this.setEmail(emailAutomatico);
         this.setPassword(passwordAutomatico);
-        this.sigla = sigla;
         this.unidadesLecionadas = unidadesLecionadas;
     }
 
