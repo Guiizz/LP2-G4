@@ -34,6 +34,14 @@ public class Curso {
     }
 
     /**
+     * Define o nome do curso.
+     * @param nomeCurso O novo nome do curso.
+     */
+    public void setNomeCurso(String nomeCurso) {
+        this.nomeCurso = nomeCurso;
+    }
+
+    /**
      * Obtém o departamento responsável pelo curso.
      * @return O objeto Departamento.
      */
