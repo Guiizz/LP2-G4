@@ -194,7 +194,7 @@ public class EstudanteBLL {
             throw new IllegalArgumentException("Estudante não tem as avaliações registadas.");
         }
         double percentagemAprovacao = (double) ucsAprovados / totalUCs;
-        if (percentagemAprovacao <= 0.60){
+        if (percentagemAprovacao < 0.60){
             throw new IllegalArgumentException("O estudante não cumpre os requisitos para progredir de ano.\n" +
                     "Aprovação atual: " + String.format("%.1f", percentagemAprovacao * 100) + "% (mínimo necessário: 60%).");
         }
