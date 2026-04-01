@@ -1,6 +1,7 @@
 package Utils;
 
 import java.time.LocalDate;
+import java.util.Scanner;
 
 /**
  * Classe com métodos de validação reutilizáveis por todas as BLLs.
@@ -99,6 +100,31 @@ public class Utils {
     public static void validarSigla(String sigla) {
         if (sigla == null || !sigla.matches("[A-Za-z]{3}")) {
             throw new IllegalArgumentException("Sigla inválida. Deve conter exatamente 3 letras.");
+        }
+    }
+
+
+    public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
+        while (true) {
+            System.out.println("\n╔══════════════════════════════════════╗");
+            System.out.printf( "║  %-36s║%n", titulo);
+            System.out.println("╠══════════════════════════════════════╣");
+            for (int i = 0; i < opcoes.length; i++) {
+                System.out.printf("║  %d - %-33s║%n", i + 1, opcoes[i]);
+            }
+            System.out.println("║  0 - Voltar / Sair                   ║");
+            System.out.println("╚══════════════════════════════════════╝");
+            System.out.print("  Opção: ");
+
+            String linha = scanner.nextLine().trim();
+            try {
+                int opcao = Integer.parseInt(linha);
+                if (opcao >= 0 && opcao <= opcoes.length) {
+                    return opcao;
+                }
+            } catch (NumberFormatException ignored) {}
+
+            System.out.println("  [!] Opção inválida. Tente novamente.");
         }
     }
 }
