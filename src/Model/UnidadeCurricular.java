@@ -19,11 +19,11 @@ public class UnidadeCurricular {
      * @param ano
      * @param avaliacoes
      */
-    public UnidadeCurricular(String nome, int ano, List<Avaliacao> avaliacoes) {
+    public UnidadeCurricular(String nome, int ano, int ects, List<Avaliacao> avaliacoes) {
         this.nome = nome;
         this.anoCurricular = ano;
         this.ects = ects;
-        this.avaliacoes = new ArrayList<>();
+        this.avaliacoes = avaliacoes;
     }
 
     /**
