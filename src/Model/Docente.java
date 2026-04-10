@@ -22,11 +22,7 @@ public class Docente extends Utilizador {
      */
     public Docente(String nome, LocalDate dataNascimento, String nif, String morada, String sigla, List<UnidadeCurricular> unidadesLecionadas) {
         this.sigla = sigla;
-        super(nome, dataNascimento, nif, morada,"", "");
-        String emailAutomatico = this.sigla + "@issmf.pt";
-        String passwordAutomatico = "Issmf" + this.sigla;
-        this.setEmail(emailAutomatico);
-        this.setPassword(passwordAutomatico);
+        super(nome, dataNascimento, nif, morada,sigla + "@issmf.pt", "Issmf" + sigla);
         this.unidadesLecionadas = unidadesLecionadas;
     }
 
