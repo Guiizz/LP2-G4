@@ -21,8 +21,8 @@ public class Docente extends Utilizador {
      * @param unidadesLecionadas
      */
     public Docente(String nome, LocalDate dataNascimento, String nif, String morada, String sigla, List<UnidadeCurricular> unidadesLecionadas) {
-        this.sigla = sigla;
         super(nome, dataNascimento, nif, morada,sigla + "@issmf.pt", "Issmf" + sigla);
+        this.sigla = sigla;
         this.unidadesLecionadas = unidadesLecionadas;
     }
 

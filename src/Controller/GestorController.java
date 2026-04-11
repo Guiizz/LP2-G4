@@ -18,8 +18,8 @@ public class GestorController {
      * Construtor do GestorController.
      * Inicializa a camada de negócio do Gestor.
      */
-    public GestorController() {
-        this.gestorBLL = new GestorBLL();
+    public GestorController(GestorBLL gestorBLL) {
+        this.gestorBLL = gestorBLL;
     }
 
     /**

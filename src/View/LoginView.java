@@ -1,9 +1,9 @@
 package View;
 
-import BLL.DocenteBLL;
-import BLL.EstudanteBLL;
-import BLL.GestorBLL;
-import Controller.EstudanteControl;
+
+import Controller.DocenteController;
+import Controller.EstudanteController;
+import Controller.GestorController;
 import Model.Docente;
 import Model.Estudante;
 import Model.Gestor;
@@ -12,15 +12,15 @@ import Utils.Utils;
 import java.util.Scanner;
 
 public class LoginView {
-    private EstudanteBLL estudanteBLL;
-    private DocenteBLL docenteBLL;
-    private GestorBLL gestorBLL;
+    private EstudanteController estudanteController;
+    private DocenteController docenteController;
+    private GestorController gestorController;
     private Scanner scanner;
 
-    public LoginView(EstudanteBLL estudanteBLL, DocenteBLL docenteBLL, GestorBLL gestorBLL, Scanner scanner) {
-        this.estudanteBLL = estudanteBLL;
-        this.docenteBLL = docenteBLL;
-        this.gestorBLL = gestorBLL;
+    public LoginView(EstudanteController estudanteController, DocenteController docenteController, GestorController gestorController, Scanner scanner) {
+        this.estudanteController = estudanteController;
+        this.docenteController = docenteController;
+        this.gestorController = gestorController;
         this.scanner = scanner;
     }
 
@@ -61,16 +61,16 @@ public class LoginView {
 
         try {
             if (prefixo.equals("gestor")){
-                Gestor gestor = gestorBLL.autenticar(email, password);
-                new GestorView(gestorBLL,estudanteBLL, docenteBLL, scanner).iniciar(gestor);
+                Gestor gestor = gestorController.autenticar(email,password);
+                new GestorView(gestorController, estudanteController, docenteController, scanner).iniciar(gestor);
 
             }else if (prefixo.matches("[A-Za-z]{3}")){
-                Docente docente = docenteBLL.autenticar(email, password);
-                new DocenteView(docenteBLL, scanner).iniciar(docente);
+                Docente docente = docenteController.autenticar(email, password);
+                new DocenteView(docenteController, scanner).iniciar(docente);
 
             } else if (prefixo.matches("\\d+")) {
-                Estudante estudante = estudanteBLL.autenticarEmail(email, password);
-                new EstudanteView(new EstudanteControl(estudanteBLL), scanner).iniciar(estudante);
+                Estudante estudante = estudanteController.autenticarEstudante(email, password);
+                new EstudanteView(estudanteController, scanner).iniciar(estudante);
 
             } else {
                 System.out.println("  [!] Tipo de utilizador não reconhecido.");

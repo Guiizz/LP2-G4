@@ -1,6 +1,6 @@
 package View;
 
-import Controller.EstudanteControl;
+import Controller.EstudanteController;
 import Model.Avaliacao;
 import Model.Estudante;
 import Model.Inscricao;
@@ -15,10 +15,10 @@ import java.util.Scanner;
  */
 public class EstudanteView {
 
-   private EstudanteControl control;
+   private EstudanteController control;
    private Scanner scanner;
 
-    public EstudanteView(EstudanteControl control, Scanner scanner) {
+    public EstudanteView(EstudanteController control, Scanner scanner) {
         this.control = control;
         this.scanner = scanner;
     }
