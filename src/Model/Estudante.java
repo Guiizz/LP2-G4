@@ -86,6 +86,10 @@ public class Estudante extends Utilizador {
         this.inscricoes.add(inscricao);
     }
 
+    public void setNumMecanografico(String numMecanografico) {
+        this.numMecanografico = numMecanografico;
+    }
+
     /**
      * Formato de texto da ficha estudante.
      * @return Uma String formatada com os detalhes do estudante.
