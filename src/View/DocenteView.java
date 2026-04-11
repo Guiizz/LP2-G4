@@ -1,6 +1,7 @@
 package View;
 
 import BLL.DocenteBLL;
+import Controller.DocenteController;
 import Model.Docente;
 import Utils.Utils;
 
@@ -12,15 +13,15 @@ import java.util.Scanner;
      */
 public class DocenteView {
 
-    private DocenteBLL docenteBLL;
+    private DocenteController controller;
     private Scanner scanner;
 
-    public DocenteView(DocenteBLL docenteBLL, Scanner scanner) {
-        this.docenteBLL = docenteBLL;
-        this.scanner    = scanner;
-    }
+        public DocenteView(DocenteController controller, Scanner scanner) {
+            this.controller = controller;
+            this.scanner = scanner;
+        }
 
-    /**
+        /**
      * Ponto de entrada da área do docente.
      * @param docente O docente autenticado.
      */

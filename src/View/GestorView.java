@@ -2,9 +2,9 @@ package View;
 
 import BLL.CursoBLL;
 import BLL.DepartamentoBLL;
-import BLL.DocenteBLL;
-import BLL.EstudanteBLL;
-import BLL.GestorBLL;
+import Controller.DocenteController;
+import Controller.EstudanteController;
+import Controller.GestorController;
 import Model.Curso;
 import Model.Departamento;
 import Model.Docente;
@@ -18,17 +18,17 @@ import java.util.Scanner;
 
 public class GestorView {
 
-    private GestorBLL gestorBLL;
-    private EstudanteBLL estudanteBLL;
-    private DocenteBLL docenteBLL;
+    private GestorController gestorController;
+    private EstudanteController estudanteController;
+    private DocenteController docenteController;
     private DepartamentoBLL departamentoBLL;
     private CursoBLL cursoBLL;
     private Scanner scanner;
 
-    public GestorView(GestorBLL gestorBLL, EstudanteBLL estudanteBLL, DocenteBLL docenteBLL, Scanner scanner) {
-        this.gestorBLL = gestorBLL;
-        this.estudanteBLL = estudanteBLL;
-        this.docenteBLL = docenteBLL;
+    public GestorView(GestorController gestorController, EstudanteController estudanteController, DocenteController docenteController, Scanner scanner) {
+        this.gestorController = gestorController;
+        this.estudanteController = estudanteController;
+        this.docenteController = docenteController;
         this.departamentoBLL = new DepartamentoBLL();
         this.cursoBLL = new CursoBLL();
         this.scanner = scanner;
@@ -49,13 +49,13 @@ public class GestorView {
             opcao = Utils.mostrarMenu("ÁREA DO GESTOR [" + gestor.getEmail() + "]", opcoes, scanner);
 
             switch (opcao) {
-                case 1 -> verFicha(gestor);
-                case 2 -> menuGestores();
-                case 3 -> menuEstudantes();
-                case 4 -> menuDocentes();
-                case 5 -> menuDepartamentos();
-                case 6 -> menuCursos();
-                case 0 -> System.out.println("  A terminar sessão...");
+                case 1: verFicha(gestor); break;
+                case 2: menuGestores(); break;
+                case 3: menuEstudantes(); break;
+                case 4: menuDocentes(); break;
+                case 5: menuDepartamentos(); break;
+                case 6: menuCursos(); break;
+                case 0: System.out.println("  A terminar sessão...");break;
             }
         } while (opcao != 0);
     }
@@ -86,11 +86,11 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1 -> registarGestor();
-                    case 2 -> listarGestores();
-                    case 3 -> procurarGestorPorNif();
-                    case 4 -> removerGestor();
-                    case 0 -> System.out.println("  A voltar...");
+                    case 1: registarGestor(); break;
+                    case 2: listarGestores(); break;
+                    case 3: procurarGestorPorNif(); break;
+                    case 4: removerGestor(); break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -118,13 +118,13 @@ public class GestorView {
         System.out.print("Password: ");
         String password = scanner.nextLine().trim();
 
-        gestorBLL.registarGestor(nome, dataNascimento, nif, morada, email, password);
+        gestorController.registarGestor(nome, dataNascimento, nif, morada, email, password);
         System.out.println("  [✓] Gestor registado com sucesso.");
     }
 
     private void listarGestores() {
         System.out.println("\n--- Lista de Gestores ---");
-        ArrayList<Gestor> gestores = gestorBLL.listarGestores();
+        ArrayList<Gestor> gestores = gestorController.listarGestores();
 
         if (gestores.isEmpty()) {
             System.out.println("  (sem gestores registados)");
@@ -141,7 +141,7 @@ public class GestorView {
         System.out.print("\nNIF do gestor: ");
         String nif = scanner.nextLine().trim();
 
-        Gestor gestor = gestorBLL.procurarPorNif(nif);
+        Gestor gestor = gestorController.procurarPorNif(nif);
 
         if (gestor == null) {
             System.out.println("  [!] Gestor não encontrado.");
@@ -155,7 +155,7 @@ public class GestorView {
         System.out.print("\nNIF do gestor a remover: ");
         String nif = scanner.nextLine().trim();
 
-        gestorBLL.removerGestor(nif);
+        gestorController.removerGestor(nif);
         System.out.println("  [✓] Gestor removido com sucesso.");
     }
 
@@ -177,11 +177,11 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1 -> registarEstudante();
-                    case 2 -> listarEstudantes();
-                    case 3 -> procurarEstudante();
-                    case 4 -> removerEstudante();
-                    case 0 -> System.out.println("  A voltar...");
+                    case 1: registarEstudante(); break;
+                    case 2: listarEstudantes(); break;
+                    case 3: procurarEstudante();break;
+                    case 4: removerEstudante(); break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -203,7 +203,7 @@ public class GestorView {
         System.out.print("Morada: ");
         String morada = scanner.nextLine().trim();
 
-        Estudante estudante = estudanteBLL.registarEstudante(nome, dataNascimento, nif, morada);
+        Estudante estudante = estudanteController.registarEstudante(nome, dataNascimento, nif, morada);
 
         System.out.println("  [✓] Estudante registado com sucesso.");
         System.out.println("  Nº Mecanográfico: " + estudante.getNumMecanografico());
@@ -213,7 +213,7 @@ public class GestorView {
 
     private void listarEstudantes() {
         System.out.println("\n--- Lista de Estudantes ---");
-        ArrayList<Estudante> estudantes = estudanteBLL.listarEstudante();
+        ArrayList<Estudante> estudantes = estudanteController.listarEstudante();
 
         if (estudantes.isEmpty()) {
             System.out.println("  (sem estudantes registados)");
@@ -230,7 +230,7 @@ public class GestorView {
         System.out.print("\nNº Mecanográfico: ");
         String numero = scanner.nextLine().trim();
 
-        Estudante estudante = estudanteBLL.procurarPorNumMecanografico(numero);
+        Estudante estudante = estudanteController.procurarPorNumMecanografico(numero);
 
         if (estudante == null) {
             System.out.println("  [!] Estudante não encontrado.");
@@ -244,7 +244,7 @@ public class GestorView {
         System.out.print("\nNº Mecanográfico do estudante a remover: ");
         String numero = scanner.nextLine().trim();
 
-        estudanteBLL.removerEstudante(numero);
+        estudanteController.removerEstudante(numero);
         System.out.println("  [✓] Estudante removido com sucesso.");
     }
 
@@ -266,11 +266,11 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1 -> registarDocente();
-                    case 2 -> listarDocentes();
-                    case 3 -> procurarDocente();
-                    case 4 -> removerDocente();
-                    case 0 -> System.out.println("  A voltar...");
+                    case 1: registarDocente(); break;
+                    case 2: listarDocentes(); break;
+                    case 3: procurarDocente(); break;
+                    case 4: removerDocente(); break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -296,7 +296,7 @@ public class GestorView {
         String sigla = scanner.nextLine().trim();
 
         Docente docente = new Docente(nome, dataNascimento, nif, morada, sigla, new ArrayList<>());
-        docenteBLL.registarDocente(docente);
+        docenteController.registarDocente(docente);
 
         System.out.println("  [✓] Docente registado com sucesso.");
         System.out.println("  E-mail: " + docente.getEmail());
@@ -305,7 +305,7 @@ public class GestorView {
 
     private void listarDocentes() {
         System.out.println("\n--- Lista de Docentes ---");
-        ArrayList<Docente> docentes = docenteBLL.listarDocentes();
+        ArrayList<Docente> docentes = docenteController.listarDocentes();
 
         if (docentes.isEmpty()) {
             System.out.println("  (sem docentes registados)");
@@ -322,7 +322,7 @@ public class GestorView {
         System.out.print("\nSigla do docente: ");
         String sigla = scanner.nextLine().trim();
 
-        Docente docente = docenteBLL.procurarPorSigla(sigla);
+        Docente docente = docenteController.procurarPorSigla(sigla);
 
         if (docente == null) {
             System.out.println("  [!] Docente não encontrado.");
@@ -336,7 +336,7 @@ public class GestorView {
         System.out.print("\nSigla do docente a remover: ");
         String sigla = scanner.nextLine().trim();
 
-        docenteBLL.removerDocente(sigla);
+        docenteController.removerDocente(sigla);
         System.out.println("  [✓] Docente removido com sucesso.");
     }
 
@@ -357,10 +357,10 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1 -> registarDepartamento();
-                    case 2 -> listarDepartamentos();
-                    case 3 -> procurarDepartamento();
-                    case 0 -> System.out.println("  A voltar...");
+                    case 1: registarDepartamento();break;
+                    case 2: listarDepartamentos(); break;
+                    case 3: procurarDepartamento(); break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -427,10 +427,10 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1 -> registarCurso();
-                    case 2 -> listarCursos();
-                    case 3 -> procurarCurso();
-                    case 0 -> System.out.println("  A voltar...");
+                    case 1: registarCurso(); break;
+                    case 2: listarCursos(); break;
+                    case 3: procurarCurso(); break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());

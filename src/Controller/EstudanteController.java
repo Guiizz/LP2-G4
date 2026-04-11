@@ -9,14 +9,14 @@ import java.util.ArrayList;
 /**
  * Controller responsável pela ligação entre a View e a BLL do Estudante.
  */
-public class EstudanteControl {
+public class EstudanteController {
     private EstudanteBLL estudanteBLL;
 
     /**
      * Construtor do EstudanteController.
      * @param estudanteBLL A camada BLL a utilizar.
      */
-    public EstudanteControl(EstudanteBLL estudanteBLL) {
+    public EstudanteController(EstudanteBLL estudanteBLL) {
         this.estudanteBLL = estudanteBLL;
     }
 
