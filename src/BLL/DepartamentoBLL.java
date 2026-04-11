@@ -2,6 +2,9 @@ package BLL;
 
 import DAL.DepartamentoDAL;
 import Model.Departamento;
+
+import java.util.ArrayList;
+
 import static Utils.Utils.*;
 
 public class DepartamentoBLL {
@@ -24,6 +27,10 @@ public class DepartamentoBLL {
 
         Departamento novoDepartamento = new Departamento(nome, sigla);
         return departamentoDAL.adicionarDepartamento(novoDepartamento);
+    }
+
+    public ArrayList<Departamento> listarDepartamentos() {
+        return departamentoDAL.listarDepartamentos();
     }
 
     public Departamento procurarDepartamento(String sigla){

@@ -32,7 +32,7 @@ public class LoginView {
         String[] opcoes = {"Login"};
         int opcao;
         do {
-            opcao = Utils.mostrarMenu("ISSMF - PORTAL", opcoes, Scanner);
+            opcao = Utils.mostrarMenu("ISSMF - PORTAL", opcoes, scanner);
             if (opcao == 1){
                 efetuarLogin();
             }
