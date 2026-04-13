@@ -144,4 +144,23 @@ public class Utils {
         }
         return sb.toString();
     }
+
+    private Scanner scanner = new Scanner(System.in);
+
+    /**
+     * Pausa a execucao do programa até o utilizador pressionar Enter.
+     */
+    private void pausar() {
+        System.out.print("\nPressione Enter para continuar...");
+        scanner.nextLine();
+    }
+
+    /**
+     * Limpa o ecra da consola.
+     */
+    private void limparEcra() {
+        for (int i = 0; i < 20; i++) {
+            System.out.println();
+        }
+    }
 }
