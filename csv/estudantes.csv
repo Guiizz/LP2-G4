@@ -1,5 +1,2 @@
 nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password
-Joao Silva;2002-03-14;345678901;Rua do Sol 22, Porto;1000;2;1000@isq.pt;Pass1000
-Maria Sousa;2001-11-02;456789012;Rua da Escola 8, Gaia;1001;3;1001@isq.pt;Pass1001
-Tiago Ferreira;2003-07-25;567890123;Av. da Liberdade 99, Lisboa;1002;1;1002@isq.pt;Pass1002
 Ana Silva;2003-05-10;123456789;Porto;260001;1;260001@issmf.pt;Issmf260001
