@@ -11,11 +11,7 @@ import java.util.Scanner;
 
 /**
  * Ponto de arranque da aplicação ISSMF.
- *
  * Hierarquia:  DAL → BLL → Controller → View
- *
- * Nota: O GestorController e GestorView estão em desenvolvimento.
- *       O login de gestor autentica mas não abre menu por enquanto.
  */
 public class Main {
 

@@ -27,8 +27,8 @@ public class CursoBLL {
     /**
      * Construtor da classe CursoBLL.
      */
-    public CursoBLL() {
-        this.cursoDAL = new CursoDAL();
+    public CursoBLL(CursoDAL cursoDAL) {
+        this.cursoDAL = cursoDAL;
     }
 
     // -------------------------------------------------------------------------

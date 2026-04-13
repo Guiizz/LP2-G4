@@ -10,8 +10,8 @@ import static Utils.Utils.*;
 public class DepartamentoBLL {
     private DepartamentoDAL departamentoDAL;
 
-    public DepartamentoBLL(){
-        this.departamentoDAL = new DepartamentoDAL();
+    public DepartamentoBLL(DepartamentoDAL departamentoDAL) {
+        this.departamentoDAL = departamentoDAL;
     }
 
     public Departamento registarDepartamento(String nome, String sigla){
