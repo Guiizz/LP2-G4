@@ -106,8 +106,8 @@ public class Utils {
 
     public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
 
-        // 1. Descobrir qual é a linha mais comprida (para calcular a largura dinâmica)
-        int larguraMaxima = ("  " + titulo).length(); // Começamos com o tamanho do título
+
+        int larguraMaxima = ("  " + titulo).length();
 
         for (int i = 0; i < opcoes.length; i++) {
             String linhaOpcao = "  " + (i + 1) + " - " + opcoes[i];
@@ -121,11 +121,8 @@ public class Utils {
             larguraMaxima = linhaSair.length();
         }
 
-        // 2. Definir a largura final (A maior linha + 2 espaços de margem à direita)
-        // O Math.max garante que, no mínimo, a caixa terá sempre 38 de largura, mesmo em menus pequenos.
         final int LARGURA = Math.max(38, larguraMaxima + 2);
 
-        // 3. Desenhar o menu com a largura calculada
         while (true) {
             System.out.println("\n╔" + "═".repeat(LARGURA) + "╗");
             System.out.println("║" + padDir("  " + titulo, LARGURA) + "║");
