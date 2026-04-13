@@ -1,67 +1,54 @@
+import BLL.CursoBLL;
+import BLL.DepartamentoBLL;
 import BLL.EstudanteBLL;
 import BLL.GestorBLL;
+import BLL.UnidadeCurricularBLL;
+import Controller.CursoController;
+import Controller.DepartamentoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.GestorController;
+import Controller.UnidadeCurricularController;
 import DAL.EstudanteDAL;
 import View.LoginView;
 
 import java.time.LocalDate;
 import java.util.Scanner;
 
-/**
- * Ponto de arranque da aplicação ISSMF.
- *
- * Hierarquia:  DAL → BLL → Controller → View
- *
- * Nota: O GestorController e GestorView estão em desenvolvimento.
- *       O login de gestor autentica mas não abre menu por enquanto.
- */
 public class Main {
 
     public static void main(String[] args) {
 
-        // ── DAL ──────────────────────────────────────────────────────────────
         EstudanteDAL estudanteDAL = new EstudanteDAL();
-        // DocenteDAL é instanciado internamente no DocenteController
-        // GestorDAL é instanciado internamente na GestorBLL
 
-        // ── BLL ──────────────────────────────────────────────────────────────
         EstudanteBLL estudanteBLL = new EstudanteBLL(estudanteDAL);
-        GestorBLL    gestorBLL    = new GestorBLL();
+        GestorBLL gestorBLL = new GestorBLL();
 
-        // ── Controllers ──────────────────────────────────────────────────────
-        EstudanteController  estudanteController  = new EstudanteController(estudanteBLL);
+        EstudanteController estudanteController = new EstudanteController(estudanteBLL);
         DocenteController docenteController = new DocenteController();
         GestorController gestorController = new GestorController(gestorBLL);
+        DepartamentoController departamentoController = new DepartamentoController(new DepartamentoBLL());
+        CursoController cursoController = new CursoController(new CursoBLL());
+        UnidadeCurricularController unidadeCurricularController = new UnidadeCurricularController(new UnidadeCurricularBLL());
 
-        // ── Dados iniciais (bootstrap) ────────────────────────────────────────
         bootstrapDados(gestorBLL, estudanteBLL);
 
-        // ── Scanner partilhado ───────────────────────────────────────────────
         Scanner scanner = new Scanner(System.in);
 
-        // ── Arranque ─────────────────────────────────────────────────────────
-        new LoginView(estudanteController, docenteController, gestorController, scanner).iniciar();
+        new LoginView(
+                estudanteController,
+                docenteController,
+                gestorController,
+                departamentoController,
+                cursoController,
+                unidadeCurricularController,
+                scanner
+        ).iniciar();
 
         scanner.close();
     }
 
-    /**
-     * Popula o sistema com dados mínimos para ser possível fazer login
-     * sem precisar de registar utilizadores manualmente de raiz.
-     *
-     * Gestor por defeito:
-     *   E-mail   : gestor@issmf.pt
-     *   Password : Gestor123
-     *
-     * Estudante de teste:
-     *   E-mail   : 260001@issmf.pt
-     *   Password : Issmf260001
-     */
     private static void bootstrapDados(GestorBLL gestorBLL, EstudanteBLL estudanteBLL) {
-
-        // Gestor por defeito
         try {
             gestorBLL.registarGestor(
                     "Administrador",
@@ -71,11 +58,9 @@ public class Main {
                     "gestor@issmf.pt",
                     "Gestor123"
             );
-        } catch (IllegalArgumentException e) {
-            // Já existe — ignora
+        } catch (IllegalArgumentException ignored) {
         }
 
-        // Estudante de teste
         try {
             estudanteBLL.registarEstudante(
                     "Ana Silva",
@@ -83,8 +68,7 @@ public class Main {
                     "123456789",
                     "Porto"
             );
-        } catch (IllegalArgumentException e) {
-            // Já existe — ignora
+        } catch (IllegalArgumentException ignored) {
         }
     }
 }
