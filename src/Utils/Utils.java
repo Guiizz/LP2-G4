@@ -105,15 +105,17 @@ public class Utils {
 
 
     public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
+        final int LARGURA = 38;
+
         while (true) {
-            System.out.println("\n╔══════════════════════════════════════╗");
-            System.out.printf( "║  %-36s║%n", titulo);
-            System.out.println("╠══════════════════════════════════════╣");
+            System.out.println("\n╔" + "═".repeat(LARGURA) + "╗");
+            System.out.println("║" + padDir("  " + titulo, LARGURA) + "║");
+            System.out.println("╠" + "═".repeat(LARGURA) + "╣");
             for (int i = 0; i < opcoes.length; i++) {
-                System.out.printf("║  %d - %-33s║%n", i + 1, opcoes[i]);
+                System.out.println("║" + padDir("  " + (i + 1) + " - " + opcoes[i], LARGURA) + "║");
             }
-            System.out.println("║  0 - Voltar / Sair                   ║");
-            System.out.println("╚══════════════════════════════════════╝");
+            System.out.println("║" + padDir("  0 - Voltar / Sair", LARGURA) + "║");
+            System.out.println("╚" + "═".repeat(LARGURA) + "╝");
             System.out.print("  Opção: ");
 
             String linha = scanner.nextLine().trim();
@@ -126,5 +128,20 @@ public class Utils {
 
             System.out.println("  [!] Opção inválida. Tente novamente.");
         }
+    }
+
+    /**
+     * Preenche o texto com espaços até à largura desejada,
+     * contando caracteres visuais em vez de bytes (resolve acentos e ç).
+     */
+    private static String padDir(String texto, int largura) {
+        int visualLen = texto.codePointCount(0, texto.length());
+        int espacos = largura - visualLen;
+        if (espacos < 0) espacos = 0;
+        StringBuilder sb = new StringBuilder(texto);
+        for (int i = 0; i < espacos; i++) {
+            sb.append(' ');
+        }
+        return sb.toString();
     }
 }
