@@ -1,36 +1,47 @@
 package View;
 
-import BLL.CursoBLL;
-import BLL.DepartamentoBLL;
+import Controller.CursoController;
+import Controller.DepartamentoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.GestorController;
+import Controller.UnidadeCurricularController;
 import Model.Curso;
 import Model.Departamento;
 import Model.Docente;
 import Model.Estudante;
 import Model.Gestor;
+import Model.UnidadeCurricular;
 import Utils.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class GestorView {
 
-    private GestorController gestorController;
-    private EstudanteController estudanteController;
-    private DocenteController docenteController;
-    private DepartamentoBLL departamentoBLL;
-    private CursoBLL cursoBLL;
-    private Scanner scanner;
+    private final GestorController gestorController;
+    private final EstudanteController estudanteController;
+    private final DocenteController docenteController;
+    private final DepartamentoController departamentoController;
+    private final CursoController cursoController;
+    private final UnidadeCurricularController unidadeCurricularController;
+    private final Scanner scanner;
 
-    public GestorView(GestorController gestorController, EstudanteController estudanteController, DocenteController docenteController, Scanner scanner) {
+    public GestorView(GestorController gestorController,
+                      EstudanteController estudanteController,
+                      DocenteController docenteController,
+                      DepartamentoController departamentoController,
+                      CursoController cursoController,
+                      UnidadeCurricularController unidadeCurricularController,
+                      Scanner scanner) {
         this.gestorController = gestorController;
         this.estudanteController = estudanteController;
         this.docenteController = docenteController;
-        this.departamentoBLL = new DepartamentoBLL();
-        this.cursoBLL = new CursoBLL();
+        this.departamentoController = departamentoController;
+        this.cursoController = cursoController;
+        this.unidadeCurricularController = unidadeCurricularController;
         this.scanner = scanner;
     }
 
@@ -41,7 +52,8 @@ public class GestorView {
                 "Gerir Estudantes",
                 "Gerir Docentes",
                 "Gerir Departamentos",
-                "Gerir Cursos"
+                "Gerir Cursos",
+                "Gerir Unidades Curriculares"
         };
 
         int opcao;
@@ -49,13 +61,30 @@ public class GestorView {
             opcao = Utils.mostrarMenu("ÁREA DO GESTOR [" + gestor.getEmail() + "]", opcoes, scanner);
 
             switch (opcao) {
-                case 1: verFicha(gestor); break;
-                case 2: menuGestores(); break;
-                case 3: menuEstudantes(); break;
-                case 4: menuDocentes(); break;
-                case 5: menuDepartamentos(); break;
-                case 6: menuCursos(); break;
-                case 0: System.out.println("  A terminar sessão...");break;
+                case 1:
+                    verFicha(gestor);
+                    break;
+                case 2:
+                    menuGestores();
+                    break;
+                case 3:
+                    menuEstudantes();
+                    break;
+                case 4:
+                    menuDocentes();
+                    break;
+                case 5:
+                    menuDepartamentos();
+                    break;
+                case 6:
+                    menuCursos();
+                    break;
+                case 7:
+                    menuUnidadesCurriculares();
+                    break;
+                case 0:
+                    System.out.println("  A terminar sessão...");
+                    break;
             }
         } while (opcao != 0);
     }
@@ -86,11 +115,21 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1: registarGestor(); break;
-                    case 2: listarGestores(); break;
-                    case 3: procurarGestorPorNif(); break;
-                    case 4: removerGestor(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 1:
+                        registarGestor();
+                        break;
+                    case 2:
+                        listarGestores();
+                        break;
+                    case 3:
+                        procurarGestorPorNif();
+                        break;
+                    case 4:
+                        removerGestor();
+                        break;
+                    case 0:
+                        System.out.println("  A voltar...");
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -177,11 +216,21 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1: registarEstudante(); break;
-                    case 2: listarEstudantes(); break;
-                    case 3: procurarEstudante();break;
-                    case 4: removerEstudante(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 1:
+                        registarEstudante();
+                        break;
+                    case 2:
+                        listarEstudantes();
+                        break;
+                    case 3:
+                        procurarEstudante();
+                        break;
+                    case 4:
+                        removerEstudante();
+                        break;
+                    case 0:
+                        System.out.println("  A voltar...");
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -266,11 +315,21 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1: registarDocente(); break;
-                    case 2: listarDocentes(); break;
-                    case 3: procurarDocente(); break;
-                    case 4: removerDocente(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 1:
+                        registarDocente();
+                        break;
+                    case 2:
+                        listarDocentes();
+                        break;
+                    case 3:
+                        procurarDocente();
+                        break;
+                    case 4:
+                        removerDocente();
+                        break;
+                    case 0:
+                        System.out.println("  A voltar...");
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -357,10 +416,18 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1: registarDepartamento();break;
-                    case 2: listarDepartamentos(); break;
-                    case 3: procurarDepartamento(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 1:
+                        registarDepartamento();
+                        break;
+                    case 2:
+                        listarDepartamentos();
+                        break;
+                    case 3:
+                        procurarDepartamento();
+                        break;
+                    case 0:
+                        System.out.println("  A voltar...");
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -377,14 +444,14 @@ public class GestorView {
         System.out.print("Sigla (3 letras): ");
         String sigla = scanner.nextLine().trim();
 
-        Departamento departamento = departamentoBLL.registarDepartamento(nome, sigla);
+        Departamento departamento = departamentoController.registarDepartamento(nome, sigla);
         System.out.println("  [✓] Departamento registado com sucesso.");
         System.out.println(departamento);
     }
 
     private void listarDepartamentos() {
         System.out.println("\n--- Lista de Departamentos ---");
-        ArrayList<Departamento> departamentos = departamentoBLL.listarDepartamentos();
+        ArrayList<Departamento> departamentos = departamentoController.listarDepartamentos();
 
         if (departamentos.isEmpty()) {
             System.out.println("  (sem departamentos registados)");
@@ -400,7 +467,7 @@ public class GestorView {
         System.out.print("\nSigla do departamento: ");
         String sigla = scanner.nextLine().trim();
 
-        Departamento departamento = departamentoBLL.procurarDepartamento(sigla);
+        Departamento departamento = departamentoController.procurarDepartamento(sigla);
 
         if (departamento == null) {
             System.out.println("  [!] Departamento não encontrado.");
@@ -418,7 +485,10 @@ public class GestorView {
         String[] opcoes = {
                 "Registar Curso",
                 "Listar Cursos",
-                "Procurar Curso por Nome"
+                "Procurar Curso por Nome",
+                "Associar UC a Curso",
+                "Listar UCs de um Curso por Ano",
+                "Remover Curso"
         };
 
         int opcao;
@@ -427,10 +497,27 @@ public class GestorView {
 
             try {
                 switch (opcao) {
-                    case 1: registarCurso(); break;
-                    case 2: listarCursos(); break;
-                    case 3: procurarCurso(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 1:
+                        registarCurso();
+                        break;
+                    case 2:
+                        listarCursos();
+                        break;
+                    case 3:
+                        procurarCurso();
+                        break;
+                    case 4:
+                        associarUCaCurso();
+                        break;
+                    case 5:
+                        listarUCsCursoPorAno();
+                        break;
+                    case 6:
+                        removerCurso();
+                        break;
+                    case 0:
+                        System.out.println("  A voltar...");
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -441,7 +528,7 @@ public class GestorView {
     private void registarCurso() {
         System.out.println("\n--- Registar Curso ---");
 
-        ArrayList<Departamento> departamentos = departamentoBLL.listarDepartamentos();
+        ArrayList<Departamento> departamentos = departamentoController.listarDepartamentos();
         if (departamentos.isEmpty()) {
             System.out.println("  [!] Não existem departamentos registados. Registe primeiro um departamento.");
             return;
@@ -458,22 +545,22 @@ public class GestorView {
         System.out.print("Sigla do departamento: ");
         String sigla = scanner.nextLine().trim();
 
-        Departamento departamento = departamentoBLL.procurarDepartamento(sigla);
+        Departamento departamento = departamentoController.procurarDepartamento(sigla);
         if (departamento == null) {
             System.out.println("  [!] Departamento não encontrado.");
             return;
         }
 
-        Curso curso = cursoBLL.registarCurso(nomeCurso, departamento);
+        Curso curso = cursoController.registarCurso(nomeCurso, departamento);
         departamento.adicionarCurso(curso);
 
         System.out.println("  [✓] Curso registado com sucesso.");
-        System.out.println(curso);
+        mostrarCursoDetalhado(curso);
     }
 
     private void listarCursos() {
         System.out.println("\n--- Lista de Cursos ---");
-        ArrayList<Curso> cursos = cursoBLL.listarCursos();
+        ArrayList<Curso> cursos = cursoController.listarCursos();
 
         if (cursos.isEmpty()) {
             System.out.println("  (sem cursos registados)");
@@ -481,7 +568,7 @@ public class GestorView {
         }
 
         for (Curso c : cursos) {
-            System.out.println(c);
+            mostrarCursoDetalhado(c);
             System.out.println();
         }
     }
@@ -490,19 +577,225 @@ public class GestorView {
         System.out.print("\nNome do curso: ");
         String nome = scanner.nextLine().trim();
 
-        Curso curso = cursoBLL.procurarPorNome(nome);
+        Curso curso = cursoController.procurarPorNome(nome);
 
         if (curso == null) {
             System.out.println("  [!] Curso não encontrado.");
             return;
         }
 
-        System.out.println("\n" + curso);
+        System.out.println();
+        mostrarCursoDetalhado(curso);
+    }
+
+    private void associarUCaCurso() {
+        System.out.println("\n--- Associar Unidade Curricular a Curso ---");
+
+        ArrayList<Curso> cursos = cursoController.listarCursos();
+        if (cursos.isEmpty()) {
+            System.out.println("  [!] Não existem cursos registados.");
+            return;
+        }
+
+        ArrayList<UnidadeCurricular> unidades = unidadeCurricularController.listarUnidades();
+        if (unidades.isEmpty()) {
+            System.out.println("  [!] Não existem unidades curriculares registadas.");
+            return;
+        }
+
+        System.out.print("Nome do curso: ");
+        String nomeCurso = scanner.nextLine().trim();
+        Curso curso = cursoController.procurarPorNome(nomeCurso);
+
+        if (curso == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            return;
+        }
+
+        System.out.println("Unidades Curriculares disponíveis:");
+        for (UnidadeCurricular uc : unidades) {
+            System.out.println("  - " + uc.getNome() + " | Ano " + uc.getAnoCurricular() + " | " + uc.getEts() + " ECTS");
+        }
+
+        System.out.print("Nome da UC a associar: ");
+        String nomeUC = scanner.nextLine().trim();
+
+        UnidadeCurricular uc = procurarUCPorNome(nomeUC);
+        if (uc == null) {
+            System.out.println("  [!] Unidade Curricular não encontrada.");
+            return;
+        }
+
+        cursoController.adicionarUnidadeCurricular(curso, uc);
+        System.out.println("  [✓] Unidade Curricular associada com sucesso.");
+    }
+
+    private void listarUCsCursoPorAno() {
+        System.out.println("\n--- Listar UCs de um Curso por Ano ---");
+
+        System.out.print("Nome do curso: ");
+        String nomeCurso = scanner.nextLine().trim();
+        Curso curso = cursoController.procurarPorNome(nomeCurso);
+
+        if (curso == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            return;
+        }
+
+        int ano = lerInteiro("Ano curricular (1-3): ");
+        List<UnidadeCurricular> ucs = cursoController.listarUCsPorAno(curso, ano);
+
+        if (ucs.isEmpty()) {
+            System.out.println("  (sem UCs neste ano)");
+            return;
+        }
+
+        for (UnidadeCurricular uc : ucs) {
+            System.out.println("  - " + uc.getNome() + " | " + uc.getEts() + " ECTS");
+        }
+    }
+
+    private void removerCurso() {
+        System.out.println("\n--- Remover Curso ---");
+
+        System.out.print("Nome do curso: ");
+        String nomeCurso = scanner.nextLine().trim();
+        Curso curso = cursoController.procurarPorNome(nomeCurso);
+
+        if (curso == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            return;
+        }
+
+        cursoController.removerCurso(curso, estudanteController.listarEstudante());
+        System.out.println("  [✓] Curso removido com sucesso.");
     }
 
     // =========================================================
-    // AUXILIAR
+    // UNIDADES CURRICULARES
     // =========================================================
+
+    private void menuUnidadesCurriculares() {
+        String[] opcoes = {
+                "Registar Unidade Curricular",
+                "Listar Unidades Curriculares",
+                "Procurar Unidade Curricular por Nome",
+                "Remover Unidade Curricular"
+        };
+
+        int opcao;
+        do {
+            opcao = Utils.mostrarMenu("GESTÃO DE UNIDADES CURRICULARES", opcoes, scanner);
+
+            try {
+                switch (opcao) {
+                    case 1:
+                        registarUC();
+                        break;
+                    case 2:
+                        listarUCs();
+                        break;
+                    case 3:
+                        procurarUC();
+                        break;
+                    case 4:
+                        removerUC();
+                        break;
+                    case 0:
+                        System.out.println("  A voltar...");
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        } while (opcao != 0);
+    }
+
+    private void registarUC() {
+        System.out.println("\n--- Registar Unidade Curricular ---");
+
+        System.out.print("Nome da UC: ");
+        String nome = scanner.nextLine().trim();
+
+        int ano = lerInteiro("Ano curricular (1-3): ");
+        int ects = lerInteiro("ECTS: ");
+
+        UnidadeCurricular uc = new UnidadeCurricular(nome, ano, ects, new ArrayList<>());
+        unidadeCurricularController.adicionarUnidade(uc);
+
+        System.out.println("  [✓] Unidade Curricular registada com sucesso.");
+    }
+
+    private void listarUCs() {
+        System.out.println("\n--- Lista de Unidades Curriculares ---");
+        ArrayList<UnidadeCurricular> unidades = unidadeCurricularController.listarUnidades();
+
+        if (unidades.isEmpty()) {
+            System.out.println("  (sem unidades curriculares registadas)");
+            return;
+        }
+
+        for (UnidadeCurricular uc : unidades) {
+            System.out.println("  - " + uc.getNome() + " | Ano " + uc.getAnoCurricular() + " | " + uc.getEts() + " ECTS");
+        }
+    }
+
+    private void procurarUC() {
+        System.out.print("\nNome da UC: ");
+        String nome = scanner.nextLine().trim();
+
+        UnidadeCurricular uc = procurarUCPorNome(nome);
+        if (uc == null) {
+            System.out.println("  [!] Unidade Curricular não encontrada.");
+            return;
+        }
+
+        System.out.println("\n" + uc);
+    }
+
+    private void removerUC() {
+        System.out.print("\nNome da UC a remover: ");
+        String nome = scanner.nextLine().trim();
+
+        UnidadeCurricular uc = procurarUCPorNome(nome);
+        if (uc == null) {
+            System.out.println("  [!] Unidade Curricular não encontrada.");
+            return;
+        }
+
+        unidadeCurricularController.removerUnidade(uc);
+        System.out.println("  [✓] Unidade Curricular removida com sucesso.");
+    }
+
+    // =========================================================
+    // AUXILIARES
+    // =========================================================
+
+    private UnidadeCurricular procurarUCPorNome(String nome) {
+        ArrayList<UnidadeCurricular> unidades = unidadeCurricularController.listarUnidades();
+
+        for (UnidadeCurricular uc : unidades) {
+            if (uc.getNome().equalsIgnoreCase(nome.trim())) {
+                return uc;
+            }
+        }
+        return null;
+    }
+
+    private void mostrarCursoDetalhado(Curso curso) {
+        System.out.println(curso);
+
+        List<UnidadeCurricular> unidades = curso.getUnidades();
+        if (unidades == null || unidades.isEmpty()) {
+            System.out.println("  UCs: sem unidades curriculares associadas");
+            return;
+        }
+
+        System.out.println("  UCs associadas:");
+        for (UnidadeCurricular uc : unidades) {
+            System.out.println("   - " + uc.getNome() + " | Ano " + uc.getAnoCurricular() + " | " + uc.getEts() + " ECTS");
+        }
+    }
 
     private LocalDate lerData(String mensagem) {
         while (true) {
@@ -511,6 +804,17 @@ public class GestorView {
                 return LocalDate.parse(scanner.nextLine().trim());
             } catch (Exception e) {
                 System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
+            }
+        }
+    }
+
+    private int lerInteiro(String mensagem) {
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                return Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("  [!] Introduz um número válido.");
             }
         }
     }
