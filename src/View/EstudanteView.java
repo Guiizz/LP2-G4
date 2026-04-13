@@ -2,10 +2,12 @@ package View;
 
 import Controller.EstudanteController;
 import Model.Avaliacao;
+import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
 import Utils.Utils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -32,7 +34,8 @@ public class EstudanteView {
         String[] opcoes = {
                 "Ver a minha Ficha de Estudante",
                 "Ver as minhas Notas",
-                "Verificar Progressão de Ano"
+                "Verificar Progressão de Ano",
+                "Avançar para o Proximo Ano"
         };
 
         int opcao;
@@ -42,6 +45,7 @@ public class EstudanteView {
                 case 1: verFichaEstudante(estudante); break;
                 case 2: verNotasEstudante(estudante); break;
                 case 3: verificarProgressaoAno(estudante); break;
+                case 4: passarDeAno(estudante); break;
                 case 0: System.out.printf(" A encerrar sessão..."); break;
             }
         }while (opcao != 0);
@@ -83,6 +87,30 @@ public class EstudanteView {
                     + (estudante.getAnoAtual() + 1) + ".");
         } catch (IllegalArgumentException e) {
             System.out.println("  [!] " + e.getMessage());
+        }
+    }
+
+    private void passarDeAno(Estudante estudante){
+        System.out.println("\n--- Avançar para o Próximo Ano ---");
+        try{
+            control.verificarProgressaoAno(estudante);
+            ArrayList<Inscricao> inscricaos = estudante.getInscricoes();
+            if (inscricaos.isEmpty()){
+                System.out.println(" [!] Não tem inscrições registadas.");
+                return;
+            }
+            Curso curso = inscricaos.get(inscricaos.size() - 1).getCurso();
+
+            int novoAno = estudante.getAnoAtual() + 1;
+            int anoLetivo = LocalDate.now().getYear();
+            Inscricao novaInscrição = new Inscricao(anoLetivo, novoAno, curso);
+
+            control.passarAno(estudante, novaInscrição);
+            
+            System.out.println("  [✓] Avançou com sucesso para o ano " + novoAno + "!");
+            System.out.println("      Ano letivo: " + anoLetivo + "/" + (anoLetivo + 1));
+        } catch (IllegalArgumentException e) {
+            System.out.println(" [!] " + e.getMessage());
         }
     }
 }

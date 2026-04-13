@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class DocenteDAL {
 
-    private static final String FICHEIRO_CSV = "data/docentes.csv";
+    private static final String FICHEIRO_CSV = "csv/docentes.csv";
     private static final String SEPARADOR = ";";
 
     private ArrayList<Docente> docentes;

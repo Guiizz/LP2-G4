@@ -1,0 +1,4 @@
+nome;nif;dataNascimento;morada;email;password
+Ana Martins;123456789;1990-05-12;Rua das Flores 10, Porto;ana.martins@issmf.pt;Admin123
+Bruno Costa;234567890;1988-09-21;Av. Central 45, Braga;bruno.costa@issmf.pt;Gestor456
+Administrador;999999999;1980-01-01;ISSMF;gestor@issmf.pt;Gestor123

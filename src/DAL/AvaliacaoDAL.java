@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class AvaliacaoDAL {
 
-    private static final String FICHEIRO_CSV = "data/avaliacoes.csv";
+    private static final String FICHEIRO_CSV = "csv/avaliacoes.csv";
     private static final String SEPARADOR = ";";
     private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
 

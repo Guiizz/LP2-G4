@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class UnidadeCurricularDAL {
 
-    private static final String FICHEIRO_CSV = "data/unidades_curriculares.csv";
+    private static final String FICHEIRO_CSV = "csv/unidades_curriculares.csv";
     private static final String SEPARADOR = ";";
 
     private ArrayList<UnidadeCurricular> unidades;

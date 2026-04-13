@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class EstudanteDAL {
 
-    private static final String FICHEIRO_CSV = "data/estudantes.csv";
+    private static final String FICHEIRO_CSV = "csv/estudantes.csv";
     private static final String SEPARADOR = ";";
 
     private ArrayList<Estudante> estudantes;
