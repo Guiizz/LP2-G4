@@ -105,7 +105,23 @@ public class Utils {
 
 
     public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
-        final int LARGURA = 38;
+
+
+        int larguraMaxima = ("  " + titulo).length();
+
+        for (int i = 0; i < opcoes.length; i++) {
+            String linhaOpcao = "  " + (i + 1) + " - " + opcoes[i];
+            if (linhaOpcao.length() > larguraMaxima) {
+                larguraMaxima = linhaOpcao.length();
+            }
+        }
+
+        String linhaSair = "  0 - Voltar / Sair";
+        if (linhaSair.length() > larguraMaxima) {
+            larguraMaxima = linhaSair.length();
+        }
+
+        final int LARGURA = Math.max(38, larguraMaxima + 2);
 
         while (true) {
             System.out.println("\n╔" + "═".repeat(LARGURA) + "╗");
