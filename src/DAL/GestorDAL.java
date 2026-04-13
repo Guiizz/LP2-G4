@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class GestorDAL {
 
-    private static final String FICHEIRO_CSV = "data/gestores.csv";
+    private static final String FICHEIRO_CSV = "csv/gestores.csv";
     private static final String SEPARADOR = ";";
 
     private ArrayList<Gestor> gestores;
