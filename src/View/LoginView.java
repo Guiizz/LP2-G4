@@ -1,11 +1,6 @@
 package View;
 
-import Controller.CursoController;
-import Controller.DepartamentoController;
-import Controller.DocenteController;
-import Controller.EstudanteController;
-import Controller.GestorController;
-import Controller.UnidadeCurricularController;
+import Controller.*;
 import Model.Docente;
 import Model.Estudante;
 import Model.Gestor;
@@ -14,27 +9,23 @@ import Utils.Utils;
 import java.util.Scanner;
 
 public class LoginView {
-    private final EstudanteController estudanteController;
-    private final DocenteController docenteController;
-    private final GestorController gestorController;
-    private final DepartamentoController departamentoController;
-    private final CursoController cursoController;
-    private final UnidadeCurricularController unidadeCurricularController;
-    private final Scanner scanner;
+    private EstudanteController estudanteController;
+    private DocenteController docenteController;
+    private GestorController gestorController;
+    private DepartamentoController departamentoController;
+    private CursoController cursoController;
+    private UnidadeCurricularController unidadeCurricularController;
+    private AvaliacaoController avaliacaoController;
+    private Scanner scanner;
 
-    public LoginView(EstudanteController estudanteController,
-                     DocenteController docenteController,
-                     GestorController gestorController,
-                     DepartamentoController departamentoController,
-                     CursoController cursoController,
-                     UnidadeCurricularController unidadeCurricularController,
-                     Scanner scanner) {
+    public LoginView(EstudanteController estudanteController, DocenteController docenteController, GestorController gestorController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController, Scanner scanner) {
         this.estudanteController = estudanteController;
         this.docenteController = docenteController;
         this.gestorController = gestorController;
         this.departamentoController = departamentoController;
         this.cursoController = cursoController;
         this.unidadeCurricularController = unidadeCurricularController;
+        this.avaliacaoController = avaliacaoController;
         this.scanner = scanner;
     }
 

@@ -17,10 +17,9 @@ public class GestorBLL {
     /**
      * Construtor
      */
-    public GestorBLL() {
-        gestorDAL = new GestorDAL();
+    public GestorBLL(GestorDAL gestorDAL) {
+        this.gestorDAL = gestorDAL;
     }
-
     /**
      * Regista um novo Gestor no sistema.
      * Valida todos os dados e garante unicidade de NIF e email.

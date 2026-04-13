@@ -17,9 +17,8 @@ public class DocenteController {
      * Construtor do DocenteController.
      * Inicializa a camada de negócio com a respetiva camada de acesso a dados.
      */
-    public DocenteController() {
-        DocenteDAL docenteDAL = new DocenteDAL();
-        this.docenteBLL = new DocenteBLL(docenteDAL);
+    public DocenteController(DocenteBLL docenteBLL) {
+        this.docenteBLL = docenteBLL;
     }
 
     /**
