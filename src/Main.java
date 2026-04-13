@@ -1,9 +1,6 @@
-import BLL.EstudanteBLL;
-import BLL.GestorBLL;
-import Controller.DocenteController;
-import Controller.EstudanteController;
-import Controller.GestorController;
-import DAL.EstudanteDAL;
+import BLL.*;
+import Controller.*;
+import DAL.*;
 import View.LoginView;
 
 import java.time.LocalDate;
@@ -18,69 +15,35 @@ public class Main {
     public static void main(String[] args) {
 
         // ── DAL ──────────────────────────────────────────────────────────────
+        UnidadeCurricularDAL unidadeCurricularDAL = new UnidadeCurricularDAL();
         EstudanteDAL estudanteDAL = new EstudanteDAL();
-        // DocenteDAL é instanciado internamente no DocenteController
-        // GestorDAL é instanciado internamente na GestorBLL
-
+        GestorDAL gestorDAL = new GestorDAL();
+        DepartamentoDAL departamentoDAL = new DepartamentoDAL();
+        DocenteDAL docenteDAL = new DocenteDAL(unidadeCurricularDAL);
+        CursoDAL cursoDAL = new CursoDAL(departamentoDAL, unidadeCurricularDAL);
+        AvaliacaoDAL avaliacaoDAL = new AvaliacaoDAL(unidadeCurricularDAL);
         // ── BLL ──────────────────────────────────────────────────────────────
         EstudanteBLL estudanteBLL = new EstudanteBLL(estudanteDAL);
-        GestorBLL    gestorBLL    = new GestorBLL();
+        GestorBLL gestorBLL = new GestorBLL(gestorDAL);
+        DepartamentoBLL departamentoBLL = new DepartamentoBLL(departamentoDAL);
+        CursoBLL cursoBLL = new CursoBLL(cursoDAL);
+        DocenteBLL docenteBLL = new DocenteBLL(docenteDAL);
+        UnidadeCurricularBLL unidadeCurricularBLL = new UnidadeCurricularBLL(unidadeCurricularDAL);
+        AvaliacaoBLL avaliacaoBLL = new AvaliacaoBLL(avaliacaoDAL);
 
         // ── Controllers ──────────────────────────────────────────────────────
-        EstudanteController  estudanteController  = new EstudanteController(estudanteBLL);
-        DocenteController docenteController = new DocenteController();
+        EstudanteController estudanteController = new EstudanteController(estudanteBLL);
         GestorController gestorController = new GestorController(gestorBLL);
-
-        // ── Dados iniciais (bootstrap) ────────────────────────────────────────
-        bootstrapDados(gestorBLL, estudanteBLL);
+        DepartamentoController departamentoController = new DepartamentoController(departamentoBLL);
+        CursoController cursoController = new CursoController(cursoBLL);
+        DocenteController docenteController = new DocenteController(docenteBLL);
+        UnidadeCurricularController unidadeCurricularController = new UnidadeCurricularController(unidadeCurricularBLL);
+        AvaliacaoController avaliacaoController = new AvaliacaoController(avaliacaoBLL);
 
         // ── Scanner partilhado ───────────────────────────────────────────────
         Scanner scanner = new Scanner(System.in);
 
         // ── Arranque ─────────────────────────────────────────────────────────
-        new LoginView(estudanteController, docenteController, gestorController, scanner).iniciar();
-
-        scanner.close();
-    }
-
-    /**
-     * Popula o sistema com dados mínimos para ser possível fazer login
-     * sem precisar de registar utilizadores manualmente de raiz.
-     *
-     * Gestor por defeito:
-     *   E-mail   : gestor@issmf.pt
-     *   Password : Gestor123
-     *
-     * Estudante de teste:
-     *   E-mail   : 260001@issmf.pt
-     *   Password : Issmf260001
-     */
-    private static void bootstrapDados(GestorBLL gestorBLL, EstudanteBLL estudanteBLL) {
-
-        // Gestor por defeito
-        try {
-            gestorBLL.registarGestor(
-                    "Administrador",
-                    LocalDate.of(1980, 1, 1),
-                    "999999999",
-                    "ISSMF",
-                    "gestor@issmf.pt",
-                    "Gestor123"
-            );
-        } catch (IllegalArgumentException e) {
-            // Já existe — ignora
-        }
-
-        // Estudante de teste
-        try {
-            estudanteBLL.registarEstudante(
-                    "Ana Silva",
-                    LocalDate.of(2003, 5, 10),
-                    "123456789",
-                    "Porto"
-            );
-        } catch (IllegalArgumentException e) {
-            // Já existe — ignora
-        }
+        new LoginView(estudanteController, docenteController, gestorController, departamentoController, cursoController, unidadeCurricularController, avaliacaoController, scanner).iniciar();
     }
 }
