@@ -1,14 +1,12 @@
 package View;
 
 import Controller.EstudanteController;
-import Model.Avaliacao;
-import Model.Curso;
-import Model.Estudante;
-import Model.Inscricao;
+import Model.*;
 import Utils.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 /**
@@ -62,18 +60,58 @@ public class EstudanteView {
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
 
         if (inscricoes.isEmpty()) {
-            System.out.println("  (sem inscrições registadas)");
+            System.out.println("  (Sem inscrições registadas...)");
             return;
         }
 
         for (Inscricao inscricao : inscricoes) {
-            System.out.println("  Ano letivo: " + inscricao.getAnoDeCurso());
+            System.out.println("\n  Ano letivo: " + inscricao.getAnoDeCurso() + "/" + (inscricao.getAnoLetivo() + 1));
+            System.out.println(" Ano de Curso: " + inscricao.getAnoDeCurso() + "º Ano");
+            System.out.println(" Curso: " + inscricao.getCurso().getNomeCurso());
+            System.out.println("  ─────────────────────────────────────");
+
             ArrayList<Avaliacao> avaliacoes = inscricao.getAvaliacoes();
+
             if (avaliacoes.isEmpty()) {
-                System.out.println("    (sem avaliações lançadas)");
-            } else {
-                for (Avaliacao av : avaliacoes) {
-                    System.out.println("    - " + av);
+                System.out.println("    (Sem momentos de avaliação registados)");
+                continue;
+            }
+            java.util.LinkedHashMap<String, double[]> totaisPorUC = new LinkedHashMap<>();
+            java.util.LinkedHashMap<String, Boolean> pendentePorUC = new java.util.LinkedHashMap<>();
+            System.out.printf("    %-20s %-10s %-8s %-10s%n",
+                    "UC", "Data", "Peso", "Nota");
+            System.out.println("    ──────────────────────────────────────────");
+            for (Avaliacao av : avaliacoes) {
+                for(UnidadeCurricular uc : av.getUc()){
+                    String nomeUC = uc.getNome();
+                    String notaStr = av.getNotaFormatada();
+                    System.out.printf("    %-20s %-10s %-7.0f%% %s%n",
+                         nomeUC,
+                         av.getDataFormatada(),
+                         av.getPeso(),
+                         notaStr);
+                    totaisPorUC.putIfAbsent(nomeUC, new double[]{0,0});
+                    pendentePorUC.putIfAbsent(nomeUC, false);
+
+                    if (!av.isLancada()){
+                        pendentePorUC.put(nomeUC, true);
+                    }else {
+                     totaisPorUC.get(nomeUC)[0] += av.getNota() * av.getPeso();
+                     totaisPorUC.get(nomeUC)[1] += av.getPeso();
+                    }
+                }
+            }
+            System.out.println("    ──────────────────────────────────────────");
+            System.out.println("    NOTA FINAL POR UC:");
+            for (String nomeUC : totaisPorUC.keySet()) {
+                if (pendentePorUC.get(nomeUC)){
+                    System.out.println(" " + nomeUC + ": Pendente");
+                }else {
+                    double[] totais = totaisPorUC.get(nomeUC);
+                    double notaFinal = totais[1] > 0 ? totais[0] / totais[1] : 0;
+                    String resultado = notaFinal >= 10 ? "Aprovado" : "Reprovado";
+                    System.out.printf("      %-20s %.1f valores — %s%n",
+                            nomeUC + ":", notaFinal, resultado);
                 }
             }
         }
