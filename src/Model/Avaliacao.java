@@ -14,9 +14,10 @@ public class Avaliacao {
     private Date data;
     private double nota;
     private boolean aprovado;
+    private boolean lancada;
 
     /**
-     * Construtor
+     * Construtor para avaliação com nota já lançada (comportamento anterior mantido).
      * @param uc
      * @param peso
      * @param data
@@ -29,8 +30,20 @@ public class Avaliacao {
         this.data = data;
         this.nota = nota;
         this.aprovado = nota >= 10.0;
+        this.lancada = true;
     }
-
+    /**
+     * Construtor para avaliação ainda não lançada (Pendente).
+     * Usar quando o docente ainda não registou a nota.
+     */
+    public Avaliacao(List<UnidadeCurricular> uc, double peso, Date data) {
+        this.uc = uc;
+        this.peso = peso;
+        this.data = data;
+        this.nota = 0;
+        this.aprovado = false;
+        this.lancada = false;
+    }
     /**
      * Gets e Sets
      * @return
@@ -53,6 +66,27 @@ public class Avaliacao {
         this.nota = nota;
     }
 
+    public boolean isAprovado(){
+        return aprovado;
+    }
+
+    public boolean isLancada() { return lancada; }
+
+    public void lancarNota(double nota, boolean aprovado){
+        this.nota = nota;
+        this.aprovado = aprovado;
+        this.lancada = true;
+    }
+
+    /**
+     * Devolve a nota formatada:
+     *  - Se lançada: o valor numérico (ex: "15,5")
+     *  - Se não lançada: "Pendente"
+     */
+    public String getNotaFormatada() {
+        return lancada ? String.format("%.1f", nota) : "Pendente";
+    }
+
     /**
      * Devolve a data formatada em dd/MM/yyyy
      * @return data formatada
@@ -71,8 +105,8 @@ public class Avaliacao {
         return  "===== Momento de Avaliação =====\n"+
                 "Cadeira: "+ uc + "\n" +
                 "Peso: " + peso + "\n" +
-                "Nota: " + nota + "\n" +
-                "Data: " + data + "\n" +
+                "Nota: " + getNotaFormatada()+ "\n" +
+                "Data: " + getDataFormatada() + "\n" +
                 "================================";
     }
 }
