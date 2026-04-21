@@ -179,4 +179,19 @@ public class Utils {
             System.out.println();
         }
     }
+    /**
+     * Lê um campo de texto do utilizador.
+     * Se o utilizador escrever "0", lança uma exceção para cancelar o registo.
+     * @param mensagem A mensagem a mostrar ao utilizador.
+     * @param scanner O scanner a utilizar.
+     * @return O valor introduzido.
+     */
+    public static String lerCampo(String mensagem, Scanner scanner) {
+        System.out.print(mensagem);
+        String valor = scanner.nextLine().trim();
+        if (valor.equals("0")) {
+            throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+        }
+        return valor;
+    }
 }
