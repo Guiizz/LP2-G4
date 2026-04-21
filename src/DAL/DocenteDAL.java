@@ -91,7 +91,7 @@ public class DocenteDAL {
 
         if (!ficheiro.exists()) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;dataNascimento;nif;morada;sigla;ucsLecionadas");
+                pw.println("nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin");
             } catch (IOException e) {
                 System.err.println("Erro ao criar ficheiro CSV de docentes: " + e.getMessage());
             }
@@ -116,7 +116,7 @@ public class DocenteDAL {
                 if (linha.trim().isEmpty()) continue;
 
                 String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 6) continue;
+                if (campos.length < 8) continue;
 
                 String nome = campos[0];
                 LocalDate dataNascimento = LocalDate.parse(campos[1]);
@@ -124,6 +124,8 @@ public class DocenteDAL {
                 String morada = campos[3];
                 String sigla = campos[4];
                 String nomesUCs = campos[5];
+                String password     = campos[6];
+                boolean primeiroLogin = Boolean.parseBoolean(campos[7]);
 
                 List<UnidadeCurricular> unidades = new ArrayList<>();
                 if (!nomesUCs.isBlank()) {
@@ -136,7 +138,10 @@ public class DocenteDAL {
                     }
                 }
 
-                docentes.add(new Docente(nome, dataNascimento, nif, morada, sigla, unidades));
+                Docente docente = new Docente(nome, dataNascimento, nif, morada, sigla, unidades);
+                docente.setPassword(password);
+                docente.setPrimeiroLogin(primeiroLogin);
+                docentes.add(docente);
             }
 
         } catch (IOException e) {
@@ -146,7 +151,7 @@ public class DocenteDAL {
 
     private void guardarNoCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;dataNascimento;nif;morada;sigla;ucsLecionadas");
+            pw.println("nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin");
 
             for (Docente docente : docentes) {
                 List<UnidadeCurricular> unidades = docente.getUnidadesLecionadas();
@@ -162,12 +167,14 @@ public class DocenteDAL {
                 }
 
                 pw.println(
-                        docente.getNome() + SEPARADOR +
+                        docente.getNome()           + SEPARADOR +
                                 docente.getDataNascimento() + SEPARADOR +
-                                docente.getNif() + SEPARADOR +
-                                docente.getMorada() + SEPARADOR +
-                                docente.getSigla() + SEPARADOR +
-                                nomesUCs
+                                docente.getNif()            + SEPARADOR +
+                                docente.getMorada()         + SEPARADOR +
+                                docente.getSigla()          + SEPARADOR +
+                                nomesUCs                    + SEPARADOR +
+                                docente.getPassword()       + SEPARADOR +
+                                docente.isPrimeiroLogin()
                 );
             }
 

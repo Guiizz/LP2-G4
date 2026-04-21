@@ -6,8 +6,10 @@ import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
 import Utils.Utils;
+import Utils.ServicoEmail;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
 
 public class EstudanteBLL {
     private EstudanteDAL estudanteDAL;
@@ -27,20 +29,28 @@ public class EstudanteBLL {
      * @param dataNascimento A data de nascimento do estudante.
      * @param nif O nif do estudante.
      * @param morada A morada do estudante.
+     * @param emailReal O e-mail real do estudante para envio das credenciais.
      * @return O estudante criado.
      * @throws IllegalArgumentException Se alguma validação falhar.
      */
-    public Estudante registarEstudante(String nome, LocalDate dataNascimento, String nif, String morada ){
+    public Estudante registarEstudante(String nome, LocalDate dataNascimento, String nif, String morada) {
         Utils.validarNome(nome);
         Utils.validarDataNascimento(dataNascimento);
         Utils.validarNif(nif);
         Utils.validarMorada(morada);
 
-        if (estudanteDAL.procurarPorNif(nif) != null){
+        if (estudanteDAL.procurarPorNif(nif) != null) {
             throw new IllegalArgumentException("Já existe um estudante com este NIF!");
         }
+
         Estudante novoEstudante = new Estudante(nome, dataNascimento, nif, morada);
         estudanteDAL.adicionarEstudante(novoEstudante);
+
+        ServicoEmail.enviarCredenciais(
+                novoEstudante.getNumMecanografico() + "@issmf.pt",
+                "Issmf" + novoEstudante.getNumMecanografico(),
+                "Estudante"
+        );
         return novoEstudante;
     }
 
@@ -155,6 +165,18 @@ public class EstudanteBLL {
             }
         }
         throw new IllegalArgumentException("E-mail ou Palavra-passe inválido!");
+    }
+
+    /**
+     * Altera a password do estudante e marca o primeiro login como concluído.
+     * @param estudante O estudante a alterar.
+     * @param novaPassword A nova password.
+     */
+    public void alterarPassword(Estudante estudante, String novaPassword) {
+        Utils.validarPassword(novaPassword);
+        estudante.setPassword(novaPassword);
+        estudante.setPrimeiroLogin(false);
+        estudanteDAL.atualizarEstudante(estudante);
     }
 
     /**

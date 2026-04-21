@@ -1,6 +1,7 @@
 package BLL;
 
 import Utils.Utils;
+import Utils.ServicoEmail;
 import DAL.DocenteDAL;
 import Model.Docente;
 
@@ -51,6 +52,12 @@ public class DocenteBLL {
         }
 
         docenteDAL.adicionarDocente(docente);
+
+        ServicoEmail.enviarCredenciais(
+                docente.getEmail(),
+                docente.getPassword(),
+                "Docente"
+        );
     }
 
     /**
@@ -154,5 +161,16 @@ public class DocenteBLL {
         }
 
         return docente;
+    }
+    /**
+     * Altera a password do docente e marca o primeiro login como concluído.
+     * @param docente O docente a alterar.
+     * @param novaPassword A nova password.
+     */
+    public void alterarPassword(Docente docente, String novaPassword) {
+        Utils.validarPassword(novaPassword);
+        docente.setPassword(novaPassword);
+        docente.setPrimeiroLogin(false);
+        docenteDAL.atualizarDocente(docente);
     }
 }

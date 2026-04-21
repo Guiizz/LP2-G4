@@ -10,6 +10,7 @@ public class Utilizador {
     private String morada;
     private String email;
     private String password;
+    private boolean primeiroLogin = true;
 
     public Utilizador(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password) {
         this.nome = nome;
@@ -68,6 +69,14 @@ public class Utilizador {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isPrimeiroLogin() {
+        return primeiroLogin;
+    }
+
+    public void setPrimeiroLogin(boolean primeiroLogin) {
+        this.primeiroLogin = primeiroLogin;
     }
 
     @Override

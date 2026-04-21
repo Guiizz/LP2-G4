@@ -1,4 +1,1 @@
-nome;dataNascimento;nif;morada;sigla;ucsLecionadas
-Carlos Pinto;1978-02-18;678901234;Rua Nova 15, Porto;CAP;LP2,POO
-Diana Rocha;1982-06-09;789012345;Rua Verde 30, Matosinhos;DIR;BD
-Eduardo Lima;1975-12-01;890123456;Av. Atlântica 7, Aveiro;EDL;MAT
+nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin
