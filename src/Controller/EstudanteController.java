@@ -21,15 +21,15 @@ public class EstudanteController {
     }
 
     /**
-     * Regista um novo estudante no sistema.
-     * @param nome Nome do estudante.
-     * @param dataNascimento Data de nascimento.
-     * @param nif NIF do estudante.
+     *
+     * @param nome Nome do Estudante.
+     * @param dataNascimento Data de nascimento do estudante.
+     * @param nif Número de Identificação fical do estudante.
      * @param morada Morada do estudante.
-     * @return O estudante criado com número mecanográfico, email e password gerados.
+     * @return
      */
-    public Estudante registarEstudante(String nome, LocalDate dataNascimento, String nif, String morada){
-        return estudanteBLL.registarEstudante(nome,dataNascimento,nif,morada);
+    public Estudante registarEstudante(String nome, LocalDate dataNascimento, String nif, String morada) {
+        return estudanteBLL.registarEstudante(nome, dataNascimento, nif, morada);
     }
 
     /**
@@ -84,6 +84,14 @@ public class EstudanteController {
      */
     public Estudante autenticarEstudante(String email, String password){
         return estudanteBLL.autenticarEmail(email,password);
+    }
+    /**
+     * Altera a password do estudante e marca o primeiro login como concluído.
+     * @param estudante O estudante a alterar.
+     * @param novaPassword A nova password.
+     */
+    public void alterarPassword(Estudante estudante, String novaPassword) {
+        estudanteBLL.alterarPassword(estudante, novaPassword);
     }
 
     /**

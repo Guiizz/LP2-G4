@@ -104,4 +104,12 @@ public class DocenteController {
     public Docente autenticar(String email, String password) {
         return docenteBLL.autenticar(email, password);
     }
+    /**
+     * Altera a password do docente e marca o primeiro login como concluído.
+     * @param docente O docente a alterar.
+     * @param novaPassword A nova password.
+     */
+    public void alterarPassword(Docente docente, String novaPassword) {
+        docenteBLL.alterarPassword(docente, novaPassword);
+    }
 }

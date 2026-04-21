@@ -3,6 +3,7 @@ package BLL;
 import DAL.GestorDAL;
 import Model.Gestor;
 import Utils.Utils;
+import Utils.ServicoEmail;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,6 +49,12 @@ public class GestorBLL {
 
         Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, password);
         gestorDAL.adicionarGestor(gestor);
+
+        ServicoEmail.enviarCredenciais(
+                email,
+                password,
+                "Gestor"
+        );
     }
 
     /**
@@ -134,5 +141,16 @@ public class GestorBLL {
         }
 
         return gestor;
+    }
+    /**
+     * Altera a password do gestor e marca o primeiro login como concluído.
+     * @param gestor O gestor a alterar.
+     * @param novaPassword A nova password.
+     */
+    public void alterarPassword(Gestor gestor, String novaPassword) {
+        Utils.validarPassword(novaPassword);
+        gestor.setPassword(novaPassword);
+        gestor.setPrimeiroLogin(false);
+        gestorDAL.atualizarGestor(gestor);
     }
 }

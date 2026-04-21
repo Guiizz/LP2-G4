@@ -88,7 +88,7 @@ public class EstudanteDAL {
 
         if (!ficheiro.exists()) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password");
+                pw.println("nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin");
             } catch (IOException e) {
                 System.err.println("Erro ao criar ficheiro CSV de estudantes: " + e.getMessage());
             }
@@ -115,7 +115,7 @@ public class EstudanteDAL {
                 if (linha.trim().isEmpty()) continue;
 
                 String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 8) continue;
+                if (campos.length < 9) continue;
 
                 String nome = campos[0];
                 LocalDate dataNascimento = LocalDate.parse(campos[1]);
@@ -125,13 +125,14 @@ public class EstudanteDAL {
                 int anoAtual = Integer.parseInt(campos[5]);
                 String email = campos[6];
                 String password = campos[7];
+                boolean primeiroLogin = Boolean.parseBoolean(campos[8]);
 
                 Estudante estudante = new Estudante(nome, dataNascimento, nif, morada);
                 estudante.setNumMecanografico(numMecanografico);
                 estudante.setAnoAtual(anoAtual);
                 estudante.setEmail(email);
                 estudante.setPassword(password);
-
+                estudante.setPrimeiroLogin(primeiroLogin);
                 estudantes.add(estudante);
 
                 try {
@@ -152,18 +153,19 @@ public class EstudanteDAL {
 
     private void guardarNoCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password");
+            pw.println("nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin");
 
             for (Estudante estudante : estudantes) {
                 pw.println(
-                        estudante.getNome() + SEPARADOR +
-                                estudante.getDataNascimento() + SEPARADOR +
-                                estudante.getNif() + SEPARADOR +
-                                estudante.getMorada() + SEPARADOR +
+                        estudante.getNome()             + SEPARADOR +
+                                estudante.getDataNascimento()   + SEPARADOR +
+                                estudante.getNif()              + SEPARADOR +
+                                estudante.getMorada()           + SEPARADOR +
                                 estudante.getNumMecanografico() + SEPARADOR +
-                                estudante.getAnoAtual() + SEPARADOR +
-                                estudante.getEmail() + SEPARADOR +
-                                estudante.getPassword()
+                                estudante.getAnoAtual()         + SEPARADOR +
+                                estudante.getEmail()            + SEPARADOR +
+                                estudante.getPassword()         + SEPARADOR +
+                                estudante.isPrimeiroLogin()
                 );
             }
 

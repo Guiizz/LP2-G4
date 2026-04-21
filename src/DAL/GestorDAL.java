@@ -74,7 +74,7 @@ public class GestorDAL {
 
         if (!ficheiro.exists()) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;nif;dataNascimento;morada;email;password");
+                pw.println("nome;nif;dataNascimento;morada;email;password;primeiroLogin");
             } catch (IOException e) {
                 System.err.println("Erro ao criar ficheiro CSV de gestores: " + e.getMessage());
             }
@@ -99,16 +99,19 @@ public class GestorDAL {
                 if (linha.trim().isEmpty()) continue;
 
                 String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 6) continue;
+                if (campos.length < 7) continue;  // era 6, passa a 7
 
-                String nome = campos[0];
-                String nif = campos[1];
+                String nome          = campos[0];
+                String nif           = campos[1];
                 LocalDate dataNascimento = LocalDate.parse(campos[2]);
-                String morada = campos[3];
-                String email = campos[4];
-                String password = campos[5];
+                String morada        = campos[3];
+                String email         = campos[4];
+                String password      = campos[5];
+                boolean primeiroLogin = Boolean.parseBoolean(campos[6]);
 
-                gestores.add(new Gestor(nome, dataNascimento, nif, morada, email, password));
+                Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, password);
+                gestor.setPrimeiroLogin(primeiroLogin);
+                gestores.add(gestor);
             }
 
         } catch (IOException e) {
@@ -118,16 +121,17 @@ public class GestorDAL {
 
     private void guardarNoCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;nif;dataNascimento;morada;email;password");
+            pw.println("nome;nif;dataNascimento;morada;email;password;primeiroLogin");
 
             for (Gestor gestor : gestores) {
                 pw.println(
-                        gestor.getNome() + SEPARADOR +
-                                gestor.getNif() + SEPARADOR +
-                                gestor.getDataNascimento() + SEPARADOR +
-                                gestor.getMorada() + SEPARADOR +
-                                gestor.getEmail() + SEPARADOR +
-                                gestor.getPassword()
+                        gestor.getNome()            + SEPARADOR +
+                                gestor.getNif()             + SEPARADOR +
+                                gestor.getDataNascimento()  + SEPARADOR +
+                                gestor.getMorada()          + SEPARADOR +
+                                gestor.getEmail()           + SEPARADOR +
+                                gestor.getPassword()        + SEPARADOR +
+                                gestor.isPrimeiroLogin()
                 );
             }
 

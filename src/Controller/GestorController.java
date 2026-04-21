@@ -104,4 +104,13 @@ public class GestorController {
     public Gestor autenticar(String email, String password) {
         return gestorBLL.autenticar(email, password);
     }
+
+    /**
+     * Altera a password do gestor e marca o primeiro login como concluído.
+     * @param gestor O gestor a alterar.
+     * @param novaPassword A nova password.
+     */
+    public void alterarPassword(Gestor gestor, String novaPassword) {
+        gestorBLL.alterarPassword(gestor, novaPassword);
+    }
 }
