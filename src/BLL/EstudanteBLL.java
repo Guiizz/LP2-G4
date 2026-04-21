@@ -2,7 +2,6 @@ package BLL;
 
 import DAL.EstudanteDAL;
 import Model.Avaliacao;
-import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
 import Utils.Utils;
@@ -29,7 +28,6 @@ public class EstudanteBLL {
      * @param dataNascimento A data de nascimento do estudante.
      * @param nif O nif do estudante.
      * @param morada A morada do estudante.
-     * @param emailReal O e-mail real do estudante para envio das credenciais.
      * @return O estudante criado.
      * @throws IllegalArgumentException Se alguma validação falhar.
      */

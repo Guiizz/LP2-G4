@@ -139,26 +139,20 @@ public class GestorView {
 
     private void registarGestor() {
         System.out.println("\n--- Registar Gestor ---");
+        System.out.println(" (0 caso queira cancelar!)");
+        try {
+            String nome = Utils.lerCampo("Nome: ", scanner);
+            LocalDate dataNascimento = lerData("Data de nascimento (AAAA-MM-DD): ");
+            String nif = Utils.lerCampo("NIF: ", scanner);
+            String morada = Utils.lerCampo("Morada: ", scanner);
+            String email = Utils.lerCampo("Email (@issmf.pt): ", scanner);
+            String password = Utils.lerCampo("Password: ", scanner);
 
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine().trim();
-
-        LocalDate dataNascimento = lerData("Data de nascimento (AAAA-MM-DD): ");
-
-        System.out.print("NIF: ");
-        String nif = scanner.nextLine().trim();
-
-        System.out.print("Morada: ");
-        String morada = scanner.nextLine().trim();
-
-        System.out.print("Email (@issmf.pt): ");
-        String email = scanner.nextLine().trim();
-
-        System.out.print("Password: ");
-        String password = scanner.nextLine().trim();
-
-        gestorController.registarGestor(nome, dataNascimento, nif, morada, email, password);
-        System.out.println("  [✓] Gestor registado com sucesso.");
+            gestorController.registarGestor(nome, dataNascimento, nif, morada, email, password);
+            System.out.println("  [✓] Gestor registado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("  [!] " + e.getMessage());
+        }
     }
 
     private void listarGestores() {
@@ -239,26 +233,26 @@ public class GestorView {
     }
 
     private void registarEstudante() {
-        System.out.println("\n--- Registar Estudante ---");
+        System.out.println(" (0 caso queira cancelar!)");
+        try {
+            String nome = Utils.lerCampo("Nome: ", scanner);
 
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine().trim();
+            LocalDate dataNascimento = lerData("Data de nascimento (AAAA-MM-DD): ");
 
-        LocalDate dataNascimento = lerData("Data de nascimento (AAAA-MM-DD): ");
+            String nif = Utils.lerCampo("NIF: ", scanner);
 
-        System.out.print("NIF: ");
-        String nif = scanner.nextLine().trim();
+            String morada = Utils.lerCampo("Morada: ", scanner);
 
-        System.out.print("Morada: ");
-        String morada = scanner.nextLine().trim();
-
-        Estudante estudante = estudanteController.registarEstudante(nome, dataNascimento, nif, morada);
+            Estudante estudante = estudanteController.registarEstudante(nome, dataNascimento, nif, morada);
 
         System.out.println("  [✓] Estudante registado com sucesso.");
         System.out.println("  Nº Mecanográfico: " + estudante.getNumMecanografico());
         System.out.println("  E-mail: " + estudante.getEmail());
         System.out.println("  Password: " + estudante.getPassword());
+        } catch (IllegalArgumentException e) {
+        System.out.println(" [!] " + e.getMessage());
     }
+}
 
     private void listarEstudantes() {
         System.out.println("\n--- Lista de Estudantes ---");
@@ -339,28 +333,25 @@ public class GestorView {
 
     private void registarDocente() {
         System.out.println("\n--- Registar Docente ---");
+        System.out.println(" (0 caso queira cancelar!)");
+        try {
+            String nome = Utils.lerCampo("Nome: ", scanner);
+            LocalDate dataNascimento = lerData("Data de nascimento (AAAA-MM-DD): ");
+            String nif = Utils.lerCampo("NIF: ", scanner);
+            String morada = Utils.lerCampo("Morada: ", scanner);
+            String sigla = Utils.lerCampo("Sigla (3 letras): ", scanner);
 
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine().trim();
+            Docente docente = new Docente(nome, dataNascimento, nif, morada, sigla, new ArrayList<>());
+            docenteController.registarDocente(docente);
 
-        LocalDate dataNascimento = lerData("Data de nascimento (AAAA-MM-DD): ");
-
-        System.out.print("NIF: ");
-        String nif = scanner.nextLine().trim();
-
-        System.out.print("Morada: ");
-        String morada = scanner.nextLine().trim();
-
-        System.out.print("Sigla (3 letras): ");
-        String sigla = scanner.nextLine().trim();
-
-        Docente docente = new Docente(nome, dataNascimento, nif, morada, sigla, new ArrayList<>());
-        docenteController.registarDocente(docente);
-
-        System.out.println("  [✓] Docente registado com sucesso.");
-        System.out.println("  E-mail: " + docente.getEmail());
-        System.out.println("  Password: " + docente.getPassword());
+            System.out.println("  [✓] Docente registado com sucesso.");
+            System.out.println("  E-mail: " + docente.getEmail());
+            System.out.println("  Password: " + docente.getPassword());
+        } catch (IllegalArgumentException e) {
+            System.out.println("  [!] " + e.getMessage());
+        }
     }
+
 
     private void listarDocentes() {
         System.out.println("\n--- Lista de Docentes ---");
@@ -437,16 +428,17 @@ public class GestorView {
 
     private void registarDepartamento() {
         System.out.println("\n--- Registar Departamento ---");
+        System.out.println(" (0 caso queira cancelar!)");
+        try {
+            String nome = Utils.lerCampo("Nome: ", scanner);
+            String sigla = Utils.lerCampo("Sigla (3 letras): ", scanner);
 
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine().trim();
-
-        System.out.print("Sigla (3 letras): ");
-        String sigla = scanner.nextLine().trim();
-
-        Departamento departamento = departamentoController.registarDepartamento(nome, sigla);
-        System.out.println("  [✓] Departamento registado com sucesso.");
-        System.out.println(departamento);
+            Departamento departamento = departamentoController.registarDepartamento(nome, sigla);
+            System.out.println("  [✓] Departamento registado com sucesso.");
+            System.out.println(departamento);
+        } catch (IllegalArgumentException e) {
+            System.out.println("  [!] " + e.getMessage());
+        }
     }
 
     private void listarDepartamentos() {
@@ -527,6 +519,7 @@ public class GestorView {
 
     private void registarCurso() {
         System.out.println("\n--- Registar Curso ---");
+        System.out.println(" (0 caso queira cancelar!)");
 
         ArrayList<Departamento> departamentos = departamentoController.listarDepartamentos();
         if (departamentos.isEmpty()) {
@@ -534,28 +527,30 @@ public class GestorView {
             return;
         }
 
-        System.out.print("Nome do curso: ");
-        String nomeCurso = scanner.nextLine().trim();
+        try {
+            String nomeCurso = Utils.lerCampo("Nome do curso: ", scanner);
 
-        System.out.println("Departamentos disponíveis:");
-        for (Departamento d : departamentos) {
-            System.out.println("  - " + d.getSigla() + " | " + d.getNome());
+            System.out.println("Departamentos disponíveis:");
+            for (Departamento d : departamentos) {
+                System.out.println("  - " + d.getSigla() + " | " + d.getNome());
+            }
+
+            String sigla = Utils.lerCampo("Sigla do departamento: ", scanner);
+
+            Departamento departamento = departamentoController.procurarDepartamento(sigla);
+            if (departamento == null) {
+                System.out.println("  [!] Departamento não encontrado.");
+                return;
+            }
+
+            Curso curso = cursoController.registarCurso(nomeCurso, departamento);
+            departamento.adicionarCurso(curso);
+
+            System.out.println("  [✓] Curso registado com sucesso.");
+            mostrarCursoDetalhado(curso);
+        } catch (IllegalArgumentException e) {
+            System.out.println("  [!] " + e.getMessage());
         }
-
-        System.out.print("Sigla do departamento: ");
-        String sigla = scanner.nextLine().trim();
-
-        Departamento departamento = departamentoController.procurarDepartamento(sigla);
-        if (departamento == null) {
-            System.out.println("  [!] Departamento não encontrado.");
-            return;
-        }
-
-        Curso curso = cursoController.registarCurso(nomeCurso, departamento);
-        departamento.adicionarCurso(curso);
-
-        System.out.println("  [✓] Curso registado com sucesso.");
-        mostrarCursoDetalhado(curso);
     }
 
     private void listarCursos() {
@@ -713,17 +708,19 @@ public class GestorView {
 
     private void registarUC() {
         System.out.println("\n--- Registar Unidade Curricular ---");
+        System.out.println(" (0 caso queira cancelar!)");
+        try {
+            String nome = Utils.lerCampo("Nome da UC: ", scanner);
+            int ano = lerInteiro("Ano curricular (1-3): ");
+            int ects = lerInteiro("ECTS: ");
 
-        System.out.print("Nome da UC: ");
-        String nome = scanner.nextLine().trim();
+            UnidadeCurricular uc = new UnidadeCurricular(nome, ano, ects, new ArrayList<>());
+            unidadeCurricularController.adicionarUnidade(uc);
 
-        int ano = lerInteiro("Ano curricular (1-3): ");
-        int ects = lerInteiro("ECTS: ");
-
-        UnidadeCurricular uc = new UnidadeCurricular(nome, ano, ects, new ArrayList<>());
-        unidadeCurricularController.adicionarUnidade(uc);
-
-        System.out.println("  [✓] Unidade Curricular registada com sucesso.");
+            System.out.println("  [✓] Unidade Curricular registada com sucesso.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("  [!] " + e.getMessage());
+        }
     }
 
     private void listarUCs() {
@@ -801,7 +798,13 @@ public class GestorView {
         while (true) {
             try {
                 System.out.print(mensagem);
-                return LocalDate.parse(scanner.nextLine().trim());
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) {
+                    throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+                }
+                return LocalDate.parse(input);
+            } catch (IllegalArgumentException e) {
+                throw e;
             } catch (Exception e) {
                 System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
             }
@@ -812,9 +815,15 @@ public class GestorView {
         while (true) {
             try {
                 System.out.print(mensagem);
-                return Integer.parseInt(scanner.nextLine().trim());
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) {
+                    throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+                }
+                return Integer.parseInt(input);
             } catch (NumberFormatException e) {
                 System.out.println("  [!] Introduz um número válido.");
+            } catch (IllegalArgumentException e) {
+                throw e;
             }
         }
     }
