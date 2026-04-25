@@ -162,7 +162,8 @@ public class LoginView {
 
     private String lerPassword() {
         if (System.console() != null) {
-            return new String(System.console().readPassword());
+            char[] chars = System.console().readPassword();
+            return chars != null ? new String(chars) : "";
         }
         return scanner.nextLine().trim();
     }

@@ -4,7 +4,7 @@ import Utils.Utils;
 import Utils.ServicoEmail;
 import DAL.DocenteDAL;
 import Model.Docente;
-
+import Utils.PasswordUtils;
 import java.util.ArrayList;
 
 public class DocenteBLL {
@@ -156,7 +156,7 @@ public class DocenteBLL {
         Utils.validarPassword(password);
 
         Docente docente = docenteDAL.procurarPorEmail(email);
-        if (docente == null || !docente.getPassword().equals(password)) {
+        if (docente == null || !PasswordUtils.verificarPassword(password, docente.getPassword())) {
             throw new IllegalArgumentException("Email ou password incorretos.");
         }
 
@@ -169,7 +169,7 @@ public class DocenteBLL {
      */
     public void alterarPassword(Docente docente, String novaPassword) {
         Utils.validarPassword(novaPassword);
-        docente.setPassword(novaPassword);
+        docente.setPassword(PasswordUtils.hashPassword(novaPassword));
         docente.setPrimeiroLogin(false);
         docenteDAL.atualizarDocente(docente);
     }

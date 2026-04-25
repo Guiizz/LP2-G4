@@ -4,7 +4,7 @@ import DAL.GestorDAL;
 import Model.Gestor;
 import Utils.Utils;
 import Utils.ServicoEmail;
-
+import Utils.PasswordUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -47,7 +47,7 @@ public class GestorBLL {
             throw new IllegalArgumentException("Já existe um gestor com o email: " + email);
         }
 
-        Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, password);
+        Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, PasswordUtils.hashPassword(password));
         gestorDAL.adicionarGestor(gestor);
 
         ServicoEmail.enviarCredenciais(
@@ -136,7 +136,7 @@ public class GestorBLL {
         Utils.validarPassword(password);
 
         Gestor gestor = gestorDAL.procurarPorEmail(email);
-        if (gestor == null || !gestor.getPassword().equals(password)) {
+        if (gestor == null || !PasswordUtils.verificarPassword(password, gestor.getPassword())) {
             throw new IllegalArgumentException("Email ou password incorretos.");
         }
 
@@ -149,7 +149,7 @@ public class GestorBLL {
      */
     public void alterarPassword(Gestor gestor, String novaPassword) {
         Utils.validarPassword(novaPassword);
-        gestor.setPassword(novaPassword);
+        gestor.setPassword(PasswordUtils.hashPassword(novaPassword));
         gestor.setPrimeiroLogin(false);
         gestorDAL.atualizarGestor(gestor);
     }

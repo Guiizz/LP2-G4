@@ -1,7 +1,7 @@
 package DAL;
 
 import Model.Estudante;
-
+import Utils.PasswordUtils;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -125,6 +125,9 @@ public class EstudanteDAL {
                 int anoAtual = Integer.parseInt(campos[5]);
                 String email = campos[6];
                 String password = campos[7];
+                if (!PasswordUtils.estaHasheada(password)) {
+                    password = PasswordUtils.hashPassword(password);
+                }
                 boolean primeiroLogin = Boolean.parseBoolean(campos[8]);
 
                 Estudante estudante = new Estudante(nome, dataNascimento, nif, morada);
