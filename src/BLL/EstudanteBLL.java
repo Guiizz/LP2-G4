@@ -8,6 +8,7 @@ import Utils.Utils;
 import Utils.ServicoEmail;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import Utils.PasswordUtils;
 
 
 public class EstudanteBLL {
@@ -158,7 +159,7 @@ public class EstudanteBLL {
 
         ArrayList<Estudante> estudantes = estudanteDAL.listarEstudantes();
         for (Estudante e : estudantes){
-            if (e.getEmail().equalsIgnoreCase(email) && e.getPassword().equals(password)){
+            if (e.getEmail().equalsIgnoreCase(email) && PasswordUtils.verificarPassword(password, e.getPassword())) {
                 return e;
             }
         }
@@ -172,7 +173,7 @@ public class EstudanteBLL {
      */
     public void alterarPassword(Estudante estudante, String novaPassword) {
         Utils.validarPassword(novaPassword);
-        estudante.setPassword(novaPassword);
+        estudante.setPassword(PasswordUtils.hashPassword(novaPassword));
         estudante.setPrimeiroLogin(false);
         estudanteDAL.atualizarEstudante(estudante);
     }

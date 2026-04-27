@@ -2,6 +2,7 @@ package Model;
 
 import java.time.LocalDate;
 import java.util.List;
+import Utils.PasswordUtils;
 
 public class Docente extends Utilizador {
 
@@ -21,7 +22,7 @@ public class Docente extends Utilizador {
      * @param unidadesLecionadas
      */
     public Docente(String nome, LocalDate dataNascimento, String nif, String morada, String sigla, List<UnidadeCurricular> unidadesLecionadas) {
-        super(nome, dataNascimento, nif, morada,sigla + "@issmf.pt", "Issmf" + sigla);
+        super(nome, dataNascimento, nif, morada, sigla + "@issmf.pt", PasswordUtils.hashPassword("Issmf" + sigla));
         this.sigla = sigla;
         this.unidadesLecionadas = unidadesLecionadas;
     }

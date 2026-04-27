@@ -2,6 +2,7 @@ package Model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import Utils.PasswordUtils;
 
 /**
  * Representa um Estudante no sistema do Instituto Superior de Santa Maria da Feira (ISSMF).
@@ -23,7 +24,7 @@ public class Estudante extends Utilizador {
         super(nome, dataNascimento, nif, morada, "","");
         this.numMecanografico = String.valueOf(contadorSequencial++);
         String emailAutomatico = this.numMecanografico + "@issmf.pt";
-        String passAutomatica = "Issmf" + this.numMecanografico;
+        String passAutomatica = PasswordUtils.hashPassword("Issmf" + this.numMecanografico);
         this.setEmail(emailAutomatico);
         this.setPassword(passAutomatica);
         this.anoAtual = 1;

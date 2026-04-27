@@ -5,6 +5,7 @@ import Model.Gestor;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import Utils.PasswordUtils;
 
 /**
  * Camada DAL para a entidade Gestor.
@@ -107,6 +108,9 @@ public class GestorDAL {
                 String morada        = campos[3];
                 String email         = campos[4];
                 String password      = campos[5];
+                if (!PasswordUtils.estaHasheada(password)) {
+                    password = PasswordUtils.hashPassword(password);
+                }
                 boolean primeiroLogin = Boolean.parseBoolean(campos[6]);
 
                 Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, password);
