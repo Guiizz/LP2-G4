@@ -48,21 +48,18 @@ public class InscricaoController {
         if (estudante == null) {
             throw new IllegalArgumentException("O estudante não pode ser nulo.");
         }
+
         if (curso == null) {
             throw new IllegalArgumentException("O curso não pode ser nulo.");
         }
-        if (!estudante.getInscricoes().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "O estudante '" + estudante.getNome() + "' já se encontra inscrito num curso.");
+
+        if (estudante.getInscricoes() != null && !estudante.getInscricoes().isEmpty()) {
+            throw new IllegalArgumentException("O estudante já está associado a um curso.");
         }
 
         Inscricao inscricao = new Inscricao(anoLetivo, 1, curso);
         estudante.adicionarInscricao(inscricao);
-        estudanteBLL.atualizarEstudante(
-                estudante.getNumMecanografico(),
-                estudante.getNome(),
-                estudante.getMorada()
-        );
+        estudanteBLL.guardarEstadoEstudante(estudante);
         return inscricao;
     }
 

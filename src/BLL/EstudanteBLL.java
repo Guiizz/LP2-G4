@@ -184,41 +184,62 @@ public class EstudanteBLL {
      * @throws IllegalArgumentException Se o estudante for null, já estiver no último ano,
      * não tiver inscrições, não tiver avaliações ou não cumprir a regra dos 60%.
      */
-    public void podeProgredirAno(Estudante estudante){
-        if (estudante == null){
-            throw new IllegalArgumentException("O estudante não pode ser null.");
+    public void podeProgredirAno(Estudante estudante) {
+        if (estudante == null) {
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
         }
 
-        if (estudante.getAnoAtual() >= 3){
-            throw new IllegalArgumentException("O estudante já se encontra no ultimo ano do curso");
+        if (estudante.getAnoAtual() >= 3) {
+            throw new IllegalArgumentException("O estudante já se encontra no último ano do curso.");
         }
 
-        if (estudante.getInscricoes().isEmpty()){
-            throw new IllegalArgumentException("O estudante não tem inscrições registadas");
+        if (estudante.getInscricoes() == null || estudante.getInscricoes().isEmpty()) {
+            throw new IllegalArgumentException("O estudante não tem inscrições registadas.");
         }
 
-        int totalUCs = 0;
-        int ucsAprovados = 0;
+        int totalAvaliacoes = 0;
+        int avaliacoesAprovadas = 0;
+        boolean encontrouInscricaoAnoAtual = false;
 
-        for (Inscricao inscricao : estudante.getInscricoes()){
-            if (inscricao.getAnoDeCurso() <= estudante.getAnoAtual()){
-                for (Avaliacao avaliacao : inscricao.getAvaliacoes()){
-                    totalUCs++;
-                    if(avaliacao.getNota() >= 10){
-                        ucsAprovados++;
+        for (Inscricao inscricao : estudante.getInscricoes()) {
+            if (inscricao.getAnoDeCurso() == estudante.getAnoAtual()) {
+                encontrouInscricaoAnoAtual = true;
+
+                if (inscricao.getAvaliacoes() == null || inscricao.getAvaliacoes().isEmpty()) {
+                    throw new IllegalArgumentException("Não existem avaliações registadas para o ano atual.");
+                }
+
+                for (Avaliacao avaliacao : inscricao.getAvaliacoes()) {
+                    if (!avaliacao.isLancada()) {
+                        throw new IllegalArgumentException(
+                                "O estudante não pode progredir porque existem notas por lançar.");
+                    }
+
+                    totalAvaliacoes++;
+
+                    if (avaliacao.getNota() >= 10) {
+                        avaliacoesAprovadas++;
                     }
                 }
             }
         }
-        if(totalUCs == 0){
-            throw new IllegalArgumentException("Estudante não tem as avaliações registadas.");
-        }
-        double percentagemAprovacao = (double) ucsAprovados / totalUCs;
-        if (percentagemAprovacao < 0.60){
-            throw new IllegalArgumentException("O estudante não cumpre os requisitos para progredir de ano.\n" +
-                    "Aprovação atual: " + String.format("%.1f", percentagemAprovacao * 100) + "% (mínimo necessário: 60%).");
+
+        if (!encontrouInscricaoAnoAtual) {
+            throw new IllegalArgumentException("O estudante não tem inscrição no ano atual.");
         }
 
+        if (totalAvaliacoes == 0) {
+            throw new IllegalArgumentException("Não existem avaliações válidas para calcular a progressão.");
+        }
+
+        double percentagemAprovacao = (double) avaliacoesAprovadas / totalAvaliacoes;
+
+        if (percentagemAprovacao < 0.60) {
+            throw new IllegalArgumentException(
+                    "O estudante não pode progredir. Aprovação atual: " +
+                            String.format("%.1f", percentagemAprovacao * 100) +
+                            "%. Mínimo necessário: 60%.");
+        }
     }
 
     /**
@@ -228,17 +249,32 @@ public class EstudanteBLL {
      * @param novaInscricao A inscrição para o novo ano letivo.
      * @throws IllegalArgumentException Se o estudante ou a inscrição forem null, ou se não cumprir os requisitos.
      */
-    public void passarDeAno (Estudante estudante, Inscricao novaInscricao){
-        if (estudante == null){
-            throw new IllegalArgumentException("O estudante não pode ser null!");
+    public void passarDeAno(Estudante estudante, Inscricao novaInscricao) {
+        if (estudante == null) {
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
         }
-        if (novaInscricao == null){
-            throw new IllegalArgumentException("A inscrição para o proximo ano não pode ser null!");
+
+        if (novaInscricao == null) {
+            throw new IllegalArgumentException("A nova inscrição não pode ser nula.");
         }
+
         podeProgredirAno(estudante);
+
+        if (novaInscricao.getAnoDeCurso() != estudante.getAnoAtual() + 1) {
+            throw new IllegalArgumentException("A nova inscrição tem de corresponder ao ano seguinte.");
+        }
 
         estudante.setAnoAtual(estudante.getAnoAtual() + 1);
         estudante.adicionarInscricao(novaInscricao);
+
+        estudanteDAL.atualizarEstudante(estudante);
+    }
+
+    public void guardarEstadoEstudante(Estudante estudante) {
+        if (estudante == null) {
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+        }
+
         estudanteDAL.atualizarEstudante(estudante);
     }
 }

@@ -145,4 +145,12 @@ public class CursoController {
     public int vagasUCsDisponiveis(Curso curso, int anoCurricular) {
         return cursoBLL.vagasUCsDisponiveis(curso, anoCurricular);
     }
+
+    public void iniciarCurso(Curso curso, List<Estudante> estudantes) {
+        cursoBLL.iniciarCurso(curso, estudantes);
+    }
+
+    public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {
+        return cursoBLL.contarEstudantesInscritosNoCurso(curso, estudantes);
+    }
 }
