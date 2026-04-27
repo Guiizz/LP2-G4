@@ -80,7 +80,7 @@ public class CursoDAL {
 
         if (!ficheiro.exists()) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nomeCurso;siglaDepartamento;nomesUCs");
+                pw.println("nomeCurso;siglaDepartamento;nomesUCs;estado");
             } catch (IOException e) {
                 System.err.println("Erro ao criar ficheiro CSV de cursos: " + e.getMessage());
             }
@@ -111,11 +111,16 @@ public class CursoDAL {
                 String siglaDepartamento = campos[1];
                 String nomesUCs = campos[2];
 
+                String estado = "PENDENTE";
+                if (campos.length > 3 && !campos[3].isBlank()) {
+                    estado = campos[3];
+                }
+
                 Departamento departamento = departamentoDAL.procurarPorSigla(siglaDepartamento);
                 if (departamento == null) continue;
 
                 Curso curso = new Curso(nomeCurso, departamento);
-
+                curso.setEstado(estado);
                 if (!nomesUCs.isBlank()) {
                     String[] nomes = nomesUCs.split(",");
                     for (String nomeUC : nomes) {
@@ -137,8 +142,7 @@ public class CursoDAL {
 
     private void guardarNoCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nomeCurso;siglaDepartamento;nomesUCs");
-
+            pw.println("nomeCurso;siglaDepartamento;nomesUCs;estado");
             for (Curso curso : cursos) {
                 String siglaDepartamento = "";
                 if (curso.getDepartamento() != null) {
@@ -160,7 +164,8 @@ public class CursoDAL {
                 pw.println(
                         curso.getNomeCurso() + SEPARADOR +
                                 siglaDepartamento + SEPARADOR +
-                                nomesUCs
+                                nomesUCs + SEPARADOR +
+                                curso.getEstado()
                 );
             }
 

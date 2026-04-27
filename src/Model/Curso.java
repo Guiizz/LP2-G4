@@ -12,6 +12,7 @@ public class Curso {
     private Departamento departamento;
     private int duracao;
     private List <UnidadeCurricular> unidades;
+    private String estado;
 
     /**
      * Construtor da classe Curso.
@@ -23,6 +24,7 @@ public class Curso {
         this.departamento = departamento;
         this.duracao = 3;
         this.unidades = new ArrayList<>();
+        this.estado = "PENDENTE";
     }
 
     /**
@@ -72,6 +74,14 @@ public class Curso {
      */
     public void adicionarUnidadeCurricular(UnidadeCurricular uc) {
         this.unidades.add(uc);
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
     /**

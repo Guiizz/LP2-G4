@@ -1,10 +1,7 @@
 package BLL;
 
 import DAL.CursoDAL;
-import Model.Curso;
-import Model.Departamento;
-import Model.Estudante;
-import Model.UnidadeCurricular;
+import Model.*;
 import Utils.Utils;
 
 import java.util.ArrayList;
@@ -17,6 +14,7 @@ import java.util.List;
 public class CursoBLL {
 
     private CursoDAL cursoDAL;
+    private static final int QUORUM_MINIMO=5;
 
     /** Número máximo de unidades curriculares por ano de curso. */
     private static final int MAX_UCS_POR_ANO = 5;
@@ -290,5 +288,57 @@ public class CursoBLL {
                 .count();
 
         return (int) (MAX_UCS_POR_ANO - ucsNesteAno);
+    }
+
+    public void iniciarCurso(Curso curso, List<Estudante> estudantes) {
+        if (curso == null) {
+            throw new IllegalArgumentException("Curso não encontrado.");
+        }
+
+        if (estudantes == null) {
+            throw new IllegalArgumentException("Lista de estudantes inválida.");
+        }
+
+        if (curso.getEstado() == null) {
+            curso.setEstado("PENDENTE");
+        }
+
+        if (!curso.getEstado().equalsIgnoreCase("PENDENTE")) {
+            throw new IllegalArgumentException("Só é possível iniciar cursos no estado PENDENTE.");
+        }
+
+        int numeroInscritos = contarEstudantesInscritosNoCurso(curso, estudantes);
+
+        if (numeroInscritos < QUORUM_MINIMO) {
+            throw new IllegalArgumentException("Número mínimo de 5 estudantes não atingido.");
+        }
+
+        curso.setEstado("ATIVO");
+
+        cursoDAL.atualizarCurso(curso);
+    }
+
+    public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {
+        if (curso == null || estudantes == null) {
+            return 0;
+        }
+
+        int contador = 0;
+
+        for (Estudante estudante : estudantes) {
+            if (estudante.getInscricoes() == null) {
+                continue;
+            }
+
+            for (Inscricao inscricao : estudante.getInscricoes()) {
+                if (inscricao.getCurso() != null &&
+                        inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) {
+                    contador++;
+                    break;
+                }
+            }
+        }
+
+        return contador;
     }
 }

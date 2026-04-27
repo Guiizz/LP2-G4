@@ -16,9 +16,10 @@ public class LoginView {
     private CursoController cursoController;
     private UnidadeCurricularController unidadeCurricularController;
     private AvaliacaoController avaliacaoController;
+    private InscricaoController inscricaoController;
     private Scanner scanner;
 
-    public LoginView(EstudanteController estudanteController, DocenteController docenteController, GestorController gestorController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController, Scanner scanner) {
+    public LoginView(EstudanteController estudanteController, DocenteController docenteController, GestorController gestorController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController,InscricaoController inscricaoController, Scanner scanner) {
         this.estudanteController = estudanteController;
         this.docenteController = docenteController;
         this.gestorController = gestorController;
@@ -26,6 +27,7 @@ public class LoginView {
         this.cursoController = cursoController;
         this.unidadeCurricularController = unidadeCurricularController;
         this.avaliacaoController = avaliacaoController;
+        this.inscricaoController = inscricaoController;
         this.scanner = scanner;
     }
 
@@ -88,7 +90,8 @@ public class LoginView {
                         departamentoController,
                         cursoController,
                         unidadeCurricularController,
-                        scanner
+                        scanner,
+                        inscricaoController
                 ).iniciar(gestor);
 
             } else if (prefixo.matches("[A-Za-z]{3}")) {
