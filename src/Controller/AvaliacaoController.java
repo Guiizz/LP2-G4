@@ -2,6 +2,8 @@ package Controller;
 
 import BLL.AvaliacaoBLL;
 import Model.Avaliacao;
+import Model.Docente;
+import Model.Estudante;
 import Model.UnidadeCurricular;
 
 import java.util.ArrayList;
@@ -100,5 +102,17 @@ public class AvaliacaoController {
      */
     public ArrayList<Avaliacao> procurarPorData(Date data) {
         return avaliacaoBLL.procurarPorData(data);
+    }
+    // ACRESCENTA no fim da classe, antes do último }
+// Também adiciona os imports: import Model.Docente; import Model.Estudante;
+
+    public Avaliacao lancarNotaAluno(Docente docenteLogado, UnidadeCurricular uc,
+                                     Estudante estudante, String nomeMomento,
+                                     double peso, Date data, double nota) {
+        return avaliacaoBLL.lancarNotaAluno(docenteLogado, uc, estudante, nomeMomento, peso, data, nota);
+    }
+
+    public double calcularNotaFinal(Estudante estudante, UnidadeCurricular uc) {
+        return avaliacaoBLL.calcularNotaFinal(estudante, uc);
     }
 }

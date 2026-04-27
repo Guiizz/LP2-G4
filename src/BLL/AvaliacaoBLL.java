@@ -4,6 +4,8 @@ import DAL.AvaliacaoDAL;
 import Model.Avaliacao;
 import Model.UnidadeCurricular;
 import Utils.Utils;
+import Model.Docente;
+import Model.Estudante;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -212,5 +214,62 @@ public class AvaliacaoBLL {
         if (data.after(hoje)) {
             throw new IllegalArgumentException("A data da avaliação não pode ser no futuro.");
         }
+    }
+    // ACRESCENTA este método no fim da classe, antes do último }
+    /**
+     * Lança a nota de um aluno num momento de avaliação de uma UC.
+     * Só o docente responsável pode lançar notas.
+     * Máximo de 3 momentos por UC.
+     */
+    public Avaliacao lancarNotaAluno(Docente docenteLogado, UnidadeCurricular uc,
+                                     Estudante estudante, String nomeMomento,
+                                     double peso, Date data, double nota) {
+        // Valida se é o docente responsável
+        if (!uc.isDocenteResponsavel(docenteLogado)) {
+            throw new IllegalArgumentException("Apenas o docente responsável pode lançar notas nesta UC.");
+        }
+
+        // Valida máximo de 3 momentos distintos
+        long momentosDistintos = uc.getAvaliacoes().stream()
+                .map(Avaliacao::getNomeMomento)
+                .filter(m -> m != null)
+                .distinct().count();
+
+        boolean momentoNovo = uc.getAvaliacoes().stream()
+                .noneMatch(a -> nomeMomento.equalsIgnoreCase(a.getNomeMomento()));
+
+        if (momentoNovo && momentosDistintos >= 3) {
+            throw new IllegalArgumentException("Já existem 3 momentos de avaliação para esta UC.");
+        }
+
+        // Valida nota
+        Utils.validarNota(nota);
+
+        // Cria a avaliação usando o construtor já existente
+        List<UnidadeCurricular> ucs = new ArrayList<>();
+        ucs.add(uc);
+        Avaliacao av = new Avaliacao(ucs, peso, data, nota, nota >= 10.0);
+
+        // Preenche os novos campos
+        av.setEstudante(estudante);
+        av.setNomeMomento(nomeMomento);
+
+        avaliacaoDAL.adicionarAvaliacao(av);
+        uc.getAvaliacoes().add(av);
+
+        return av;
+    }
+
+    /**
+     * Calcula a nota final ponderada de um estudante numa UC.
+     */
+    public double calcularNotaFinal(Estudante estudante, UnidadeCurricular uc) {
+        return uc.getAvaliacoes().stream()
+                .filter(a -> a.getEstudante() != null &&
+                        a.getEstudante().getNumMecanografico()
+                                .equals(estudante.getNumMecanografico())
+                        && a.isLancada())
+                .mapToDouble(a -> a.getNota() * (a.getPeso() / 100.0))
+                .sum();
     }
 }

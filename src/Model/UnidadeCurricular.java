@@ -12,7 +12,7 @@ public class UnidadeCurricular {
     private int anoCurricular;
     private int ects;
     private List<Avaliacao> avaliacoes;
-
+    private Docente docenteResponsavel;
     /**
      * Construtor
      * @param nome
@@ -56,6 +56,22 @@ public class UnidadeCurricular {
 
     public void setAvaliacoes(List<Avaliacao> avaliacoes) {
         this.avaliacoes = avaliacoes;
+    }
+
+//GETTER e SETTER do DocenteResponsavel
+    public Docente getDocenteResponsavel() {
+        return docenteResponsavel;
+    }
+
+    public void setDocenteResponsavel(Docente d) {
+        this.docenteResponsavel = d;
+    }
+
+    public boolean isDocenteResponsavel(Docente docente) {
+        if (this.docenteResponsavel == null || docente == null) {
+            return false;
+        }
+        return this.docenteResponsavel.equals(docente);
     }
 
     @Override

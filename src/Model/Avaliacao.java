@@ -15,7 +15,8 @@ public class Avaliacao {
     private double nota;
     private boolean aprovado;
     private boolean lancada;
-
+    private Estudante estudante;
+    private String nomeMomento; // ex: "Teste 1", "Exame"
     /**
      * Construtor para avaliação com nota já lançada (comportamento anterior mantido).
      * @param uc
@@ -76,6 +77,22 @@ public class Avaliacao {
         this.nota = nota;
         this.aprovado = aprovado;
         this.lancada = true;
+    }
+//GETTER e SETTER do Estudante e  do Momento
+    public Estudante getEstudante() {
+        return estudante;
+    }
+
+    public void setEstudante(Estudante estudante) {
+        this.estudante = estudante;
+    }
+
+    public String getNomeMomento() {
+        return nomeMomento;
+    }
+
+    public void setNomeMomento(String nomeMomento) {
+        this.nomeMomento = nomeMomento;
     }
 
     /**
