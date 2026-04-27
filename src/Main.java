@@ -55,6 +55,6 @@ public class Main {
                 avaliacaoController,
                 inscricaoController,
                 scanner
-        );
+        ).iniciar();
     }
 }
