@@ -1,17 +1,13 @@
 package View;
 
-import Controller.CursoController;
-import Controller.DepartamentoController;
-import Controller.DocenteController;
-import Controller.EstudanteController;
-import Controller.GestorController;
-import Controller.UnidadeCurricularController;
+import Controller.*;
 import Model.Curso;
 import Model.Departamento;
 import Model.Docente;
 import Model.Estudante;
 import Model.Gestor;
 import Model.UnidadeCurricular;
+import Model.Inscricao;
 import Utils.Utils;
 
 import java.time.LocalDate;
@@ -28,6 +24,7 @@ public class GestorView {
     private final CursoController cursoController;
     private final UnidadeCurricularController unidadeCurricularController;
     private final Scanner scanner;
+    private final InscricaoController inscricaoController;
 
     public GestorView(GestorController gestorController,
                       EstudanteController estudanteController,
@@ -35,7 +32,7 @@ public class GestorView {
                       DepartamentoController departamentoController,
                       CursoController cursoController,
                       UnidadeCurricularController unidadeCurricularController,
-                      Scanner scanner) {
+                      Scanner scanner, InscricaoController inscricaoController) {
         this.gestorController = gestorController;
         this.estudanteController = estudanteController;
         this.docenteController = docenteController;
@@ -43,6 +40,7 @@ public class GestorView {
         this.cursoController = cursoController;
         this.unidadeCurricularController = unidadeCurricularController;
         this.scanner = scanner;
+        this.inscricaoController = inscricaoController;
     }
 
     public void iniciar(Gestor gestor) {
@@ -201,7 +199,8 @@ public class GestorView {
                 "Registar Estudante",
                 "Listar Estudantes",
                 "Procurar Estudante por Nº Mecanográfico",
-                "Remover Estudante"
+                "Remover Estudante",
+                "Inscrever Estudante em Curso"
         };
 
         int opcao;
@@ -221,6 +220,9 @@ public class GestorView {
                         break;
                     case 4:
                         removerEstudante();
+                        break;
+                    case 5:
+                        inscreverEstudanteEmCurso();
                         break;
                     case 0:
                         System.out.println("  A voltar...");
@@ -289,6 +291,33 @@ public class GestorView {
 
         estudanteController.removerEstudante(numero);
         System.out.println("  [✓] Estudante removido com sucesso.");
+    }
+
+    private void inscreverEstudanteEmCurso() {
+        System.out.println("\n--- Inscrever Estudante em Curso ---");
+
+        System.out.print("Nº Mecanográfico do estudante: ");
+        String numMec = scanner.nextLine().trim();
+
+        Estudante estudante = estudanteController.procurarPorNumMecanografico(numMec);
+
+        System.out.print("Nome do curso: ");
+        String nomeCurso = scanner.nextLine().trim();
+
+        Curso curso = cursoController.procurarPorNome(nomeCurso);
+
+        if (curso == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            return;
+        }
+
+        int anoLetivo = LocalDate.now().getYear();
+
+        Inscricao inscricao = inscricaoController.inscreverEstudante(estudante, curso, anoLetivo);
+
+        System.out.println("  [✓] Estudante inscrito com sucesso.");
+        System.out.println("  Curso: " + curso.getNomeCurso());
+        System.out.println("  Ano letivo: " + anoLetivo + "/" + (anoLetivo + 1));
     }
 
     // =========================================================
@@ -480,7 +509,8 @@ public class GestorView {
                 "Procurar Curso por Nome",
                 "Associar UC a Curso",
                 "Listar UCs de um Curso por Ano",
-                "Remover Curso"
+                "Remover Curso",
+                "Iniciar Curso"
         };
 
         int opcao;
@@ -506,6 +536,9 @@ public class GestorView {
                         break;
                     case 6:
                         removerCurso();
+                        break;
+                    case 7:
+                        iniciarCurso();
                         break;
                     case 0:
                         System.out.println("  A voltar...");
@@ -664,6 +697,25 @@ public class GestorView {
 
         cursoController.removerCurso(curso, estudanteController.listarEstudante());
         System.out.println("  [✓] Curso removido com sucesso.");
+    }
+
+    private void iniciarCurso() {
+        System.out.println("\n--- Iniciar Curso ---");
+
+        System.out.print("Nome do curso: ");
+        String nomeCurso = scanner.nextLine().trim();
+
+        Curso curso = cursoController.procurarPorNome(nomeCurso);
+
+        if (curso == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            return;
+        }
+
+        cursoController.iniciarCurso(curso, estudanteController.listarEstudante());
+
+        System.out.println("  [✓] Curso iniciado com sucesso.");
+        System.out.println("  Estado atual: " + curso.getEstado());
     }
 
     // =========================================================

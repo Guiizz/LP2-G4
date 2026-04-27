@@ -39,11 +39,22 @@ public class Main {
         DocenteController docenteController = new DocenteController(docenteBLL);
         UnidadeCurricularController unidadeCurricularController = new UnidadeCurricularController(unidadeCurricularBLL);
         AvaliacaoController avaliacaoController = new AvaliacaoController(avaliacaoBLL);
+        InscricaoController inscricaoController = new InscricaoController(estudanteBLL);
 
         // ── Scanner partilhado ───────────────────────────────────────────────
         Scanner scanner = new Scanner(System.in);
 
         // ── Arranque ─────────────────────────────────────────────────────────
-        new LoginView(estudanteController, docenteController, gestorController, departamentoController, cursoController, unidadeCurricularController, avaliacaoController, scanner).iniciar();
+        new LoginView(
+                estudanteController,
+                docenteController,
+                gestorController,
+                departamentoController,
+                cursoController,
+                unidadeCurricularController,
+                avaliacaoController,
+                inscricaoController,
+                scanner
+        );
     }
 }
