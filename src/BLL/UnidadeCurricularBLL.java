@@ -59,4 +59,23 @@ public class UnidadeCurricularBLL {
         unidadeCurricularDAL.removerUnidade(unidade);
     }
 
+    /**
+     * Atribui um Docente Responsável a uma UC.
+     * @param nomeUC Nome da Unidade Curricular.
+     * @param siglaDocente Sigla do docente a atribuir.
+     * @throws IllegalArgumentException Se a UC não existir ou a sigla for inválida.
+     */
+    public void atribuirDocenteResponsavel(String nomeUC, String siglaDocente) {
+        if (nomeUC == null || nomeUC.isBlank()) {
+            throw new IllegalArgumentException("O nome da UC não pode ser vazio.");
+        }
+        if (siglaDocente == null || siglaDocente.isBlank()) {
+            throw new IllegalArgumentException("A sigla do docente não pode ser vazia.");
+        }
+        boolean sucesso = unidadeCurricularDAL.atribuirDocenteResponsavel(nomeUC, siglaDocente);
+        if (!sucesso) {
+            throw new IllegalArgumentException("Unidade Curricular '" + nomeUC + "' não encontrada.");
+        }
+    }
+
 }

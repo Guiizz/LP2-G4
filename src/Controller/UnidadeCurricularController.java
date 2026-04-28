@@ -61,4 +61,15 @@ public class UnidadeCurricularController {
     public void removerUnidade(UnidadeCurricular unidade) {
         unidadeCurricularBLL.removerUnidade(unidade);
     }
+
+    /**
+     * Atribui um Docente Responsável a uma Unidade Curricular.
+     *
+     * @param nomeUC Nome da Unidade Curricular.
+     * @param siglaDocente Sigla do docente a atribuir como responsável.
+     * @throws IllegalArgumentException Se a UC não existir ou a sigla for inválida.
+     */
+    public void atribuirDocenteResponsavel(String nomeUC, String siglaDocente) {
+        unidadeCurricularBLL.atribuirDocenteResponsavel(nomeUC, siglaDocente);
+    }
 }

@@ -59,6 +59,17 @@ public class UnidadeCurricularDAL {
         return null;
     }
 
+    public boolean atribuirDocenteResponsavel(String nomeUC, String siglaDocente) {
+        for (UnidadeCurricular uc : unidades) {
+            if (uc.getNome().equalsIgnoreCase(nomeUC)) {
+                uc.setDocenteResponsavel(siglaDocente);
+                guardarNoCSV();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void criarFicheiroCsvSeNaoExistir() {
         File ficheiro = new File(FICHEIRO_CSV);
         if (ficheiro.getParentFile() != null) {
@@ -67,7 +78,7 @@ public class UnidadeCurricularDAL {
 
         if (!ficheiro.exists()) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;anoCurricular;ects");
+                pw.println("nome;anoCurricular;ects;docenteResponsavel");
             } catch (IOException e) {
                 System.err.println("Erro ao criar ficheiro CSV de unidades curriculares: " + e.getMessage());
             }
@@ -97,8 +108,14 @@ public class UnidadeCurricularDAL {
                 String nome = campos[0];
                 int anoCurricular = Integer.parseInt(campos[1]);
                 int ects = Integer.parseInt(campos[2]);
+                String siglaDocente = campos.length >= 4 ? campos[3] : "";
 
-                unidades.add(new UnidadeCurricular(nome, anoCurricular, ects, new ArrayList<>()));
+                UnidadeCurricular uc = new UnidadeCurricular(nome, anoCurricular, ects, new ArrayList<>(), siglaDocente);
+                if (!siglaDocente.isEmpty()) {
+                    uc.setDocenteResponsavel(siglaDocente);
+                }
+
+                unidades.add(uc);
             }
 
         } catch (IOException | NumberFormatException e) {

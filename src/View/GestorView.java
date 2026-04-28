@@ -748,6 +748,9 @@ public class GestorView {
                     case 4:
                         removerUC();
                         break;
+                    case 5:
+                        atribuirDocenteResponsavelUC();
+                        break;
                     case 0:
                         System.out.println("  A voltar...");
                         break;
@@ -785,6 +788,7 @@ public class GestorView {
         }
 
         for (UnidadeCurricular uc : unidades) {
+            String docente = uc.temDocenteResponsavel() ? uc.getDocenteResponsavel() : "(sem docente)";
             System.out.println("  - " + uc.getNome() + " | Ano " + uc.getAnoCurricular() + " | " + uc.getEts() + " ECTS");
         }
     }
@@ -814,6 +818,54 @@ public class GestorView {
 
         unidadeCurricularController.removerUnidade(uc);
         System.out.println("  [✓] Unidade Curricular removida com sucesso.");
+    }
+
+    private void atribuirDocenteResponsavelUC() {
+        System.out.println("\n--- Atribuir Docente Responsável a UC ---");
+
+        ArrayList<UnidadeCurricular> unidades = unidadeCurricularController.listarUnidades();
+        if (unidades.isEmpty()) {
+            System.out.println("  (sem unidades curriculares registadas)");
+            return;
+        }
+
+        System.out.println("  UCs disponíveis:");
+        for (UnidadeCurricular uc : unidades) {
+            String docente = uc.temDocenteResponsavel() ? uc.getDocenteResponsavel() : "(sem docente)";
+            System.out.println("    - " + uc.getNome() + " | Docente atual: " + docente);
+        }
+
+        System.out.print("\n  Nome da UC: ");
+        String nomeUC = scanner.nextLine().trim();
+
+        UnidadeCurricular uc = procurarUCPorNome(nomeUC);
+        if (uc == null) {
+            System.out.println("  [!] Unidade Curricular não encontrada.");
+            return;
+        }
+
+        ArrayList<Docente> docentes = docenteController.listarDocentes();
+        if (docentes.isEmpty()) {
+            System.out.println("  [!] Não existem docentes registados no sistema.");
+            return;
+        }
+
+        System.out.println("\n  Docentes disponíveis:");
+        for (Docente d : docentes) {
+            System.out.println("    - " + d.getSigla() + " | " + d.getNome());
+        }
+
+        System.out.print("\n  Sigla do Docente Responsável: ");
+        String sigla = scanner.nextLine().trim();
+
+        Docente docente = docenteController.procurarPorSigla(sigla);
+        if (docente == null) {
+            System.out.println("  [!] Docente com sigla '" + sigla + "' não encontrado.");
+            return;
+        }
+
+        unidadeCurricularController.atribuirDocenteResponsavel(nomeUC, sigla);
+        System.out.println("  [✓] Docente '" + docente.getNome() + "' atribuído como responsável da UC '" + uc.getNome() + "'.");
     }
 
     // =========================================================
