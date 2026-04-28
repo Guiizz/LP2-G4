@@ -9,10 +9,6 @@ import java.util.ArrayList;
 public class UnidadeCurricularBLL {
     private UnidadeCurricularDAL unidadeCurricularDAL;
 
-    public UnidadeCurricularBLL() {
-        unidadeCurricularDAL = new UnidadeCurricularDAL();
-    }
-
     public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL){
         this.unidadeCurricularDAL = unidadeCurricularDAL;
     }
