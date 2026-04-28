@@ -8,6 +8,7 @@ import Model.Inscricao;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -44,6 +45,7 @@ public class DocenteView {
                 case 1: verFicha(docente); break;
                 case 2: verUnidadesCurriculares(docente); break;
                 case 3: verAlunos(docente); break;
+                case 4: verAlunosPorUC(docente); break;
                 case 0: System.out.println("  A terminar sessão…"); break;
             }
         } while (opcao != 0);
@@ -116,5 +118,58 @@ public class DocenteView {
         }
 
         System.out.println("\n" + estudante);
+    }
+
+    private void verAlunosPorUC(Docente docente) {
+        System.out.println("\n— Alunos inscritos nas minhas Unidades Curriculares —");
+
+        List<UnidadeCurricular> ucsDocente = docente.getUnidadesLecionadas();
+
+        if (ucsDocente == null || ucsDocente.isEmpty()) {
+            System.out.println("  (sem unidades curriculares atribuídas)");
+            return;
+        }
+
+        ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
+
+        if (todosEstudantes == null || todosEstudantes.isEmpty()) {
+            System.out.println("  (sem estudantes registados no sistema)");
+            return;
+        }
+
+        boolean encontrouAlgum = false;
+
+        for (UnidadeCurricular ucDocente : ucsDocente) {
+            System.out.println("\n  UC: " + ucDocente.getNome() + " | Ano " + ucDocente.getAnoCurricular());
+            boolean temAlunos = false;
+
+            for (Estudante estudante : todosEstudantes) {
+                if (estudante.getInscricoes() == null) continue;
+
+                for (Inscricao inscricao : estudante.getInscricoes()) {
+                    if (inscricao.getCurso() == null || inscricao.getCurso().getUnidades() == null) continue;
+
+                    for (UnidadeCurricular ucCurso : inscricao.getCurso().getUnidades()) {
+                        if (ucCurso.getNome().equalsIgnoreCase(ucDocente.getNome())
+                                && inscricao.getAnoDeCurso() == ucDocente.getAnoCurricular()) {
+                            System.out.println("    - " + estudante.getNumMecanografico()
+                                    + " | " + estudante.getNome()
+                                    + " | Ano letivo: " + inscricao.getAnoLetivo());
+                            temAlunos = true;
+                            encontrouAlgum = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!temAlunos) {
+                System.out.println("    (sem alunos inscritos nesta UC)");
+            }
+        }
+
+        if (!encontrouAlgum) {
+            System.out.println("\n  (nenhum aluno inscrito nas suas UCs)");
+        }
     }
 }

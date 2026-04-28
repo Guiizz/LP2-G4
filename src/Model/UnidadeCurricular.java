@@ -12,6 +12,7 @@ public class UnidadeCurricular {
     private int anoCurricular;
     private int ects;
     private List<Avaliacao> avaliacoes;
+    private String docenteResponsavel;
 
     /**
      * Construtor
@@ -24,6 +25,7 @@ public class UnidadeCurricular {
         this.anoCurricular = ano;
         this.ects = ects;
         this.avaliacoes = avaliacoes;
+        this.docenteResponsavel = null;
     }
 
     /**
@@ -58,12 +60,26 @@ public class UnidadeCurricular {
         this.avaliacoes = avaliacoes;
     }
 
+    public String getDocenteResponsavel() {
+        return docenteResponsavel;
+    }
+
+    public void setDocenteResponsavel(String docenteResponsavel) {
+        this.docenteResponsavel = docenteResponsavel;
+    }
+
+    public boolean temDocenteResponsavel(){
+        return this.docenteResponsavel != null && this.docenteResponsavel.isEmpty();
+    }
+
     @Override
     public String toString() {
+        String docente = temDocenteResponsavel() ? docenteResponsavel : "(sem docente responsável)";
         return  "=== Unidade Curricular ===\n" +
                 "Nome: " + this.nome + "\n" +
                 "Ano: " + this.anoCurricular + "\n" +
                 "Avaliações: " + this.avaliacoes + "\n" +
+                "Docente: " + this.docenteResponsavel + "\n" +
                 "===========================";
     }
 }
