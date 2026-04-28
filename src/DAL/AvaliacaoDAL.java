@@ -1,6 +1,8 @@
 package DAL;
 
 import Model.Avaliacao;
+import Model.Estudante;
+import Model.Inscricao;
 import Model.UnidadeCurricular;
 
 import java.io.*;
@@ -262,5 +264,13 @@ public class AvaliacaoDAL {
         }
 
         return true;
+    }
+    public void associarAvaliacaoAInscricao(Estudante estudante, UnidadeCurricular uc, Avaliacao av) {
+        for (Inscricao inscricao : estudante.getInscricoes()) {
+            if (inscricao.getCurso().getUnidades().contains(uc)) {
+                inscricao.adicionarAvaliacao(av);
+                return;
+            }
+        }
     }
 }

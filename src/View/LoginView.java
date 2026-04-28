@@ -119,7 +119,7 @@ public class LoginView {
                     }
                 }
 
-                new DocenteView(docenteController, scanner).iniciar(docente);
+                new DocenteView(docenteController, estudanteController, avaliacaoController,scanner).iniciar(docente);
 
             } else if (prefixo.matches("\\d+")) {
                 Estudante estudante = estudanteController.autenticarEstudante(email, password);

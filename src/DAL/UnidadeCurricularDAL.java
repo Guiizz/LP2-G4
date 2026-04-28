@@ -114,7 +114,8 @@ public class UnidadeCurricularDAL {
                 pw.println(
                         uc.getNome() + SEPARADOR +
                                 uc.getAnoCurricular() + SEPARADOR +
-                                uc.getEts()
+                                uc.getEts() + SEPARADOR +
+                                (uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel().getSigla() : "")
                 );
             }
 

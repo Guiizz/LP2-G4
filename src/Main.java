@@ -38,7 +38,7 @@ public class Main {
         CursoController cursoController = new CursoController(cursoBLL);
         DocenteController docenteController = new DocenteController(docenteBLL);
         UnidadeCurricularController unidadeCurricularController = new UnidadeCurricularController(unidadeCurricularBLL);
-        AvaliacaoController avaliacaoController = new AvaliacaoController(avaliacaoBLL);
+        AvaliacaoController avaliacaoController = new AvaliacaoController(avaliacaoBLL, estudanteBLL);
         InscricaoController inscricaoController = new InscricaoController(estudanteBLL);
 
         // ── Scanner partilhado ───────────────────────────────────────────────

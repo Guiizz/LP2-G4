@@ -1,6 +1,7 @@
 package Controller;
 
 import BLL.AvaliacaoBLL;
+import BLL.EstudanteBLL;
 import Model.Avaliacao;
 import Model.Docente;
 import Model.Estudante;
@@ -17,15 +18,16 @@ import java.util.List;
 public class AvaliacaoController {
 
     private AvaliacaoBLL avaliacaoBLL;
-
+    private EstudanteBLL estudanteBLL;
     /**
      * Construtor do AvaliacaoController.
      * Inicializa a camada de negócio da Avaliação.
      *
      * @param avaliacaoBLL Instância da camada BLL.
      */
-    public AvaliacaoController(AvaliacaoBLL avaliacaoBLL) {
+    public AvaliacaoController(AvaliacaoBLL avaliacaoBLL,EstudanteBLL estudanteBLL) {
         this.avaliacaoBLL = avaliacaoBLL;
+        this.estudanteBLL = estudanteBLL;
     }
 
     /**
@@ -103,13 +105,14 @@ public class AvaliacaoController {
     public ArrayList<Avaliacao> procurarPorData(Date data) {
         return avaliacaoBLL.procurarPorData(data);
     }
-    // ACRESCENTA no fim da classe, antes do último }
-// Também adiciona os imports: import Model.Docente; import Model.Estudante;
 
-    public Avaliacao lancarNotaAluno(Docente docenteLogado, UnidadeCurricular uc,
-                                     Estudante estudante, String nomeMomento,
+    public Avaliacao lancarNotaAluno(Docente docenteLogado, UnidadeCurricular uc, String numMec, String nomeMomento,
                                      double peso, Date data, double nota) {
-        return avaliacaoBLL.lancarNotaAluno(docenteLogado, uc, estudante, nomeMomento, peso, data, nota);
+        Estudante estudante = estudanteBLL.procurarPorNumMecanografico(numMec);
+        Avaliacao av = avaliacaoBLL.lancarNotaAluno(docenteLogado, uc, estudante,
+                nomeMomento, peso, data, nota);
+        avaliacaoBLL.associarAvaliacaoAInscricao(estudante, uc, av);
+        return av;
     }
 
     public double calcularNotaFinal(Estudante estudante, UnidadeCurricular uc) {

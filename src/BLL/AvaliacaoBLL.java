@@ -272,4 +272,8 @@ public class AvaliacaoBLL {
                 .mapToDouble(a -> a.getNota() * (a.getPeso() / 100.0))
                 .sum();
     }
+    public void associarAvaliacaoAInscricao(Estudante estudante, UnidadeCurricular uc, Avaliacao av) {
+        avaliacaoDAL.associarAvaliacaoAInscricao(estudante, uc, av);
+    }
+
 }
