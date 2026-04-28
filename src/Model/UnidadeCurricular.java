@@ -28,6 +28,11 @@ public class UnidadeCurricular {
         this.docenteResponsavel = null;
     }
 
+    public UnidadeCurricular(String nome, int ano, int ects, List<Avaliacao> avaliacoes, String docenteResponsavel) {
+        this(nome, ano, ects, avaliacoes);
+        this.docenteResponsavel = docenteResponsavel;
+    }
+
     /**
      * Gets e Sets
      * @return
@@ -69,7 +74,7 @@ public class UnidadeCurricular {
     }
 
     public boolean temDocenteResponsavel(){
-        return this.docenteResponsavel != null && this.docenteResponsavel.isEmpty();
+        return this.docenteResponsavel != null && !this.docenteResponsavel.isEmpty();
     }
 
     @Override

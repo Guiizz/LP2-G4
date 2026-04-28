@@ -125,13 +125,14 @@ public class UnidadeCurricularDAL {
 
     private void guardarNoCSV() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;anoCurricular;ects");
+            pw.println("nome;anoCurricular;ects;docenteResponsavel");
 
             for (UnidadeCurricular uc : unidades) {
                 pw.println(
                         uc.getNome() + SEPARADOR +
                                 uc.getAnoCurricular() + SEPARADOR +
-                                uc.getEts()
+                                uc.getEts() + SEPARADOR +
+                                (uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "")
                 );
             }
 

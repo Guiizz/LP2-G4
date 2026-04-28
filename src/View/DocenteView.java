@@ -22,8 +22,9 @@ public class DocenteView {
     private EstudanteController estudanteController;
     private Scanner scanner;
 
-        public DocenteView(DocenteController controller, Scanner scanner) {
+        public DocenteView(DocenteController controller, EstudanteController estudanteController, Scanner scanner) {
             this.controller = controller;
+            this.estudanteController = estudanteController;
             this.scanner = scanner;
         }
 
@@ -35,7 +36,8 @@ public class DocenteView {
         String[] opcoes = {
                 "Ver a minha Ficha",
                 "Ver as minhas Unidades Curriculares",
-                "Ver a lista dos meus Alunos"
+                "Ver a lista dos meus Alunos",
+                "Ver Alunos por Unidade Curricular"
         };
 
         int opcao;
