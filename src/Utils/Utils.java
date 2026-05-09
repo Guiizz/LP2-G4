@@ -1,62 +1,42 @@
 package Utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
- * Classe com métodos de validação reutilizáveis por todas as BLLs.
+ * Classe com métodos utilitários reutilizáveis por todas as camadas.
  */
 public class Utils {
 
-    /**
-     * Valida o nome de um utilizador.
-     * @param nome O nome a validar.
-     * @throws IllegalArgumentException Se o nome for nulo ou vazio.
-     */
+    // ── Validações ────────────────────────────────────────────────────────────
+
     public static void validarNome(String nome) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("O nome não pode ser vazio.");
         }
     }
 
-    /**
-     * Valida o NIF de um utilizador.
-     * @param nif O NIF a validar.
-     * @throws IllegalArgumentException Se o NIF não tiver exatamente 9 dígitos.
-     */
     public static void validarNif(String nif) {
         if (nif == null || nif.length() != 9) {
             throw new IllegalArgumentException("NIF inválido. Deve conter exatamente 9 dígitos.");
         }
     }
 
-    /**
-     * Valida a data de nascimento de um utilizador.
-     * @param dataNascimento A data de nascimento a validar.
-     * @throws IllegalArgumentException Se a data for nula ou no futuro.
-     */
     public static void validarDataNascimento(LocalDate dataNascimento) {
         if (dataNascimento == null || dataNascimento.isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Data de nascimento inválida.");
         }
     }
 
-    /**
-     * Valida a morada de um utilizador.
-     * @param morada A morada a validar.
-     * @throws IllegalArgumentException Se a morada for nula ou vazia.
-     */
     public static void validarMorada(String morada) {
         if (morada == null || morada.trim().isEmpty()) {
             throw new IllegalArgumentException("A morada não pode ser vazia.");
         }
     }
 
-    /**
-     * Valida o formato do email institucional (@issmf.pt).
-     * @param email O email a validar.
-     * @throws IllegalArgumentException Se o email for nulo, vazio ou com formato inválido.
-     */
     public static void validarEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("O email não pode ser vazio.");
@@ -66,47 +46,133 @@ public class Utils {
         }
     }
 
-    /**
-     * Valida se uma nota está dentro do intervalo permitido (0 a 20).
-     * @param nota A nota a validar.
-     * @throws IllegalArgumentException Se a nota estiver fora do intervalo.
-     */
     public static void validarNota(double nota) {
         if (nota < 0 || nota > 20) {
-            throw new IllegalArgumentException("Nota inválida. Nota deve ser entre 0 e 20.");
+            throw new IllegalArgumentException("Nota inválida. Deve estar entre 0 e 20.");
         }
     }
 
-    /**
-     * Valida se uma palavra-passe não é nula ou vazia.
-     * @param password A palavra-passe a validar.
-     * @throws IllegalArgumentException Se a palavra-passe for nula ou vazia.
-     */
     public static void validarPassword(String password) {
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("A palavra-passe não pode ser vazia.");
         }
     }
 
-    // validação das siglas.
-    /**
-     * Valida a sigla de uma entidade (ex: departamento ou docente).
-     * A sigla deve conter exatamente 3 caracteres alfabéticos (letras).
-     *
-     * @param sigla A sigla a validar.
-     * @throws IllegalArgumentException Se a sigla for nula, tiver comprimento diferente de 3
-     *                                  ou contiver caracteres que não sejam letras.
-     */
     public static void validarSigla(String sigla) {
         if (sigla == null || !sigla.matches("[A-Za-z]{3}")) {
             throw new IllegalArgumentException("Sigla inválida. Deve conter exatamente 3 letras.");
         }
     }
 
+    // ── Leitura ──────────────────────────────────────────────────────
+
+    /**
+     * Lê um campo de texto. Se o utilizador escrever "0", cancela o registo.
+     */
+    public static String lerCampo(String mensagem, Scanner scanner) {
+        System.out.print(mensagem);
+        String valor = scanner.nextLine().trim();
+        if (valor.equals("0")) {
+            throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+        }
+        return valor;
+    }
+
+    /**
+     * Lê um número inteiro. Repete até o utilizador introduzir um valor válido.
+     */
+    public static int lerInteiro(String mensagem, Scanner scanner) {
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                return Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("  [!] Valor inválido. Introduza um número inteiro.");
+            }
+        }
+    }
+
+    /**
+     * Lê um número decimal. Repete até o utilizador introduzir um valor válido.
+     * Aceita vírgula ou ponto como separador decimal.
+     */
+    public static double lerDouble(String mensagem, Scanner scanner) {
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) throw new IllegalArgumentException("Operação cancelada.");
+                return Double.parseDouble(input.replace(",", "."));
+            } catch (NumberFormatException e) {
+                System.out.println("  [!] Valor inválido. Introduza um número (ex: 9.5).");
+            } catch (IllegalArgumentException e) {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Lê uma data no formato AAAA-MM-DD (LocalDate).
+     * Se o utilizador escrever "0", cancela o registo.
+     */
+    public static LocalDate lerData(String mensagem, Scanner scanner) {
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) throw new IllegalArgumentException("Registo cancelado.");
+                return LocalDate.parse(input);
+            } catch (IllegalArgumentException e) {
+                throw e;
+            } catch (Exception e) {
+                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
+            }
+        }
+    }
+
+    /**
+     * Lê uma data no formato DD/MM/AAAA (java.util.Date — usado em Avaliacao).
+     * Se o utilizador escrever "0", cancela o registo.
+     */
+    public static Date lerDataAvaliacao(String mensagem, Scanner scanner) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) throw new IllegalArgumentException("Operação cancelada.");
+                return sdf.parse(input);
+            } catch (IllegalArgumentException e) {
+                throw e;
+            } catch (ParseException e) {
+                System.out.println("  [!] Data inválida. Use o formato DD/MM/AAAA.");
+            }
+        }
+    }
+
+    // ── Consola ───────────────────────────────────────────────────────────────
+
+    /**
+     * Pausa a execução até o utilizador pressionar Enter.
+     */
+    public static void pausar(Scanner scanner) {
+        System.out.print("\n  Pressione Enter para continuar...");
+        scanner.nextLine();
+    }
+
+    /**
+     * Limpa o ecrã da consola imprimindo linhas em branco.
+     */
+    public static void limparEcra() {
+        for (int i = 0; i < 50; i++) {
+            System.out.println();
+        }
+    }
+
+    // ── Menu ──────────────────────────────────────────────────────────────────
 
     public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
-
-
         int larguraMaxima = ("  " + titulo).length();
 
         for (int i = 0; i < opcoes.length; i++) {
@@ -146,10 +212,6 @@ public class Utils {
         }
     }
 
-    /**
-     * Preenche o texto com espaços até à largura desejada,
-     * contando caracteres visuais em vez de bytes (resolve acentos e ç).
-     */
     private static String padDir(String texto, int largura) {
         int visualLen = texto.codePointCount(0, texto.length());
         int espacos = largura - visualLen;
@@ -159,39 +221,5 @@ public class Utils {
             sb.append(' ');
         }
         return sb.toString();
-    }
-
-    private Scanner scanner = new Scanner(System.in);
-
-    /**
-     * Pausa a execucao do programa até o utilizador pressionar Enter.
-     */
-    private void pausar() {
-        System.out.print("\nPressione Enter para continuar...");
-        scanner.nextLine();
-    }
-
-    /**
-     * Limpa o ecra da consola.
-     */
-    private void limparEcra() {
-        for (int i = 0; i < 20; i++) {
-            System.out.println();
-        }
-    }
-    /**
-     * Lê um campo de texto do utilizador.
-     * Se o utilizador escrever "0", lança uma exceção para cancelar o registo.
-     * @param mensagem A mensagem a mostrar ao utilizador.
-     * @param scanner O scanner a utilizar.
-     * @return O valor introduzido.
-     */
-    public static String lerCampo(String mensagem, Scanner scanner) {
-        System.out.print(mensagem);
-        String valor = scanner.nextLine().trim();
-        if (valor.equals("0")) {
-            throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
-        }
-        return valor;
     }
 }

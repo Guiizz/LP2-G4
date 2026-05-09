@@ -1,177 +1,155 @@
 package View;
 
+import Controller.AvaliacaoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
+import Controller.UnidadeCurricularController;
+import Model.Avaliacao;
 import Model.Docente;
 import Model.Estudante;
-import Model.Inscricao;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-    /**
-     * View da área pessoal do Docente.
-     * Apenas acessível após autenticação via LoginView.
-     */
 public class DocenteView {
 
-    private DocenteController controller;
-    private EstudanteController estudanteController;
-    private Scanner scanner;
+    private final DocenteController docenteController;
+    private final EstudanteController estudanteController;
+    private final AvaliacaoController avaliacaoController;
+    private final UnidadeCurricularController unidadeCurricularController;
+    private final Scanner scanner;
 
-        public DocenteView(DocenteController controller, EstudanteController estudanteController, Scanner scanner) {
-            this.controller = controller;
-            this.estudanteController = estudanteController;
-            this.scanner = scanner;
-        }
+    public DocenteView(DocenteController docenteController, EstudanteController estudanteController, AvaliacaoController avaliacaoController, UnidadeCurricularController unidadeCurricularController, Scanner scanner) {
+        this.docenteController = docenteController;
+        this.estudanteController = estudanteController;
+        this.avaliacaoController = avaliacaoController;
+        this.unidadeCurricularController = unidadeCurricularController;
+        this.scanner = scanner;
+    }
 
-        /**
-     * Ponto de entrada da área do docente.
-     * @param docente O docente autenticado.
-     */
     public void iniciar(Docente docente) {
         String[] opcoes = {
                 "Ver a minha Ficha",
                 "Ver as minhas Unidades Curriculares",
-                "Ver a lista dos meus Alunos",
-                "Ver Alunos por Unidade Curricular"
+                "Ver os meus Alunos",
+                "Lançar Avaliação",
+                "Atualizar os meus Dados"
         };
 
         int opcao;
         do {
-            opcao = Utils.mostrarMenu("ÁREA DO DOCENTE  [" + docente.getSigla() + "]", opcoes, scanner);
-            switch (opcao) {
-                case 1: verFicha(docente); break;
-                case 2: verUnidadesCurriculares(docente); break;
-                case 3: verAlunos(docente); break;
-                case 4: verAlunosPorUC(docente); break;
-                case 0: System.out.println("  A terminar sessão…"); break;
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("ÁREA DO DOCENTE [" + docente.getEmail() + "]", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: verFicha(docente);   break;
+                    case 2: verUCs(docente);     break;
+                    case 3: verAlunos(docente);  break;
+                    case 4: lancarAvaliacao();   break;
+                    case 5: atualizar(docente);  break;
+                    case 0: System.out.println("  A terminar sessão..."); break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
             }
         } while (opcao != 0);
     }
 
-    /**
-     * Ações do Docente
-     * @param docente
-     */
-
     private void verFicha(Docente docente) {
-        System.out.println("\n" + docente);
+        Utils.limparEcra();
+        System.out.println("\n--- A minha Ficha ---");
+        System.out.println(docente);
+        Utils.pausar(scanner);
     }
 
-    private void verUnidadesCurriculares(Docente docente) {
-        System.out.println("\n— As minhas Unidades Curriculares —");
-        List<UnidadeCurricular> ucs = docente.getUnidadesLecionadas();
-
-        if (ucs == null || ucs.isEmpty()) {
-            System.out.println("  (sem unidades curriculares atribuídas)");
-            return;
+    private void verUCs(Docente docente) {
+        Utils.limparEcra();
+        System.out.println("\n--- As minhas Unidades Curriculares ---");
+        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
+        boolean encontrou = false;
+        for (UnidadeCurricular uc : todasUCs) {
+            if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
+                System.out.println("  - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
+                encontrou = true;
+            }
         }
-
-        for (int i = 0; i < ucs.size(); i++) {
-            UnidadeCurricular uc = ucs.get(i);
-            System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " | Ano: " + uc.getAnoCurricular()
-                    + " | ECTS: " + uc.getEts());
-        }
+        if (!encontrou) System.out.println("  (sem unidades curriculares atribuídas)");
+        Utils.pausar(scanner);
     }
 
     private void verAlunos(Docente docente) {
-        System.out.println("\n— Procurar Aluno —");
+        Utils.limparEcra();
+        System.out.println("\n--- Os meus Alunos ---");
+        ArrayList<UnidadeCurricular> todasUCs        = unidadeCurricularController.listarUnidades();
+        ArrayList<Estudante>         todosEstudantes = estudanteController.listarEstudante();
 
-        List<UnidadeCurricular> ucsDocente = docente.getUnidadesLecionadas();
-
-        if (ucsDocente == null || ucsDocente.isEmpty()) {
-            System.out.println("  (sem unidades curriculares atribuídas)");
-            return;
-        }
-
-        System.out.print("  Número mecanográfico: ");
-        String numMec = scanner.nextLine().trim();
-
-        Estudante estudante;
-        try {
-            estudante = estudanteController.procurarPorNumMecanografico(numMec);
-        } catch (IllegalArgumentException e) {
-            System.out.println("  [!] " + e.getMessage());
-            return;
-        }
-
-        boolean eAluno = false;
-        for (Inscricao inscricao : estudante.getInscricoes()) {
-            for (UnidadeCurricular ucCurso : inscricao.getCurso().getUnidades()) {
-                for (UnidadeCurricular ucDocente : ucsDocente) {
-                    if (ucCurso.getNome().equals(ucDocente.getNome())) {
-                        eAluno = true;
-                        break;
-                    }
+        boolean encontrouAluno = false;
+        for (UnidadeCurricular uc : todasUCs) {
+            if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
+                System.out.println("  UC: " + uc.getNome());
+                for (Estudante e : todosEstudantes) {
+                    System.out.println("    - " + e.getNome() + " (" + e.getNumMecanografico() + ")");
+                    encontrouAluno = true;
                 }
-                if (eAluno) break;
             }
-            if (eAluno) break;
         }
-
-        if (!eAluno) {
-            System.out.println("  [!] Este estudante não está inscrito em nenhuma das suas unidades curriculares.");
-            return;
-        }
-
-        System.out.println("\n" + estudante);
+        if (!encontrouAluno) System.out.println("  (sem alunos associados)");
+        Utils.pausar(scanner);
     }
 
-    private void verAlunosPorUC(Docente docente) {
-        System.out.println("\n— Alunos inscritos nas minhas Unidades Curriculares —");
+    private void lancarAvaliacao() {
+        System.out.println("\n--- Lançar Avaliação --- (0 para cancelar)");
 
-        List<UnidadeCurricular> ucsDocente = docente.getUnidadesLecionadas();
-
-        if (ucsDocente == null || ucsDocente.isEmpty()) {
-            System.out.println("  (sem unidades curriculares atribuídas)");
+        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
+        if (todasUCs.isEmpty()) {
+            System.out.println("  [!] Não existem UCs registadas.");
+            Utils.pausar(scanner);
             return;
         }
 
-        ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
-
-        if (todosEstudantes == null || todosEstudantes.isEmpty()) {
-            System.out.println("  (sem estudantes registados no sistema)");
-            return;
+        System.out.println("  UCs disponíveis:");
+        for (UnidadeCurricular uc : todasUCs) {
+            System.out.println("    - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
         }
 
-        boolean encontrouAlgum = false;
-
-        for (UnidadeCurricular ucDocente : ucsDocente) {
-            System.out.println("\n  UC: " + ucDocente.getNome() + " | Ano " + ucDocente.getAnoCurricular());
-            boolean temAlunos = false;
-
-            for (Estudante estudante : todosEstudantes) {
-                if (estudante.getInscricoes() == null) continue;
-
-                for (Inscricao inscricao : estudante.getInscricoes()) {
-                    if (inscricao.getCurso() == null || inscricao.getCurso().getUnidades() == null) continue;
-
-                    for (UnidadeCurricular ucCurso : inscricao.getCurso().getUnidades()) {
-                        if (ucCurso.getNome().equalsIgnoreCase(ucDocente.getNome())
-                                && inscricao.getAnoDeCurso() == ucDocente.getAnoCurricular()) {
-                            System.out.println("    - " + estudante.getNumMecanografico()
-                                    + " | " + estudante.getNome()
-                                    + " | Ano letivo: " + inscricao.getAnoLetivo());
-                            temAlunos = true;
-                            encontrouAlgum = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!temAlunos) {
-                System.out.println("    (sem alunos inscritos nesta UC)");
-            }
+        System.out.print("Nome da UC: ");
+        String nomeUC = scanner.nextLine().trim();
+        UnidadeCurricular ucEscolhida = null;
+        for (UnidadeCurricular uc : todasUCs) {
+            if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
         }
+        if (ucEscolhida == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
 
-        if (!encontrouAlgum) {
-            System.out.println("\n  (nenhum aluno inscrito nas suas UCs)");
-        }
+        double peso = Utils.lerDouble("Peso (%): ", scanner);
+        Date   data = Utils.lerDataAvaliacao("Data (DD/MM/AAAA): ", scanner);
+        double nota = Utils.lerDouble("Nota (0-20): ", scanner);
+
+        List<UnidadeCurricular> ucs = new ArrayList<>();
+        ucs.add(ucEscolhida);
+
+        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, nota);
+        System.out.println("  [✓] Avaliação lançada com sucesso.");
+        System.out.println("  " + a);
+        Utils.pausar(scanner);
+    }
+
+    private void atualizar(Docente docente) {
+        System.out.println("\n--- Atualizar os meus Dados --- (0 para cancelar)");
+        System.out.println("  Dados atuais: " + docente.getNome() + " | " + docente.getMorada());
+
+        String novoNome   = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
+        String novaMorada = Utils.lerCampo("Nova morada (Enter para manter): ", scanner);
+
+        if (!novoNome.isEmpty())   docente.setNome(novoNome);
+        if (!novaMorada.isEmpty()) docente.setMorada(novaMorada);
+
+        docenteController.atualizarDocente(docente);
+        System.out.println("  [✓] Dados atualizados com sucesso.");
+        Utils.pausar(scanner);
     }
 }

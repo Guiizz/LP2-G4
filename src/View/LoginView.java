@@ -9,157 +9,139 @@ import Utils.Utils;
 import java.util.Scanner;
 
 public class LoginView {
-    private EstudanteController estudanteController;
-    private DocenteController docenteController;
-    private GestorController gestorController;
-    private DepartamentoController departamentoController;
-    private CursoController cursoController;
-    private UnidadeCurricularController unidadeCurricularController;
-    private AvaliacaoController avaliacaoController;
-    private InscricaoController inscricaoController;
-    private Scanner scanner;
 
-    public LoginView(EstudanteController estudanteController, DocenteController docenteController, GestorController gestorController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController,InscricaoController inscricaoController, Scanner scanner) {
-        this.estudanteController = estudanteController;
-        this.docenteController = docenteController;
-        this.gestorController = gestorController;
-        this.departamentoController = departamentoController;
-        this.cursoController = cursoController;
-        this.unidadeCurricularController = unidadeCurricularController;
-        this.avaliacaoController = avaliacaoController;
-        this.inscricaoController = inscricaoController;
-        this.scanner = scanner;
+    private final EstudanteController estudanteController;
+    private final GestorController gestorController;
+    private final DocenteController docenteController;
+    private final DepartamentoController departamentoController;
+    private final CursoController cursoController;
+    private final UnidadeCurricularController unidadeCurricularController;
+    private final AvaliacaoController avaliacaoController;
+    private final InscricaoController inscricaoController;
+    private final Scanner scanner;
+
+
+    public LoginView() {
+        this.gestorController = new GestorController();
+        this.estudanteController = new EstudanteController();
+        this.docenteController = new DocenteController();
+        this.departamentoController = new DepartamentoController();
+        this.cursoController = new CursoController();
+        this.unidadeCurricularController = new UnidadeCurricularController();
+        this.avaliacaoController = new AvaliacaoController();
+        this.inscricaoController = new InscricaoController();
+        this.scanner = new Scanner(System.in);
     }
+
 
     public void iniciar() {
         String[] opcoes = {"Login"};
         int opcao;
         do {
+            Utils.limparEcra();
             opcao = Utils.mostrarMenu("ISSMF - PORTAL", opcoes, scanner);
-            if (opcao == 1) {
-                efetuarLogin();
-            }
+            if (opcao == 1) efetuarLogin();
         } while (opcao != 0);
 
-        System.out.println("\n Até breve!");
+        System.out.println("\n  Até breve!");
     }
 
     private void efetuarLogin() {
-        System.out.print("\n--- Login ---\n E-mail: ");
+        Utils.limparEcra();
+        System.out.print("\n--- Login ---\n  E-mail: ");
         String email = scanner.nextLine().trim();
-
-        System.out.print(" Palavra-passe: ");
+        System.out.print("  Palavra-passe: ");
         String password = lerPassword();
 
         String prefixo = extrairPrefixo(email);
         if (prefixo == null) {
-            System.out.println(" [!] Formato de e-mail inválido. Use o formato xxxxx@issmf.pt");
+            System.out.println("  [!] Formato de e-mail inválido. Use xxxxx@issmf.pt");
+            Utils.pausar(scanner);
             return;
         }
 
         try {
             if (prefixo.equalsIgnoreCase("gestor")) {
                 Gestor gestor = gestorController.autenticar(email, password);
-
-                if (gestor.isPrimeiroLogin()) {
-                    System.out.println("\n [!] É o seu primeiro acesso. Deve alterar a sua password.");
-                    String novaPassword = null;
-                    while (novaPassword == null) {
-                        System.out.print(" Nova password    : ");
-                        String p1 = scanner.nextLine().trim();
-                        System.out.print(" Confirmar password: ");
-                        String p2 = scanner.nextLine().trim();
-                        if (!p1.equals(p2)) {
-                            System.out.println(" [!] As passwords não coincidem. Tente novamente.");
-                        } else {
-                            try {
-                                gestorController.alterarPassword(gestor, p1);
-                                novaPassword = p1;
-                                System.out.println(" [✓] Password alterada com sucesso!");
-                            } catch (IllegalArgumentException e) {
-                                System.out.println(" [!] " + e.getMessage());
-                            }
-                        }
-                    }
-                }
-
-                new GestorView(
-                        gestorController,
-                        estudanteController,
-                        docenteController,
-                        departamentoController,
-                        cursoController,
-                        unidadeCurricularController,
-                        scanner,
-                        inscricaoController
-                ).iniciar(gestor);
+                if (gestor.isPrimeiroLogin()) tratarPrimeiroLoginGestor(gestor);
+                new GestorView(gestorController, estudanteController, docenteController, departamentoController, cursoController, unidadeCurricularController, avaliacaoController, inscricaoController, scanner).iniciar(gestor);
 
             } else if (prefixo.matches("[A-Za-z]{3}")) {
                 Docente docente = docenteController.autenticar(email, password);
-
-                if (docente.isPrimeiroLogin()) {
-                    System.out.println("\n [!] É o seu primeiro acesso. Deve alterar a sua password.");
-                    String novaPassword = null;
-                    while (novaPassword == null) {
-                        System.out.print(" Nova password    : ");
-                        String p1 = scanner.nextLine().trim();
-                        System.out.print(" Confirmar password: ");
-                        String p2 = scanner.nextLine().trim();
-                        if (!p1.equals(p2)) {
-                            System.out.println(" [!] As passwords não coincidem. Tente novamente.");
-                        } else {
-                            try {
-                                docenteController.alterarPassword(docente, p1);
-                                novaPassword = p1;
-                                System.out.println(" [✓] Password alterada com sucesso!");
-                            } catch (IllegalArgumentException e) {
-                                System.out.println(" [!] " + e.getMessage());
-                            }
-                        }
-                    }
-                }
-
-                new DocenteView(docenteController, estudanteController, scanner).iniciar(docente);
+                if (docente.isPrimeiroLogin()) tratarPrimeiroLoginDocente(docente);
+                new DocenteView(docenteController, estudanteController, avaliacaoController, unidadeCurricularController, scanner).iniciar(docente);
 
             } else if (prefixo.matches("\\d+")) {
                 Estudante estudante = estudanteController.autenticarEstudante(email, password);
-
-                if (estudante.isPrimeiroLogin()) {
-                    System.out.println("\n [!] É o seu primeiro acesso. Deve alterar a sua password.");
-                    String novaPassword = null;
-                    while (novaPassword == null) {
-                        System.out.print(" Nova password    : ");
-                        String p1 = scanner.nextLine().trim();
-                        System.out.print(" Confirmar password: ");
-                        String p2 = scanner.nextLine().trim();
-                        if (!p1.equals(p2)) {
-                            System.out.println(" [!] As passwords não coincidem. Tente novamente.");
-                        } else {
-                            try {
-                                estudanteController.alterarPassword(estudante, p1);
-                                novaPassword = p1;
-                                System.out.println(" [✓] Password alterada com sucesso!");
-                            } catch (IllegalArgumentException e) {
-                                System.out.println(" [!] " + e.getMessage());
-                            }
-                        }
-                    }
-                }
-
+                if (estudante.isPrimeiroLogin()) tratarPrimeiroLoginEstudante(estudante);
                 new EstudanteView(estudanteController, scanner).iniciar(estudante);
 
             } else {
                 System.out.println("  [!] Tipo de utilizador não reconhecido.");
+                Utils.pausar(scanner);
             }
         } catch (IllegalArgumentException e) {
-            System.out.println(" [!] " + e.getMessage());
+            System.out.println("  [!] " + e.getMessage());
+            Utils.pausar(scanner);
         }
     }
 
-    private String extrairPrefixo(String email) {
-        if (email == null || !email.toLowerCase().endsWith("@issmf.pt")) {
-            return null;
+    private void tratarPrimeiroLoginGestor(Gestor gestor) {
+        System.out.println("\n  [!] É o seu primeiro acesso. Deve alterar a sua password.");
+        boolean alterada = false;
+        while (!alterada) {
+            try {
+                String novaPassword = pedirNovaPassword();
+                gestorController.alterarPassword(gestor, novaPassword);
+                System.out.println("  [✓] Password alterada com sucesso!");
+                alterada = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
         }
+    }
+
+    private void tratarPrimeiroLoginDocente(Docente docente) {
+        System.out.println("\n  [!] É o seu primeiro acesso. Deve alterar a sua password.");
+        boolean alterada = false;
+        while (!alterada) {
+            try {
+                String novaPassword = pedirNovaPassword();
+                docenteController.alterarPassword(docente, novaPassword);
+                System.out.println("  [✓] Password alterada com sucesso!");
+                alterada = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    private void tratarPrimeiroLoginEstudante(Estudante estudante) {
+        System.out.println("\n  [!] É o seu primeiro acesso. Deve alterar a sua password.");
+        boolean alterada = false;
+        while (!alterada) {
+            try {
+                String novaPassword = pedirNovaPassword();
+                estudanteController.alterarPassword(estudante, novaPassword);
+                System.out.println("  [✓] Password alterada com sucesso!");
+                alterada = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    private String pedirNovaPassword() {
+        System.out.print("  Nova password : ");
+        String p1 = scanner.nextLine().trim();
+        System.out.print("  Confirmar password: ");
+        String p2 = scanner.nextLine().trim();
+        if (!p1.equals(p2)) throw new IllegalArgumentException("As passwords não coincidem. Tente novamente.");
+        return p1;
+    }
+
+    private String extrairPrefixo(String email) {
+        if (email == null || !email.toLowerCase().endsWith("@issmf.pt")) return null;
         return email.substring(0, email.indexOf('@'));
     }
 
