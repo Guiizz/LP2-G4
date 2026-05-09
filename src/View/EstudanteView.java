@@ -1,154 +1,102 @@
 package View;
 
 import Controller.EstudanteController;
-import Model.*;
+import Model.Estudante;
+import Model.Inscricao;
 import Utils.Utils;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Scanner;
 
-/**
- * View da área pessoal do Estudante.
- * Apenas acessível após autenticação via LoginView.
- */
 public class EstudanteView {
 
-   private EstudanteController control;
-   private Scanner scanner;
+    private final EstudanteController estudanteController;
+    private final Scanner scanner;
 
-    public EstudanteView(EstudanteController control, Scanner scanner) {
-        this.control = control;
+    public EstudanteView(EstudanteController estudanteController, Scanner scanner) {
+        this.estudanteController = estudanteController;
         this.scanner = scanner;
     }
 
-
-    /**
-     * Menu de entrada da área do estudante.
-     * @param estudante O estudante autenticado.
-     */
     public void iniciar(Estudante estudante) {
         String[] opcoes = {
-                "Ver a minha Ficha de Estudante",
-                "Ver as minhas Notas",
-                "Verificar Progressão de Ano",
-                "Avançar para o Proximo Ano"
+                "Ver a minha Ficha",
+                "Ver as minhas Inscrições",
+                "Ver as minhas Avaliações",
+                "Atualizar os meus Dados"
         };
 
         int opcao;
-        do{
-            opcao = Utils.mostrarMenu("ÁREA DO ESTUDANTE [" + estudante.getNumMecanografico() + "]", opcoes, scanner);
-            switch (opcao){
-                case 1: verFichaEstudante(estudante); break;
-                case 2: verNotasEstudante(estudante); break;
-                case 3: verificarProgressaoAno(estudante); break;
-                case 4: passarDeAno(estudante); break;
-                case 0: System.out.printf(" A encerrar sessão..."); break;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("ÁREA DO ESTUDANTE [" + estudante.getEmail() + "]", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: verFicha(estudante);      break;
+                    case 2: verInscricoes(estudante); break;
+                    case 3: verAvaliacoes(estudante); break;
+                    case 4: atualizar(estudante);     break;
+                    case 0: System.out.println("  A terminar sessão..."); break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
             }
-        }while (opcao != 0);
+        } while (opcao != 0);
     }
 
-    // ── Ações ────────────────────────────────────────────────────────────────
-
-    private void verFichaEstudante(Estudante estudante) {
-        System.out.println("\n" + estudante);
+    private void verFicha(Estudante estudante) {
+        Utils.limparEcra();
+        System.out.println("\n--- A minha Ficha ---");
+        System.out.println(estudante);
+        Utils.pausar(scanner);
     }
 
-    private void verNotasEstudante(Estudante estudante) {
-        System.out.println("\n--- As minhas Notas ---");
+    private void verInscricoes(Estudante estudante) {
+        Utils.limparEcra();
+        System.out.println("\n--- As minhas Inscrições ---");
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
-
         if (inscricoes.isEmpty()) {
-            System.out.println("  (Sem inscrições registadas...)");
+            System.out.println("  (sem inscrições registadas)");
+            Utils.pausar(scanner);
             return;
         }
-
-        for (Inscricao inscricao : inscricoes) {
-            System.out.println("\n  Ano letivo: " + inscricao.getAnoDeCurso() + "/" + (inscricao.getAnoLetivo() + 1));
-            System.out.println(" Ano de Curso: " + inscricao.getAnoDeCurso() + "º Ano");
-            System.out.println(" Curso: " + inscricao.getCurso().getNomeCurso());
-            System.out.println("  ─────────────────────────────────────");
-
-            ArrayList<Avaliacao> avaliacoes = inscricao.getAvaliacoes();
-
-            if (avaliacoes.isEmpty()) {
-                System.out.println("    (Sem momentos de avaliação registados)");
-                continue;
-            }
-            java.util.LinkedHashMap<String, double[]> totaisPorUC = new LinkedHashMap<>();
-            java.util.LinkedHashMap<String, Boolean> pendentePorUC = new java.util.LinkedHashMap<>();
-            System.out.printf("    %-20s %-10s %-8s %-10s%n",
-                    "UC", "Data", "Peso", "Nota");
-            System.out.println("    ──────────────────────────────────────────");
-            for (Avaliacao av : avaliacoes) {
-                for(UnidadeCurricular uc : av.getUc()){
-                    String nomeUC = uc.getNome();
-                    String notaStr = av.getNotaFormatada();
-                    System.out.printf("    %-20s %-10s %-7.0f%% %s%n",
-                         nomeUC,
-                         av.getDataFormatada(),
-                         av.getPeso(),
-                         notaStr);
-                    totaisPorUC.putIfAbsent(nomeUC, new double[]{0,0});
-                    pendentePorUC.putIfAbsent(nomeUC, false);
-
-                    if (!av.isLancada()){
-                        pendentePorUC.put(nomeUC, true);
-                    }else {
-                     totaisPorUC.get(nomeUC)[0] += av.getNota() * av.getPeso();
-                     totaisPorUC.get(nomeUC)[1] += av.getPeso();
-                    }
-                }
-            }
-            System.out.println("    ──────────────────────────────────────────");
-            System.out.println("    NOTA FINAL POR UC:");
-            for (String nomeUC : totaisPorUC.keySet()) {
-                if (pendentePorUC.get(nomeUC)){
-                    System.out.println(" " + nomeUC + ": Pendente");
-                }else {
-                    double[] totais = totaisPorUC.get(nomeUC);
-                    double notaFinal = totais[1] > 0 ? totais[0] / totais[1] : 0;
-                    String resultado = notaFinal >= 10 ? "Aprovado" : "Reprovado";
-                    System.out.printf("      %-20s %.1f valores — %s%n",
-                            nomeUC + ":", notaFinal, resultado);
-                }
-            }
-        }
+        for (Inscricao i : inscricoes) { System.out.println(i + "\n"); }
+        Utils.pausar(scanner);
     }
 
-    private void verificarProgressaoAno(Estudante estudante) {
-        System.out.println("\n--- Verificar Progressão de Ano ---");
-        try {
-            control.verificarProgressaoAno(estudante);
-            System.out.println("  [✓] Parabéns! Cumpre os requisitos para progredir para o ano "
-                    + (estudante.getAnoAtual() + 1) + ".");
-        } catch (IllegalArgumentException e) {
-            System.out.println("  [!] " + e.getMessage());
+    private void verAvaliacoes(Estudante estudante) {
+        Utils.limparEcra();
+        System.out.println("\n--- As minhas Avaliações ---");
+        ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
+        if (inscricoes.isEmpty()) {
+            System.out.println("  (sem inscrições registadas)");
+            Utils.pausar(scanner);
+            return;
         }
+        for (Inscricao i : inscricoes) {
+            System.out.println("  Ano " + i.getAnoDeCurso() + " — " + i.getCurso().getNomeCurso());
+            if (i.getAvaliacoes() == null || i.getAvaliacoes().isEmpty()) {
+                System.out.println("    (sem avaliações)");
+            } else {
+                for (Object a : i.getAvaliacoes()) { System.out.println("    " + a); }
+            }
+        }
+        Utils.pausar(scanner);
     }
 
-    private void passarDeAno(Estudante estudante){
-        System.out.println("\n--- Avançar para o Próximo Ano ---");
-        try{
-            control.verificarProgressaoAno(estudante);
-            ArrayList<Inscricao> inscricaos = estudante.getInscricoes();
-            if (inscricaos.isEmpty()){
-                System.out.println(" [!] Não tem inscrições registadas.");
-                return;
-            }
-            Curso curso = inscricaos.get(inscricaos.size() - 1).getCurso();
+    private void atualizar(Estudante estudante) {
+        System.out.println("\n--- Atualizar os meus Dados --- (0 para cancelar)");
+        System.out.println("  Dados atuais: " + estudante.getNome() + " | " + estudante.getMorada());
 
-            int novoAno = estudante.getAnoAtual() + 1;
-            int anoLetivo = LocalDate.now().getYear();
-            Inscricao novaInscrição = new Inscricao(anoLetivo, novoAno, curso);
+        String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
+        String novaMorada = Utils.lerCampo("Nova morada (Enter para manter): ", scanner);
 
-            control.passarAno(estudante, novaInscrição);
-            
-            System.out.println("  [✓] Avançou com sucesso para o ano " + novoAno + "!");
-            System.out.println("      Ano letivo: " + anoLetivo + "/" + (anoLetivo + 1));
-        } catch (IllegalArgumentException e) {
-            System.out.println(" [!] " + e.getMessage());
-        }
+        String nomeAtualizar = novoNome.isEmpty() ? estudante.getNome() : novoNome;
+        String moradaAtualizar = novaMorada.isEmpty() ? estudante.getMorada() : novaMorada;
+
+        estudanteController.atualizarEstudante(estudante.getNumMecanografico(), nomeAtualizar, moradaAtualizar);
+        System.out.println("  [✓] Dados atualizados com sucesso.");
+        Utils.pausar(scanner);
     }
 }

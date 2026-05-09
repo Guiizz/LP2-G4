@@ -1,7 +1,6 @@
 package Controller;
 
 import BLL.DocenteBLL;
-import DAL.DocenteDAL;
 import Model.Docente;
 
 import java.util.ArrayList;
@@ -25,10 +24,12 @@ public class DocenteController {
      * Regista um novo Docente no sistema.
      *
      * @param docente O docente a registar.
+     * @return
      * @throws IllegalArgumentException Se os dados forem inválidos ou já existir duplicado.
      */
-    public void registarDocente(Docente docente) {
+    public Docente registarDocente(Docente docente) {
         docenteBLL.registarDocente(docente);
+        return docente;
     }
 
     /**

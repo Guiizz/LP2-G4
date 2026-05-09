@@ -1,6 +1,5 @@
 package Model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UnidadeCurricular {
@@ -16,11 +15,11 @@ public class UnidadeCurricular {
 
     /**
      * Construtor
+     *
      * @param nome
      * @param ano
-     * @param avaliacoes
      */
-    public UnidadeCurricular(String nome, int ano, int ects, List<Avaliacao> avaliacoes) {
+    public UnidadeCurricular(String nome, int ano, int ects) {
         this.nome = nome;
         this.anoCurricular = ano;
         this.ects = ects;
@@ -29,7 +28,7 @@ public class UnidadeCurricular {
     }
 
     public UnidadeCurricular(String nome, int ano, int ects, List<Avaliacao> avaliacoes, String docenteResponsavel) {
-        this(nome, ano, ects, avaliacoes);
+        this(nome, ano, ects);
         this.docenteResponsavel = docenteResponsavel;
     }
 
