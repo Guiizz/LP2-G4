@@ -49,30 +49,24 @@ public class CursoController {
         return cursoBLL.listarCursos();
     }
 
-    /**
-     * Atualiza o nome de um curso existente.
-     * Não é permitido alterar se o curso já tiver estudantes alocados.
-     *
-     * @param curso      O curso a atualizar.
-     * @param novoNome   O novo nome do curso.
-     * @param estudantes Lista de todos os estudantes do sistema.
-     * @throws IllegalArgumentException Se o curso for nulo, o nome inválido,
-     *                                  tiver estudantes alocados ou o nome já existir.
-     */
+
     public void atualizarNomeCurso(Curso curso, String novoNome, List<Estudante> estudantes) {
         cursoBLL.atualizarNomeCurso(curso, novoNome, estudantes);
     }
 
-    /**
-     * Remove um curso do sistema.
-     * Não é permitido remover se o curso tiver estudantes alocados.
-     *
-     * @param curso      O curso a remover.
-     * @param estudantes Lista de todos os estudantes do sistema.
-     * @throws IllegalArgumentException Se o curso for nulo ou tiver estudantes alocados.
-     */
+
+    public void atualizarNomeCurso(Curso curso, String novoNome) {
+        cursoBLL.atualizarNomeCurso(curso, novoNome);
+    }
+
+
     public void removerCurso(Curso curso, List<Estudante> estudantes) {
         cursoBLL.removerCurso(curso, estudantes);
+    }
+
+
+    public void removerCurso(Curso curso) {
+        cursoBLL.removerCurso(curso);
     }
 
     /**

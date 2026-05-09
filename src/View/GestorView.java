@@ -56,7 +56,7 @@ public class GestorView {
                 case 3: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, scanner).iniciar(); break;
                 case 4: new DocenteGestorView(docenteController, scanner).iniciar(); break;
                 case 5: new DepartamentoView(departamentoController, scanner).iniciar(); break;
-                case 6: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
+                case 6: new CursoView(cursoController, departamentoController, unidadeCurricularController, scanner).iniciar(); break;
                 case 7: new UnidadeCurricularView(unidadeCurricularController, docenteController, scanner).iniciar(); break;
                 case 8: new AvaliacaoView(avaliacaoController, unidadeCurricularController, scanner).iniciar(); break;
                 case 0: System.out.println("  A terminar sessão..."); break;

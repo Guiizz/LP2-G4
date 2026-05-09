@@ -2,11 +2,9 @@ package View;
 
 import Controller.CursoController;
 import Controller.DepartamentoController;
-import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
 import Model.Curso;
 import Model.Departamento;
-import Model.Estudante;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
@@ -19,14 +17,12 @@ public class CursoView {
     private final CursoController cursoController;
     private final DepartamentoController departamentoController;
     private final UnidadeCurricularController unidadeCurricularController;
-    private final EstudanteController estudanteController;
     private final Scanner scanner;
 
-    public CursoView(CursoController cursoController, DepartamentoController departamentoController, UnidadeCurricularController unidadeCurricularController, EstudanteController estudanteController, Scanner scanner) {
+    public CursoView(CursoController cursoController, DepartamentoController departamentoController, UnidadeCurricularController unidadeCurricularController, Scanner scanner) {
         this.cursoController = cursoController;
         this.departamentoController = departamentoController;
         this.unidadeCurricularController = unidadeCurricularController;
-        this.estudanteController = estudanteController;
         this.scanner = scanner;
     }
 
@@ -48,7 +44,7 @@ public class CursoView {
             try {
                 switch (opcao) {
                     case 1: registar(); break;
-                    case 2: listar(); break;
+                    case 2: listar();  break;
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover(); break;
@@ -62,8 +58,6 @@ public class CursoView {
             }
         } while (opcao != 0);
     }
-
-
 
     private void registar() {
         System.out.println("\n--- Registar Curso --- (0 para cancelar)");
@@ -115,15 +109,8 @@ public class CursoView {
         Curso c = cursoController.procurarPorNome(nomeAtual);
         if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
 
-        List<Estudante> estudantes = estudanteController.listarEstudante();
-        if (cursoController.temEstudantesAlocados(c, estudantes)) {
-            System.out.println("  [!] Não é possível alterar — o curso tem estudantes alocados.");
-            Utils.pausar(scanner);
-            return;
-        }
-
         String novoNome = Utils.lerCampo("Novo nome: ", scanner);
-        cursoController.atualizarNomeCurso(c, novoNome, estudantes);
+        cursoController.atualizarNomeCurso(c, novoNome);
         System.out.println("  [✓] Nome do curso atualizado com sucesso.");
         Utils.pausar(scanner);
     }
@@ -135,8 +122,8 @@ public class CursoView {
         Curso c = cursoController.procurarPorNome(nome);
         if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
 
-        List<Estudante> estudantes = estudanteController.listarEstudante();
-        cursoController.removerCurso(c, estudantes);
+
+        cursoController.removerCurso(c);
         System.out.println("  [✓] Curso removido com sucesso.");
         Utils.pausar(scanner);
     }

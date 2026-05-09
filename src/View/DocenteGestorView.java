@@ -47,8 +47,6 @@ public class DocenteGestorView {
         } while (opcao != 0);
     }
 
-
-
     private void registar() {
         System.out.println("\n--- Registar Docente --- (0 para cancelar)");
         String nome = Utils.lerCampo("Nome: ", scanner);
