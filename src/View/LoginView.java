@@ -12,7 +12,7 @@ public class LoginView {
 
     private final EstudanteController estudanteController;
     private final GestorController gestorController;
-    private final DocenteController  docenteController;
+    private final DocenteController docenteController;
     private final DepartamentoController departamentoController;
     private final CursoController cursoController;
     private final UnidadeCurricularController unidadeCurricularController;
@@ -20,17 +20,19 @@ public class LoginView {
     private final InscricaoController inscricaoController;
     private final Scanner scanner;
 
-    public LoginView(GestorController gestorController, EstudanteController estudanteController, DocenteController docenteController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController, InscricaoController inscricaoController, Scanner scanner) {
-        this.gestorController = gestorController;
-        this.estudanteController = estudanteController;
-        this.docenteController = docenteController;
-        this.departamentoController = departamentoController;
-        this.cursoController = cursoController;
-        this.unidadeCurricularController = unidadeCurricularController;
-        this.avaliacaoController = avaliacaoController;
-        this.inscricaoController = inscricaoController;
-        this.scanner = scanner;
+
+    public LoginView() {
+        this.gestorController = new GestorController();
+        this.estudanteController = new EstudanteController();
+        this.docenteController = new DocenteController();
+        this.departamentoController = new DepartamentoController();
+        this.cursoController = new CursoController();
+        this.unidadeCurricularController = new UnidadeCurricularController();
+        this.avaliacaoController = new AvaliacaoController();
+        this.inscricaoController = new InscricaoController();
+        this.scanner = new Scanner(System.in);
     }
+
 
     public void iniciar() {
         String[] opcoes = {"Login"};
