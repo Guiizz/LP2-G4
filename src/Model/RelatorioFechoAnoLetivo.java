@@ -8,6 +8,7 @@ public class RelatorioFechoAnoLetivo {
     private int estudantesMantidos;
     private int estudantesConcluidos;
     private final List<String> mensagens;
+    private String caminhoFicheiroHistorico;
 
     public RelatorioFechoAnoLetivo() {
         this.mensagens = new ArrayList<>();
@@ -43,5 +44,13 @@ public class RelatorioFechoAnoLetivo {
 
     public List<String> getMensagens() {
         return mensagens;
+    }
+
+    public String getCaminhoFicheiroHistorico() {
+        return caminhoFicheiroHistorico;
+    }
+
+    public void setCaminhoFicheiroHistorico(String caminhoFicheiroHistorico) {
+        this.caminhoFicheiroHistorico = caminhoFicheiroHistorico;
     }
 }
