@@ -18,8 +18,8 @@ public class LoginView {
     private final UnidadeCurricularController unidadeCurricularController;
     private final AvaliacaoController avaliacaoController;
     private final InscricaoController inscricaoController;
+    private final AnoLetivoController anoLetivoController;
     private final Scanner scanner;
-
 
     public LoginView() {
         this.gestorController = new GestorController();
@@ -30,9 +30,9 @@ public class LoginView {
         this.unidadeCurricularController = new UnidadeCurricularController();
         this.avaliacaoController = new AvaliacaoController();
         this.inscricaoController = new InscricaoController();
+        this.anoLetivoController = new AnoLetivoController();
         this.scanner = new Scanner(System.in);
     }
-
 
     public void iniciar() {
         String[] opcoes = {"Login"};
@@ -64,7 +64,7 @@ public class LoginView {
             if (prefixo.equalsIgnoreCase("gestor")) {
                 Gestor gestor = gestorController.autenticar(email, password);
                 if (gestor.isPrimeiroLogin()) tratarPrimeiroLoginGestor(gestor);
-                new GestorView(gestorController, estudanteController, docenteController, departamentoController, cursoController, unidadeCurricularController, avaliacaoController, inscricaoController, scanner).iniciar(gestor);
+                new GestorView(gestorController, estudanteController, docenteController, departamentoController, cursoController, unidadeCurricularController, avaliacaoController, inscricaoController, anoLetivoController, scanner).iniciar(gestor);
 
             } else if (prefixo.matches("[A-Za-z]{3}")) {
                 Docente docente = docenteController.autenticar(email, password);

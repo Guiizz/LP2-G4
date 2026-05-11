@@ -1,41 +1,32 @@
 package Model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UnidadeCurricular {
 
-    /**
-     * Atributos
-     */
     private String nome;
     private int anoCurricular;
     private int ects;
     private List<Avaliacao> avaliacoes;
     private String docenteResponsavel;
 
-    /**
-     * Construtor
-     *
-     * @param nome
-     * @param ano
-     */
     public UnidadeCurricular(String nome, int ano, int ects) {
         this.nome = nome;
         this.anoCurricular = ano;
         this.ects = ects;
-        this.avaliacoes = avaliacoes;
+        this.avaliacoes = new ArrayList<>();
         this.docenteResponsavel = null;
     }
 
     public UnidadeCurricular(String nome, int ano, int ects, List<Avaliacao> avaliacoes, String docenteResponsavel) {
-        this(nome, ano, ects);
+        this.nome = nome;
+        this.anoCurricular = ano;
+        this.ects = ects;
+        this.avaliacoes = avaliacoes != null ? avaliacoes : new ArrayList<>();
         this.docenteResponsavel = docenteResponsavel;
     }
 
-    /**
-     * Gets e Sets
-     * @return
-     */
     public String getNome() {
         return nome;
     }
@@ -52,16 +43,20 @@ public class UnidadeCurricular {
         this.anoCurricular = ano;
     }
 
-    public int getEts() {return ects;}
+    public int getEts() {
+        return ects;
+    }
 
-    public void setEts(int ects) {this.ects = ects;}
+    public void setEts(int ects) {
+        this.ects = ects;
+    }
 
     public List<Avaliacao> getAvaliacoes() {
         return avaliacoes;
     }
 
     public void setAvaliacoes(List<Avaliacao> avaliacoes) {
-        this.avaliacoes = avaliacoes;
+        this.avaliacoes = avaliacoes != null ? avaliacoes : new ArrayList<>();
     }
 
     public String getDocenteResponsavel() {
@@ -82,8 +77,9 @@ public class UnidadeCurricular {
         return  "=== Unidade Curricular ===\n" +
                 "Nome: " + this.nome + "\n" +
                 "Ano: " + this.anoCurricular + "\n" +
-                "Avaliações: " + this.avaliacoes + "\n" +
-                "Docente: " + this.docenteResponsavel + "\n" +
+                "ECTS: " + this.ects + "\n" +
+                "Avaliações: " + this.avaliacoes.size() + "\n" +
+                "Docente: " + docente + "\n" +
                 "===========================";
     }
 }

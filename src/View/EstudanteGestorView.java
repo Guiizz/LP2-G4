@@ -5,6 +5,7 @@ import Controller.EstudanteController;
 import Controller.InscricaoController;
 import Model.Curso;
 import Model.Estudante;
+import Model.Inscricao;
 import Utils.Utils;
 
 import java.time.LocalDate;
@@ -32,7 +33,10 @@ public class EstudanteGestorView {
                 "Procurar Estudante por Nº Mecanográfico",
                 "Atualizar Estudante",
                 "Remover Estudante",
-                "Inscrever Estudante em Curso"
+                "Inscrever Estudante em Curso",
+                "Marcar Propina Atual como Paga",
+                "Listar Estudantes com Propina em Dívida",
+                "Registar Nota na Inscrição Atual"
         };
 
         int opcao;
@@ -47,6 +51,9 @@ public class EstudanteGestorView {
                     case 4: atualizar(); break;
                     case 5: remover(); break;
                     case 6: inscrever(); break;
+                    case 7: marcarPropinaPaga(); break;
+                    case 8: listarPropinasEmDivida(); break;
+                    case 9: registarNota(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -55,8 +62,6 @@ public class EstudanteGestorView {
             }
         } while (opcao != 0);
     }
-
-    // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
         System.out.println("\n--- Registar Estudante --- (0 para cancelar)");
@@ -69,7 +74,7 @@ public class EstudanteGestorView {
         System.out.println("  [✓] Estudante registado com sucesso.");
         System.out.println("  Nº Mecanográfico : " + e.getNumMecanografico());
         System.out.println("  E-mail           : " + e.getEmail());
-        System.out.println("  Password inicial : Issmf" + e.getNumMecanografico());
+        System.out.println("  Password inicial : enviada por email");
         Utils.pausar(scanner);
     }
 
@@ -87,7 +92,6 @@ public class EstudanteGestorView {
         System.out.print("\nNº Mecanográfico: ");
         String num = scanner.nextLine().trim();
         Estudante e = estudanteController.procurarPorNumMecanografico(num);
-        if (e == null) { System.out.println("  [!] Estudante não encontrado."); Utils.pausar(scanner); return; }
         System.out.println("\n" + e);
         Utils.pausar(scanner);
     }
@@ -97,13 +101,13 @@ public class EstudanteGestorView {
         System.out.print("Nº Mecanográfico do estudante a atualizar: ");
         String num = scanner.nextLine().trim();
         Estudante e = estudanteController.procurarPorNumMecanografico(num);
-        if (e == null) { System.out.println("  [!] Estudante não encontrado."); Utils.pausar(scanner); return; }
 
         System.out.println("  Dados atuais: " + e.getNome() + " | " + e.getMorada());
+        System.out.println("  Email, NIF, data de nascimento e nº mecanográfico não são editáveis.");
         String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
         String novaMorada = Utils.lerCampo("Nova morada (Enter para manter): ", scanner);
 
-        String nomeAtualizar = novoNome.isEmpty()   ? e.getNome()   : novoNome;
+        String nomeAtualizar = novoNome.isEmpty() ? e.getNome() : novoNome;
         String moradaAtualizar = novaMorada.isEmpty() ? e.getMorada() : novaMorada;
 
         estudanteController.atualizarEstudante(e.getNumMecanografico(), nomeAtualizar, moradaAtualizar);
@@ -123,7 +127,6 @@ public class EstudanteGestorView {
         System.out.println("\n--- Inscrever Estudante em Curso ---");
         System.out.print("Nº Mecanográfico: ");
         Estudante e = estudanteController.procurarPorNumMecanografico(scanner.nextLine().trim());
-        if (e == null) { System.out.println("  [!] Estudante não encontrado."); Utils.pausar(scanner); return; }
 
         ArrayList<Curso> cursos = cursoController.listarCursos();
         if (cursos.isEmpty()) { System.out.println("  [!] Não existem cursos registados."); Utils.pausar(scanner); return; }
@@ -137,8 +140,60 @@ public class EstudanteGestorView {
         Curso curso = cursoController.procurarPorNome(scanner.nextLine().trim());
         if (curso == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
 
-        inscricaoController.inscreverEstudante(e, curso, LocalDate.now().getYear());
+        Inscricao inscricao = inscricaoController.inscreverEstudante(e, curso, LocalDate.now().getYear());
+
+        String propinaPaga = Utils.lerCampo("Propina inicial já está paga? (S/N): ", scanner);
+        inscricao.setPropinaPaga(propinaPaga.equalsIgnoreCase("S"));
+
+        estudanteController.guardarEstadoEstudante(e);
+
         System.out.println("  [✓] Estudante inscrito em '" + curso.getNomeCurso() + "' com sucesso.");
+        Utils.pausar(scanner);
+    }
+
+    private void marcarPropinaPaga() {
+        System.out.println("\n--- Marcar Propina Atual como Paga ---");
+        System.out.print("Nº Mecanográfico: ");
+        String num = scanner.nextLine().trim();
+
+        estudanteController.marcarPropinaAtualComoPaga(num);
+
+        System.out.println("  [✓] Propina atual marcada como paga.");
+        Utils.pausar(scanner);
+    }
+
+    private void listarPropinasEmDivida() {
+        Utils.limparEcra();
+        System.out.println("\n--- Estudantes com Propina em Dívida ---");
+
+        ArrayList<Estudante> estudantes = estudanteController.listarComPropinaEmDivida();
+
+        if (estudantes.isEmpty()) {
+            System.out.println("  (sem dívidas registadas)");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        for (Estudante e : estudantes) {
+            Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(e);
+            String curso = inscricaoAtual != null && inscricaoAtual.getCurso() != null
+                    ? inscricaoAtual.getCurso().getNomeCurso()
+                    : "sem curso";
+            System.out.println("  - " + e.getNome() + " (" + e.getNumMecanografico() + ") | " + curso);
+        }
+
+        Utils.pausar(scanner);
+    }
+
+    private void registarNota() {
+        System.out.println("\n--- Registar Nota na Inscrição Atual ---");
+        System.out.print("Nº Mecanográfico: ");
+        String num = scanner.nextLine().trim();
+        double nota = Utils.lerDouble("Nota (0-20): ", scanner);
+
+        estudanteController.registarNotaNaInscricaoAtual(num, nota);
+
+        System.out.println("  [✓] Nota registada na inscrição atual do estudante.");
         Utils.pausar(scanner);
     }
 }

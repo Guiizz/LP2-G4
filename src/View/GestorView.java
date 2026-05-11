@@ -16,9 +16,10 @@ public class GestorView {
     private final UnidadeCurricularController unidadeCurricularController;
     private final AvaliacaoController avaliacaoController;
     private final InscricaoController inscricaoController;
+    private final AnoLetivoController anoLetivoController;
     private final Scanner scanner;
 
-    public GestorView(GestorController gestorController, EstudanteController estudanteController, DocenteController docenteController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController, InscricaoController inscricaoController, Scanner scanner) {
+    public GestorView(GestorController gestorController, EstudanteController estudanteController, DocenteController docenteController, DepartamentoController departamentoController, CursoController cursoController, UnidadeCurricularController unidadeCurricularController, AvaliacaoController avaliacaoController, InscricaoController inscricaoController, AnoLetivoController anoLetivoController, Scanner scanner) {
         this.gestorController = gestorController;
         this.estudanteController = estudanteController;
         this.docenteController = docenteController;
@@ -27,6 +28,7 @@ public class GestorView {
         this.unidadeCurricularController = unidadeCurricularController;
         this.avaliacaoController = avaliacaoController;
         this.inscricaoController = inscricaoController;
+        this.anoLetivoController = anoLetivoController;
         this.scanner = scanner;
     }
 
@@ -39,7 +41,8 @@ public class GestorView {
                 "Gerir Departamentos",
                 "Gerir Cursos",
                 "Gerir Unidades Curriculares",
-                "Gerir Avaliações"
+                "Gerir Avaliações",
+                "Ano Letivo"
         };
 
         int opcao;
@@ -59,6 +62,7 @@ public class GestorView {
                 case 6: new CursoView(cursoController, departamentoController, unidadeCurricularController, scanner).iniciar(); break;
                 case 7: new UnidadeCurricularView(unidadeCurricularController, docenteController, scanner).iniciar(); break;
                 case 8: new AvaliacaoView(avaliacaoController, unidadeCurricularController, scanner).iniciar(); break;
+                case 9: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
                 case 0: System.out.println("  A terminar sessão..."); break;
             }
         } while (opcao != 0);
