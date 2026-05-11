@@ -148,7 +148,30 @@ public class UnidadeCurricularView {
         System.out.print("Sigla do docente: ");
         String siglaDocente = scanner.nextLine().trim();
 
+        UnidadeCurricular ucEscolhida = null;
+        for (UnidadeCurricular uc : ucs) {
+            if (uc.getNome().equalsIgnoreCase(nomeUC)) {
+                ucEscolhida = uc;
+                break;
+            }
+        }
+
+        if (ucEscolhida == null) {
+            throw new IllegalArgumentException("UC não encontrada.");
+        }
+
+        Docente docente = docenteController.procurarPorSigla(siglaDocente);
+        if (docente == null) {
+            throw new IllegalArgumentException("Não existe docente com a sigla '" + siglaDocente + "'.");
+        }
+
         unidadeCurricularController.atribuirDocenteResponsavel(nomeUC, siglaDocente);
+
+        if (docente.getUnidadesLecionadas() != null && !docente.getUnidadesLecionadas().contains(ucEscolhida)) {
+            docente.getUnidadesLecionadas().add(ucEscolhida);
+            docenteController.atualizarDocente(docente);
+        }
+
         System.out.println("  [✓] Docente '" + siglaDocente + "' atribuído à UC '" + nomeUC + "'.");
         Utils.pausar(scanner);
     }

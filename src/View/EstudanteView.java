@@ -23,7 +23,7 @@ public class EstudanteView {
                 "Ver a minha Ficha",
                 "Ver as minhas Inscrições",
                 "Ver as minhas Avaliações",
-                "Atualizar os meus Dados"
+                "Atualizar a minha Morada"
         };
 
         int opcao;
@@ -86,17 +86,14 @@ public class EstudanteView {
     }
 
     private void atualizar(Estudante estudante) {
-        System.out.println("\n--- Atualizar os meus Dados --- (0 para cancelar)");
-        System.out.println("  Dados atuais: " + estudante.getNome() + " | " + estudante.getMorada());
+        System.out.println("\n--- Atualizar a minha Morada --- (0 para cancelar)");
+        System.out.println("  Nome, nº mecanográfico, email, NIF e data de nascimento não são editáveis.");
+        System.out.println("  Morada atual: " + estudante.getMorada());
 
-        String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
-        String novaMorada = Utils.lerCampo("Nova morada (Enter para manter): ", scanner);
+        String novaMorada = Utils.lerCampo("Nova morada: ", scanner);
+        estudanteController.atualizarMoradaPropria(estudante, novaMorada);
 
-        String nomeAtualizar = novoNome.isEmpty() ? estudante.getNome() : novoNome;
-        String moradaAtualizar = novaMorada.isEmpty() ? estudante.getMorada() : novaMorada;
-
-        estudanteController.atualizarEstudante(estudante.getNumMecanografico(), nomeAtualizar, moradaAtualizar);
-        System.out.println("  [✓] Dados atualizados com sucesso.");
+        System.out.println("  [✓] Morada atualizada com sucesso.");
         Utils.pausar(scanner);
     }
 }
