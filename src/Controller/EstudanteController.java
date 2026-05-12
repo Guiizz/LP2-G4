@@ -28,6 +28,10 @@ public class EstudanteController {
         estudanteBLL.atualizarEstudante(numMecanografico, novoNome, novaMorada);
     }
 
+    public void atualizarMoradaPropria(Estudante estudante, String novaMorada) {
+        estudanteBLL.atualizarMoradaPropria(estudante, novaMorada);
+    }
+
     public void removerEstudante(String numMecanografico) {
         estudanteBLL.removerEstudante(numMecanografico);
     }
@@ -58,5 +62,23 @@ public class EstudanteController {
 
     public void recuperarPassword(String email) {
         estudanteBLL.recuperarPassword(email);
+    public void guardarEstadoEstudante(Estudante estudante) {
+        estudanteBLL.guardarEstadoEstudante(estudante);
+    }
+
+    public Inscricao obterInscricaoAtual(Estudante estudante) {
+        return estudanteBLL.obterInscricaoAtual(estudante);
+    }
+
+    public void marcarPropinaAtualComoPaga(String numMecanografico) {
+        estudanteBLL.marcarPropinaAtualComoPaga(numMecanografico);
+    }
+
+    public ArrayList<Estudante> listarComPropinaEmDivida() {
+        return estudanteBLL.listarComPropinaEmDivida();
+    }
+
+    public void registarNotaNaInscricaoAtual(String numMecanografico, double nota) {
+        estudanteBLL.registarNotaNaInscricaoAtual(numMecanografico, nota);
     }
 }

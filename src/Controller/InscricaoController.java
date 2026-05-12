@@ -24,7 +24,6 @@ public class InscricaoController {
 
         Inscricao inscricao = new Inscricao(anoLetivo, 1, curso);
         estudante.adicionarInscricao(inscricao);
-        estudanteBLL.guardarEstadoEstudante(estudante);
         return inscricao;
     }
 
