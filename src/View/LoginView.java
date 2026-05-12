@@ -18,27 +18,19 @@ public class LoginView {
     private final UnidadeCurricularController unidadeCurricularController;
     private final AvaliacaoController         avaliacaoController;
     private final InscricaoController         inscricaoController;
+    private final AnoLetivoController anoLetivoController;
     private final Scanner                     scanner;
     private boolean vemDeRecuperacao = false;
-    private final AvaliacaoController avaliacaoController;
-    private final InscricaoController inscricaoController;
-    private final AnoLetivoController anoLetivoController;
-    private final Scanner scanner;
+
+
 
     public LoginView() {
-        this.gestorController            = new GestorController();
-        this.estudanteController         = new EstudanteController();
-        this.docenteController           = new DocenteController();
-        this.departamentoController      = new DepartamentoController();
-        this.cursoController             = new CursoController();
+        this.gestorController = new GestorController();
+        this.estudanteController = new EstudanteController();
+        this.docenteController = new DocenteController();
+        this.departamentoController = new DepartamentoController();
+        this.cursoController = new CursoController();
         this.unidadeCurricularController = new UnidadeCurricularController();
-        this.avaliacaoController         = new AvaliacaoController();
-        this.inscricaoController         = new InscricaoController();
-        this.scanner                     = new Scanner(System.in);
-    }
-
-    // ── Ponto de entrada ──────────────────────────────────────────────────────
-
         this.avaliacaoController = new AvaliacaoController();
         this.inscricaoController = new InscricaoController();
         this.anoLetivoController = new AnoLetivoController();
