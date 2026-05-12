@@ -18,12 +18,10 @@ public class LoginView {
     private final UnidadeCurricularController unidadeCurricularController;
     private final AvaliacaoController         avaliacaoController;
     private final InscricaoController         inscricaoController;
+    private final AnoLetivoController anoLetivoController;
     private final Scanner                     scanner;
     private boolean vemDeRecuperacao = false;
-    private final AvaliacaoController avaliacaoController;
-    private final InscricaoController inscricaoController;
-    private final AnoLetivoController anoLetivoController;
-    private final Scanner scanner;
+
 
     public LoginView() {
         this.gestorController            = new GestorController();
@@ -34,16 +32,10 @@ public class LoginView {
         this.unidadeCurricularController = new UnidadeCurricularController();
         this.avaliacaoController         = new AvaliacaoController();
         this.inscricaoController         = new InscricaoController();
+        this.anoLetivoController = new AnoLetivoController();
         this.scanner                     = new Scanner(System.in);
     }
 
-    // ── Ponto de entrada ──────────────────────────────────────────────────────
-
-        this.avaliacaoController = new AvaliacaoController();
-        this.inscricaoController = new InscricaoController();
-        this.anoLetivoController = new AnoLetivoController();
-        this.scanner = new Scanner(System.in);
-    }
 
     public void iniciar() {
         String[] opcoes = {
