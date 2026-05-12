@@ -23,19 +23,19 @@ public class LoginView {
     private boolean vemDeRecuperacao = false;
 
 
-    public LoginView() {
-        this.gestorController            = new GestorController();
-        this.estudanteController         = new EstudanteController();
-        this.docenteController           = new DocenteController();
-        this.departamentoController      = new DepartamentoController();
-        this.cursoController             = new CursoController();
-        this.unidadeCurricularController = new UnidadeCurricularController();
-        this.avaliacaoController         = new AvaliacaoController();
-        this.inscricaoController         = new InscricaoController();
-        this.anoLetivoController = new AnoLetivoController();
-        this.scanner                     = new Scanner(System.in);
-    }
 
+    public LoginView() {
+        this.gestorController = new GestorController();
+        this.estudanteController = new EstudanteController();
+        this.docenteController = new DocenteController();
+        this.departamentoController = new DepartamentoController();
+        this.cursoController = new CursoController();
+        this.unidadeCurricularController = new UnidadeCurricularController();
+        this.avaliacaoController = new AvaliacaoController();
+        this.inscricaoController = new InscricaoController();
+        this.anoLetivoController = new AnoLetivoController();
+        this.scanner = new Scanner(System.in);
+    }
 
     public void iniciar() {
         String[] opcoes = {
@@ -56,7 +56,6 @@ public class LoginView {
         System.out.println("\n  Até breve!");
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────────
 
     private void efetuarLogin() {
         Utils.limparEcra();
