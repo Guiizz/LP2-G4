@@ -56,7 +56,6 @@ public class LoginView {
         System.out.println("\n  Até breve!");
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────────
 
     private void efetuarLogin() {
         Utils.limparEcra();
