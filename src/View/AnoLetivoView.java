@@ -118,6 +118,10 @@ public class AnoLetivoView {
         System.out.println("  Mantidos: " + relatorio.getEstudantesMantidos());
         System.out.println("  Concluídos: " + relatorio.getEstudantesConcluidos());
 
+        if (relatorio.getCaminhoFicheiroHistorico() != null && !relatorio.getCaminhoFicheiroHistorico().isBlank()) {
+            System.out.println("  [✓] Histórico exportado para: " + relatorio.getCaminhoFicheiroHistorico());
+        }
+
         if (!relatorio.getMensagens().isEmpty()) {
             System.out.println("\n  Detalhes:");
             for (String mensagem : relatorio.getMensagens()) {

@@ -5,15 +5,18 @@ import Model.AnoLetivo;
 import Model.Estudante;
 import Model.Inscricao;
 import Model.RelatorioFechoAnoLetivo;
+import DAL.HistoricoAnoLetivoDAL;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class AnoLetivoBLL {
     private final AnoLetivoDAL anoLetivoDAL;
+    private final HistoricoAnoLetivoDAL historicoAnoLetivoDAL;
 
     public AnoLetivoBLL(AnoLetivoDAL anoLetivoDAL) {
         this.anoLetivoDAL = anoLetivoDAL;
+        this.historicoAnoLetivoDAL = new HistoricoAnoLetivoDAL();
     }
 
     public AnoLetivo consultarAnoAtual() {
@@ -61,6 +64,9 @@ public class AnoLetivoBLL {
 
         anoAtual.fechar(LocalDate.now());
         anoLetivoDAL.atualizarAnoLetivo(anoAtual);
+
+        String caminhoHistorico = historicoAnoLetivoDAL.exportarFecho(anoAtual, relatorio);
+        relatorio.setCaminhoFicheiroHistorico(caminhoHistorico);
 
         return relatorio;
     }
