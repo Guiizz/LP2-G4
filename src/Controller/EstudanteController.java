@@ -55,4 +55,8 @@ public class EstudanteController {
     public void passarAno(Estudante estudante, Inscricao novaInscricao) {
         estudanteBLL.passarDeAno(estudante, novaInscricao);
     }
+
+    public void recuperarPassword(String email) {
+        estudanteBLL.recuperarPassword(email);
+    }
 }

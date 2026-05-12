@@ -271,6 +271,24 @@ public class EstudanteBLL {
         estudanteDAL.atualizarEstudante(estudante);
     }
 
+    public void recuperarPassword (String email) {
+        Estudante estudante = null;
+        for (Estudante e : estudanteDAL.listarEstudantes()){
+            if (e.getEmail().equalsIgnoreCase(email)){
+                estudante = e;
+                break;
+            }
+        }
+        if (estudante == null) {
+            throw new IllegalArgumentException(("Não existe nenhum estudante com esse e-mail."));
+        }
+        String passwordTemporaria = "Issmf" + estudante.getNumMecanografico() + "Tmp";
+        estudante.setPassword(PasswordUtils.hashPassword(passwordTemporaria));
+        estudante.setPrimeiroLogin(true);
+        estudanteDAL.atualizarEstudante(estudante);
+        ServicoEmail.enviarPasswordTemporaria(email, passwordTemporaria, "Estudante");
+    }
+
     public void guardarEstadoEstudante(Estudante estudante) {
         if (estudante == null) {
             throw new IllegalArgumentException("O estudante não pode ser nulo.");

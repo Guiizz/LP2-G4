@@ -7,6 +7,7 @@ src/BLL/DepartamentoBLL.java
 src/BLL/DocenteBLL.java
 src/Utils/ServicoEmail.java
 src/Utils/Utils.java
+src/Utils/PasswordUtils.java
 src/Controller/DepartamentoController.java
 src/Controller/CursoController.java
 src/Controller/GestorController.java
@@ -25,8 +26,16 @@ src/Model/Inscricao.java
 src/Model/Departamento.java
 src/Model/Utilizador.java
 src/Model/Curso.java
+src/View/DepartamentoView.java
+src/View/InscricaoView.java
+src/View/UnidadeCurricularView.java
+src/View/AvaliacaoView.java
 src/View/LoginView.java
+src/View/CursoView.java
 src/View/GestorView.java
+src/View/DocenteGestorView.java
+src/View/GestorMenuView.java
+src/View/EstudanteGestorView.java
 src/View/DocenteView.java
 src/View/EstudanteView.java
 src/DAL/DocenteDAL.java
