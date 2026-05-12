@@ -60,6 +60,8 @@ public class EstudanteController {
         estudanteBLL.passarDeAno(estudante, novaInscricao);
     }
 
+    public void recuperarPassword(String email) {
+        estudanteBLL.recuperarPassword(email);
     public void guardarEstadoEstudante(Estudante estudante) {
         estudanteBLL.guardarEstadoEstudante(estudante);
     }

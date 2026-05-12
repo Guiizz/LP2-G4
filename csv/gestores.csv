@@ -1,2 +1,2 @@
 nome;nif;dataNascimento;morada;email;password;primeiroLogin
-Gestor;123456789;1999-01-01;rua ISSMF;gestor@issmf.pt;Gestor123;false
+Gestor;123456789;1999-01-01;rua ISSMF;gestor@issmf.pt;SHA256:35c5f985881ec7eba23daa203c6e2dd922621225a91a6f2d03aa7a9e7d8ab45a;false
