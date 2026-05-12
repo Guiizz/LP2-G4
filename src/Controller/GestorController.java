@@ -47,4 +47,9 @@ public class GestorController {
     public void alterarPassword(Gestor gestor, String novaPassword) {
         gestorBLL.alterarPassword(gestor, novaPassword);
     }
+
+    public void recuperarPassword(String email) {
+        gestorBLL.recuperarPassword(email);
+    }
+
 }

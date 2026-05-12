@@ -51,4 +51,8 @@ public class DocenteController {
     public void alterarPassword(Docente docente, String novaPassword) {
         docenteBLL.alterarPassword(docente, novaPassword);
     }
+
+    public void recuperarPassword(String email) {
+        docenteBLL.recuperarPassword(email);
+    }
 }

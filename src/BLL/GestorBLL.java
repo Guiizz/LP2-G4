@@ -153,4 +153,23 @@ public class GestorBLL {
         gestor.setPrimeiroLogin(false);
         gestorDAL.atualizarGestor(gestor);
     }
+
+    public void recuperarPassword(String email) {
+        Gestor gestor = null;
+        for (Gestor g : gestorDAL.listarGestores()) {
+            if (g.getEmail().equalsIgnoreCase(email)) {
+                gestor = g;
+                break;
+            }
+        }
+        if (gestor == null) {
+            throw new IllegalArgumentException("Não existe nenhum gestor com esse email.");
+        }
+
+        String passwordTemporaria = "IssmfGestor" + gestor.getNif().substring(0, 4) + "Tmp";
+        gestor.setPassword(PasswordUtils.hashPassword(passwordTemporaria));
+        gestor.setPrimeiroLogin(true);
+        gestorDAL.atualizarGestor(gestor);
+        ServicoEmail.enviarPasswordTemporaria(email, passwordTemporaria, "Gestor");
+    }
 }

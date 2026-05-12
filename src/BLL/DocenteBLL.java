@@ -162,6 +162,26 @@ public class DocenteBLL {
 
         return docente;
     }
+
+    public void recuperarPassword(String email) {
+        Docente docente = null;
+        for (Docente d : docenteDAL.listarDocentes()) {
+            if (d.getEmail().equalsIgnoreCase(email)) {
+                docente = d;
+                break;
+            }
+        }
+        if (docente == null) {
+            throw new IllegalArgumentException("Não existe nenhum docente com esse email.");
+        }
+
+        String passwordTemporaria = "Issmf" + docente.getSigla() + "Tmp";
+        docente.setPassword(PasswordUtils.hashPassword(passwordTemporaria));
+        docente.setPrimeiroLogin(true);
+        docenteDAL.atualizarDocente(docente);
+        ServicoEmail.enviarPasswordTemporaria(email, passwordTemporaria, "Docente");
+    }
+
     /**
      * Altera a password do docente e marca o primeiro login como concluído.
      * @param docente O docente a alterar.
