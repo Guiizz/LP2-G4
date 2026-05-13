@@ -62,6 +62,8 @@ public class EstudanteController {
 
     public void recuperarPassword(String email) {
         estudanteBLL.recuperarPassword(email);
+    }
+
     public void guardarEstadoEstudante(Estudante estudante) {
         estudanteBLL.guardarEstadoEstudante(estudante);
     }
@@ -82,3 +84,4 @@ public class EstudanteController {
         estudanteBLL.registarNotaNaInscricaoAtual(numMecanografico, nota);
     }
 }
+
