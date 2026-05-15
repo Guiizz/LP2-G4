@@ -134,6 +134,13 @@ public class CursoView {
         Curso c = cursoController.procurarPorNome(scanner.nextLine().trim());
         if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
 
+        System.out.println("\n  Vagas de UCs disponíveis por ano no curso '" + c.getNomeCurso() + "':");
+        for (int ano = 1; ano <= 3; ano++) {
+            int vagas = cursoController.vagasUCsDisponiveis(c, ano);
+            List<UnidadeCurricular> ucsAno = cursoController.listarUCsPorAno(c, ano);
+            System.out.println("    Ano " + ano + ": " + ucsAno.size() + "/5 UCs  (" + vagas + " vaga(s) disponível(is))");
+        }
+
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
 
