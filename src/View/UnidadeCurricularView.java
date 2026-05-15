@@ -175,4 +175,73 @@ public class UnidadeCurricularView {
         System.out.println("  [✓] Docente '" + siglaDocente + "' atribuído à UC '" + nomeUC + "'.");
         Utils.pausar(scanner);
     }
+
+    private void definirMomentos() {
+        System.out.println("\n--- Definir Momentos de Avaliação ---");
+        ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
+        if (lista.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
+
+        System.out.println("  UCs disponíveis:");
+        for (UnidadeCurricular uc : lista) {
+            System.out.println("    - " + uc.getNome() +
+                    " [" + uc.getMomentosAvaliacao().size() + "/3 momentos | " +
+                    String.format("%.1f", uc.somaPesos()) + "%]");
+        }
+
+        System.out.print("Nome da UC: ");
+        String nome = scanner.nextLine().trim();
+        UnidadeCurricular uc = encontrarUC(lista, nome);
+        if (uc == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
+
+        if (uc.getMomentosAvaliacao().size() >= 3) {
+            System.out.println("  [!] A UC já tem 3 momentos definidos:");
+            for (var m : uc.getMomentosAvaliacao()) System.out.println(m);
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("  Momentos já definidos: " + uc.getMomentosAvaliacao().size() + "/3");
+        System.out.println("  Soma atual dos pesos: " + String.format("%.1f", uc.somaPesos()) + "%");
+        System.out.println("  (Faltam " + (3 - uc.getMomentosAvaliacao().size()) + " momento(s) | Peso disponível: "
+                + String.format("%.1f", 100.0 - uc.somaPesos()) + "%)");
+
+        String nomeMomento = Utils.lerCampo("Nome do momento (ex: Frequência, Exame, Projeto): ", scanner);
+        double peso = Utils.lerDouble("Peso (%): ", scanner);
+
+        unidadeCurricularController.adicionarMomento(uc, nomeMomento, peso);
+
+        System.out.println("  [✓] Momento '" + nomeMomento + "' (" + String.format("%.1f", peso) + "%) adicionado.");
+        System.out.println("  Momentos definidos: " + uc.getMomentosAvaliacao().size() + "/3 | Soma: " + String.format("%.1f", uc.somaPesos()) + "%");
+        Utils.pausar(scanner);
+    }
+
+    private void iniciarUC() {
+        System.out.println("\n--- Iniciar UC ---");
+        ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
+        if (lista.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
+
+        System.out.println("  UCs disponíveis:");
+        for (UnidadeCurricular uc : lista) {
+            String estado = uc.isAtiva() ? "Ativa" : "Inativa";
+            System.out.println("    - " + uc.getNome() +
+                    " [" + estado + " | " + uc.getMomentosAvaliacao().size() + "/3 momentos | " +
+                    String.format("%.1f", uc.somaPesos()) + "%]");
+        }
+
+        System.out.print("Nome da UC a iniciar: ");
+        String nome = scanner.nextLine().trim();
+        UnidadeCurricular uc = encontrarUC(lista, nome);
+        if (uc == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
+
+        unidadeCurricularController.iniciarUC(uc);
+        System.out.println("  [✓] UC '" + uc.getNome() + "' iniciada com sucesso!");
+        Utils.pausar(scanner);
+    }
+
+    private UnidadeCurricular encontrarUC(ArrayList<UnidadeCurricular> lista, String nome) {
+        for (UnidadeCurricular uc : lista) {
+            if (uc.getNome().equalsIgnoreCase(nome)) return uc;
+        }
+        return null;
+    }
 }
