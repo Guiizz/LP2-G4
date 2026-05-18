@@ -39,4 +39,14 @@ public class UnidadeCurricularController {
         unidadeCurricularBLL.adicionarUnidade(uc);
         return uc;
     }
+
+    /** Adiciona um momento de avaliação a uma UC. */
+    public void adicionarMomento(UnidadeCurricular uc, String nome, double peso) {
+        unidadeCurricularBLL.adicionarMomento(uc, nome, peso);
+    }
+
+    /** Inicia uma UC (torna-a ativa) após validar os momentos. */
+    public void iniciarUC(UnidadeCurricular uc) {
+        unidadeCurricularBLL.iniciarUC(uc);
+    }
 }
