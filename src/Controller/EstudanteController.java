@@ -83,5 +83,9 @@ public class EstudanteController {
     public void registarNotaNaInscricaoAtual(String numMecanografico, double nota) {
         estudanteBLL.registarNotaNaInscricaoAtual(numMecanografico, nota);
     }
+
+    public void lancarNotaMomento(Estudante estudante, int indiceMomento, double nota) {
+        estudanteBLL.lancarNotaMomento(estudante, indiceMomento, nota);
+    }
 }
 

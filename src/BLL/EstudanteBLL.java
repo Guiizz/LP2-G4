@@ -281,4 +281,25 @@ public class EstudanteBLL {
         inscricaoAtual.adicionarAvaliacao(avaliacao);
         estudanteDAL.atualizarEstudante(estudante);
     }
+
+    public void lancarNotaMomento(Estudante estudante, int indiceMomento, double nota) {
+        Utils.validarNota(nota);
+
+        if (estudante == null) {
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+        }
+
+        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
+        if (inscricaoAtual == null) {
+            throw new IllegalArgumentException("O estudante '" + estudante.getNome() + "' não tem inscrição ativa.");
+        }
+
+        ArrayList<Avaliacao> avaliacoes = inscricaoAtual.getAvaliacoes();
+        if (avaliacoes == null || indiceMomento < 0 || indiceMomento >= avaliacoes.size()) {
+            throw new IllegalArgumentException("Momento de avaliação inválido para '" + estudante.getNome() + "'.");
+        }
+
+        avaliacoes.get(indiceMomento).lancarNota(nota, nota >= 10);
+        estudanteDAL.atualizarEstudante(estudante);
+    }
 }

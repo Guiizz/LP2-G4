@@ -15,6 +15,7 @@ public class Avaliacao {
     private double nota;
     private boolean aprovado;
     private boolean lancada;
+    private Date dataModificacao;
 
     /**
      * Construtor para avaliação com nota já lançada (comportamento anterior mantido).
@@ -78,6 +79,14 @@ public class Avaliacao {
         this.lancada = true;
     }
 
+    public Date getDataModificacao() { return dataModificacao; }
+
+    public String getDataModificacaoFormatada() {
+        if (dataModificacao == null) return "-";
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        return sdf.format(dataModificacao);
+    }
+
     /**
      * Devolve a nota formatada:
      *  - Se lançada: o valor numérico (ex: "15,5")
@@ -107,6 +116,7 @@ public class Avaliacao {
                 "Peso: " + peso + "\n" +
                 "Nota: " + getNotaFormatada()+ "\n" +
                 "Data: " + getDataFormatada() + "\n" +
+                (dataModificacao != null ? "Última modificação: " + getDataModificacaoFormatada() + "\n" : "") +
                 "================================";
     }
 }
