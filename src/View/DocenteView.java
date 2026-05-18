@@ -4,10 +4,7 @@ import Controller.AvaliacaoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
-import Model.Avaliacao;
-import Model.Docente;
-import Model.Estudante;
-import Model.UnidadeCurricular;
+import Model.*;
 import Utils.Utils;
 
 import java.util.ArrayList;
@@ -49,7 +46,7 @@ public class DocenteView {
                     case 1: verFicha(docente);   break;
                     case 2: verUCs(docente);     break;
                     case 3: verAlunos(docente);  break;
-                    case 4: lancarAvaliacao();   break;
+                    case 4: lancarAvaliacao(docente);   break;
                     case 5: atualizar(docente);  break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
@@ -102,39 +99,128 @@ public class DocenteView {
         Utils.pausar(scanner);
     }
 
-    private void lancarAvaliacao() {
-        System.out.println("\n--- Lançar Avaliação --- (0 para cancelar)");
+    private void lancarAvaliacao(Docente docente) {
+        Utils.limparEcra();
+        System.out.println("\n--- Lançar Nota por Aluno num Momento de Avaliação ---");
 
+        // 1. Filtrar apenas as UCs do docente
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
-        if (todasUCs.isEmpty()) {
-            System.out.println("  [!] Não existem UCs registadas.");
+        ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
+        for (UnidadeCurricular uc : todasUCs) {
+            if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
+                minhasUCs.add(uc);
+            }
+        }
+
+        if (minhasUCs.isEmpty()) {
+            System.out.println("  [!] Não tem nenhuma Unidade Curricular atribuída.");
             Utils.pausar(scanner);
             return;
         }
 
-        System.out.println("  UCs disponíveis:");
-        for (UnidadeCurricular uc : todasUCs) {
-            System.out.println("    - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
+        System.out.println("\n  As suas Unidades Curriculares:");
+        for (int i = 0; i < minhasUCs.size(); i++) {
+            UnidadeCurricular uc = minhasUCs.get(i);
+            System.out.println("  " + (i + 1) + ". " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
         }
 
-        System.out.print("Nome da UC: ");
-        String nomeUC = scanner.nextLine().trim();
-        UnidadeCurricular ucEscolhida = null;
-        for (UnidadeCurricular uc : todasUCs) {
-            if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
+        int escolhaUC = Utils.lerInteiro("\nSelecione a UC (número): ", scanner);
+        if (escolhaUC < 1 || escolhaUC > minhasUCs.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
         }
-        if (ucEscolhida == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
+        UnidadeCurricular ucEscolhida = minhasUCs.get(escolhaUC - 1);
 
-        double peso = Utils.lerDouble("Peso (%): ", scanner);
-        Date   data = Utils.lerDataAvaliacao("Data (DD/MM/AAAA): ", scanner);
+        // 2. Selecionar o momento de avaliação
+        List<MomentoAvaliacao> momentos = ucEscolhida.getMomentosAvaliacao();
+        if (momentos == null || momentos.isEmpty()) {
+            System.out.println("  [!] A UC '" + ucEscolhida.getNome() + "' não tem momentos de avaliação definidos.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("\n  Momentos de Avaliação da UC '" + ucEscolhida.getNome() + "':");
+        for (int i = 0; i < momentos.size(); i++) {
+            MomentoAvaliacao m = momentos.get(i);
+            System.out.println("  " + (i + 1) + ". " + m.getNome() + " (Peso: " + m.getPeso() + "%)");
+        }
+
+        int escolhaMomento = Utils.lerInteiro("\nSelecione o momento (número): ", scanner);
+        if (escolhaMomento < 1 || escolhaMomento > momentos.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        int indiceMomento = escolhaMomento - 1;
+        MomentoAvaliacao momentoEscolhido = momentos.get(indiceMomento);
+
+        // 3. Listar alunos inscritos no ano curricular da UC
+        ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
+        ArrayList<Estudante> alunosDaUC = new ArrayList<>();
+        for (Estudante e : todosEstudantes) {
+            Inscricao inscricao = estudanteController.obterInscricaoAtual(e);
+            if (inscricao != null && inscricao.getCurso() != null
+                    && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
+                alunosDaUC.add(e);
+            }
+        }
+
+        if (alunosDaUC.isEmpty()) {
+            System.out.println("  [!] Não existem alunos inscritos no ano " + ucEscolhida.getAnoCurricular() + ".");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        // 4. Mostrar tabela de alunos com estado da nota neste momento
+        System.out.println("\n  Alunos — Momento: " + momentoEscolhido.getNome());
+        System.out.println("  " + "-".repeat(58));
+        System.out.printf("  %-5s %-25s %-12s %s%n", "Nº", "Nome", "Nº Mecano.", "Nota atual");
+        System.out.println("  " + "-".repeat(58));
+        for (int i = 0; i < alunosDaUC.size(); i++) {
+            Estudante e = alunosDaUC.get(i);
+            Inscricao insc = estudanteController.obterInscricaoAtual(e);
+            String notaAtual = "Pendente";
+            if (insc != null && insc.getAvaliacoes() != null
+                    && indiceMomento < insc.getAvaliacoes().size()) {
+                Avaliacao av = insc.getAvaliacoes().get(indiceMomento);
+                notaAtual = av.isLancada() ? String.format("%.1f", av.getNota()) : "Pendente";
+            }
+            System.out.printf("  %-5d %-25s %-12s %s%n",
+                    (i + 1), e.getNome(), e.getNumMecanografico(), notaAtual);
+        }
+        System.out.println("  " + "-".repeat(58));
+
+        // 5. Selecionar aluno
+        System.out.println("\n  (0 para voltar sem guardar)");
+        int escolhaAluno = Utils.lerInteiro("Selecione o aluno (número): ", scanner);
+        if (escolhaAluno == 0) return;
+        if (escolhaAluno < 1 || escolhaAluno > alunosDaUC.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
+
+        // Mostrar nota atual se já existir (correção)
+        Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);
+        if (inscricaoAluno != null && inscricaoAluno.getAvaliacoes() != null
+                && indiceMomento < inscricaoAluno.getAvaliacoes().size()) {
+            Avaliacao avAtual = inscricaoAluno.getAvaliacoes().get(indiceMomento);
+            if (avAtual.isLancada()) {
+                System.out.println("  [i] Nota atual de " + alunoEscolhido.getNome()
+                        + ": " + String.format("%.1f", avAtual.getNota())
+                        + "  (modificada em: " + avAtual.getDataModificacaoFormatada() + ")");
+                System.out.println("  Introduza uma nova nota para corrigir.");
+            }
+        }
+
+        // 6. Introduzir e guardar nota (0-20, validado na BLL)
         double nota = Utils.lerDouble("Nota (0-20): ", scanner);
+        estudanteController.lancarNotaMomento(alunoEscolhido, indiceMomento, nota);
 
-        List<UnidadeCurricular> ucs = new ArrayList<>();
-        ucs.add(ucEscolhida);
-
-        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, nota);
-        System.out.println("  [✓] Avaliação lançada com sucesso.");
-        System.out.println("  " + a);
+        System.out.println("  [✓] Nota " + String.format("%.1f", nota) + " registada para "
+                + alunoEscolhido.getNome() + " no momento '" + momentoEscolhido.getNome() + "'.");
         Utils.pausar(scanner);
     }
 
