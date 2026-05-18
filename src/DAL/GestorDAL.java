@@ -5,7 +5,9 @@ import Model.Gestor;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import Utils.PasswordUtils;
+import Utils.Utils;
 
 /**
  * Camada DAL para a entidade Gestor.
@@ -15,12 +17,13 @@ public class GestorDAL {
 
     private static final String FICHEIRO_CSV = "csv/gestores.csv";
     private static final String SEPARADOR = ";";
+    private static final String CABECALHO = "nome;nif;dataNascimento;morada;email;password;primeiroLogin";
 
     private ArrayList<Gestor> gestores;
 
     public GestorDAL() {
         this.gestores = new ArrayList<>();
-        criarFicheiroCsvSeNaoExistir();
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
         carregarDoCSV();
     }
 
@@ -67,78 +70,43 @@ public class GestorDAL {
         return null;
     }
 
-    private void criarFicheiroCsvSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;nif;dataNascimento;morada;email;password;primeiroLogin");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de gestores: " + e.getMessage());
-            }
-        }
-    }
-
     private void carregarDoCSV() {
         gestores.clear();
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (!ficheiro.exists()) return;
+        List<String[]> linhas = Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
+        for (String[] campos : linhas) {
+            if (campos.length < 7) continue;
 
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                if (linha.trim().isEmpty()) continue;
-
-                String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 7) continue;  // era 6, passa a 7
-
-                String nome          = campos[0];
-                String nif           = campos[1];
-                LocalDate dataNascimento = LocalDate.parse(campos[2]);
-                String morada        = campos[3];
-                String email         = campos[4];
-                String password      = campos[5];
-                if (!PasswordUtils.estaHasheada(password)) {
-                    password = PasswordUtils.hashPassword(password);
-                }
-                boolean primeiroLogin = Boolean.parseBoolean(campos[6]);
-
-                Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, password);
-                gestor.setPrimeiroLogin(primeiroLogin);
-                gestores.add(gestor);
+            String nome              = campos[0];
+            String nif               = campos[1];
+            LocalDate dataNascimento = LocalDate.parse(campos[2]);
+            String morada            = campos[3];
+            String email             = campos[4];
+            String password          = campos[5];
+            if (!PasswordUtils.estaHasheada(password)) {
+                password = PasswordUtils.hashPassword(password);
             }
+            boolean primeiroLogin = Boolean.parseBoolean(campos[6]);
 
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar gestores do CSV: " + e.getMessage());
+            Gestor gestor = new Gestor(nome, dataNascimento, nif, morada, email, password);
+            gestor.setPrimeiroLogin(primeiroLogin);
+            gestores.add(gestor);
         }
     }
 
     private void guardarNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;nif;dataNascimento;morada;email;password;primeiroLogin");
-
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (Gestor gestor : gestores) {
                 pw.println(
-                        gestor.getNome()            + SEPARADOR +
-                                gestor.getNif()             + SEPARADOR +
-                                gestor.getDataNascimento()  + SEPARADOR +
-                                gestor.getMorada()          + SEPARADOR +
-                                gestor.getEmail()           + SEPARADOR +
-                                gestor.getPassword()        + SEPARADOR +
+                        gestor.getNome()           + SEPARADOR +
+                                gestor.getNif()            + SEPARADOR +
+                                gestor.getDataNascimento() + SEPARADOR +
+                                gestor.getMorada()         + SEPARADOR +
+                                gestor.getEmail()          + SEPARADOR +
+                                gestor.getPassword()       + SEPARADOR +
                                 gestor.isPrimeiroLogin()
                 );
             }
-
         } catch (IOException e) {
             System.err.println("Erro ao guardar gestores no CSV: " + e.getMessage());
         }

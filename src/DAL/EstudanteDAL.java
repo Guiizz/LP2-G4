@@ -5,6 +5,7 @@ import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
 import Utils.PasswordUtils;
+import Utils.Utils;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -16,6 +17,8 @@ public class EstudanteDAL {
     private static final String FICHEIRO_CSV = "csv/estudantes.csv";
     private static final String FICHEIRO_INSCRICOES_CSV = "csv/inscricoes.csv";
     private static final String SEPARADOR = ";";
+    private static final String CABECALHO_ESTUDANTES = "nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin;estado";
+    private static final String CABECALHO_INSCRICOES = "numMecanografico;anoLetivo;anoDeCurso;nomeCurso;propinaPaga;notas";
 
     private ArrayList<Estudante> estudantes;
     private CursoDAL cursoDAL;
@@ -23,10 +26,8 @@ public class EstudanteDAL {
     public EstudanteDAL() {
         this.estudantes = new ArrayList<>();
         this.cursoDAL = new CursoDAL();
-
-        criarFicheiroCsvSeNaoExistir();
-        criarFicheiroInscricoesSeNaoExistir();
-
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO_ESTUDANTES);
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_INSCRICOES_CSV, CABECALHO_INSCRICOES);
         carregarDoCSV();
         carregarInscricoesDoCSV();
     }
@@ -48,7 +49,6 @@ public class EstudanteDAL {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -64,97 +64,32 @@ public class EstudanteDAL {
 
     public Estudante procurarPorNumMecanografico(String numMecanografico) {
         for (Estudante e : estudantes) {
-            if (e.getNumMecanografico().equals(numMecanografico)) {
-                return e;
-            }
+            if (e.getNumMecanografico().equals(numMecanografico)) return e;
         }
-
         return null;
     }
 
     public Estudante procurarPorNif(String nif) {
         for (Estudante e : estudantes) {
-            if (e.getNif().equals(nif)) {
-                return e;
-            }
+            if (e.getNif().equals(nif)) return e;
         }
-
         return null;
     }
 
     public Estudante procurarPorEmail(String email) {
         for (Estudante e : estudantes) {
-            if (e.getEmail().equalsIgnoreCase(email)) {
-                return e;
-            }
+            if (e.getEmail().equalsIgnoreCase(email)) return e;
         }
-
         return null;
-    }
-
-    private void criarFicheiroCsvSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_CSV);
-
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin;estado");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de estudantes: " + e.getMessage());
-            }
-        }
-    }
-
-    private void criarFicheiroInscricoesSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_INSCRICOES_CSV);
-
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("numMecanografico;anoLetivo;anoDeCurso;nomeCurso;propinaPaga;notas");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de inscrições: " + e.getMessage());
-            }
-        }
     }
 
     private void carregarDoCSV() {
         estudantes.clear();
-
-        File ficheiro = new File(FICHEIRO_CSV);
-
-        if (!ficheiro.exists()) {
-            return;
-        }
-
         int maiorNumero = Estudante.getContadorSequencial();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
-
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                if (linha.trim().isEmpty()) {
-                    continue;
-                }
-
-                String[] campos = linha.split(SEPARADOR, -1);
-
-                if (campos.length < 9) {
-                    continue;
-                }
-
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
+            if (campos.length < 9) continue;
+            try {
                 String nome = campos[0];
                 LocalDate dataNascimento = LocalDate.parse(campos[1]);
                 String nif = campos[2];
@@ -172,60 +107,30 @@ public class EstudanteDAL {
                 String estado = campos.length >= 10 && !campos[9].isBlank() ? campos[9] : "ATIVO";
 
                 Estudante estudante = new Estudante(nome, dataNascimento, nif, morada);
-
                 estudante.setNumMecanografico(numMecanografico);
                 estudante.setAnoAtual(anoAtual);
                 estudante.setEmail(email);
                 estudante.setPassword(password);
                 estudante.setPrimeiroLogin(primeiroLogin);
                 estudante.setEstado(estado);
-
                 estudantes.add(estudante);
 
                 try {
                     int numero = Integer.parseInt(numMecanografico);
+                    if (numero >= maiorNumero) maiorNumero = numero + 1;
+                } catch (NumberFormatException ignored) {}
 
-                    if (numero >= maiorNumero) {
-                        maiorNumero = numero + 1;
-                    }
-                } catch (NumberFormatException ignored) {
-                }
+            } catch (Exception e) {
+                System.err.println("Erro ao carregar estudantes do CSV: " + e.getMessage());
             }
-
-            Estudante.setContadorSequencial(maiorNumero);
-
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar estudantes do CSV: " + e.getMessage());
         }
+        Estudante.setContadorSequencial(maiorNumero);
     }
 
     private void carregarInscricoesDoCSV() {
-        File ficheiro = new File(FICHEIRO_INSCRICOES_CSV);
-
-        if (!ficheiro.exists()) {
-            return;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
-
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                if (linha.trim().isEmpty()) {
-                    continue;
-                }
-
-                String[] campos = linha.split(SEPARADOR, -1);
-
-                if (campos.length < 5) {
-                    continue;
-                }
-
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_INSCRICOES_CSV, SEPARADOR)) {
+            if (campos.length < 5) continue;
+            try {
                 String numMecanografico = campos[0];
                 int anoLetivo = Integer.parseInt(campos[1]);
                 int anoDeCurso = Integer.parseInt(campos[2]);
@@ -235,27 +140,21 @@ public class EstudanteDAL {
 
                 Estudante estudante = procurarPorNumMecanografico(numMecanografico);
                 Curso curso = cursoDAL.procurarPorNome(nomeCurso);
-
-                if (estudante == null || curso == null) {
-                    continue;
-                }
+                if (estudante == null || curso == null) continue;
 
                 Inscricao inscricao = new Inscricao(anoLetivo, anoDeCurso, curso);
-
                 inscricao.setPropinaPaga(propinaPaga);
                 inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
-
                 estudante.adicionarInscricao(inscricao);
+
+            } catch (NumberFormatException e) {
+                System.err.println("Erro ao carregar inscrições do CSV: " + e.getMessage());
             }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Erro ao carregar inscrições do CSV: " + e.getMessage());
         }
     }
 
     private void guardarNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin;estado");
-
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO_ESTUDANTES)) {
             for (Estudante estudante : estudantes) {
                 pw.println(
                         estudante.getNome() + SEPARADOR +
@@ -270,28 +169,18 @@ public class EstudanteDAL {
                                 estudante.getEstado()
                 );
             }
-
             guardarInscricoesNoCSV();
-
         } catch (IOException e) {
             System.err.println("Erro ao guardar estudantes no CSV: " + e.getMessage());
         }
     }
 
     private void guardarInscricoesNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_INSCRICOES_CSV))) {
-            pw.println("numMecanografico;anoLetivo;anoDeCurso;nomeCurso;propinaPaga;notas");
-
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_INSCRICOES_CSV, CABECALHO_INSCRICOES)) {
             for (Estudante estudante : estudantes) {
-                if (estudante.getInscricoes() == null) {
-                    continue;
-                }
-
+                if (estudante.getInscricoes() == null) continue;
                 for (Inscricao inscricao : estudante.getInscricoes()) {
-                    if (inscricao == null || inscricao.getCurso() == null) {
-                        continue;
-                    }
-
+                    if (inscricao == null || inscricao.getCurso() == null) continue;
                     pw.println(
                             estudante.getNumMecanografico() + SEPARADOR +
                                     inscricao.getAnoLetivo() + SEPARADOR +
@@ -308,52 +197,30 @@ public class EstudanteDAL {
     }
 
     private String seRealizarAvaliacoes(ArrayList<Avaliacao> avaliacoes) {
-        if (avaliacoes == null || avaliacoes.isEmpty()) {
-            return "";
-        }
-
+        if (avaliacoes == null || avaliacoes.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
-
         for (int i = 0; i < avaliacoes.size(); i++) {
             Avaliacao avaliacao = avaliacoes.get(i);
-
-            if (avaliacao == null || !avaliacao.isLancada()) {
-                sb.append("P");
-            } else {
-                sb.append(avaliacao.getNota());
-            }
-
-            if (i < avaliacoes.size() - 1) {
-                sb.append(",");
-            }
+            sb.append(avaliacao == null || !avaliacao.isLancada() ? "P" : avaliacao.getNota());
+            if (i < avaliacoes.size() - 1) sb.append(",");
         }
-
         return sb.toString();
     }
 
     private ArrayList<Avaliacao> deserializarAvaliacoes(String notas) {
         ArrayList<Avaliacao> avaliacoes = new ArrayList<>();
-
-        if (notas == null || notas.isBlank()) {
-            return avaliacoes;
-        }
-
-        String[] valores = notas.split(",");
-
-        for (String valor : valores) {
+        if (notas == null || notas.isBlank()) return avaliacoes;
+        for (String valor : notas.split(",")) {
             valor = valor.trim();
-
             if (valor.equalsIgnoreCase("P")) {
                 avaliacoes.add(new Avaliacao(new ArrayList<>(), 100, new Date()));
             } else {
                 try {
                     double nota = Double.parseDouble(valor);
                     avaliacoes.add(new Avaliacao(new ArrayList<>(), 100, new Date(), nota, nota >= 10));
-                } catch (NumberFormatException ignored) {
-                }
+                } catch (NumberFormatException ignored) {}
             }
         }
-
         return avaliacoes;
     }
 }
