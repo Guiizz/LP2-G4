@@ -1,24 +1,22 @@
 package DAL;
 
 import Model.Departamento;
+import Utils.Utils;
 
 import java.io.*;
 import java.util.ArrayList;
 
-/**
- * Camada DAL para a entidade Departamento.
- * Responsável por armazenar e recuperar departamentos com persistência em ficheiro CSV.
- */
 public class DepartamentoDAL {
 
     private static final String FICHEIRO_CSV = "csv/departamentos.csv";
     private static final String SEPARADOR = ";";
+    private static final String CABECALHO = "nome;sigla";
 
     private ArrayList<Departamento> listaDepartamentos;
 
     public DepartamentoDAL() {
         this.listaDepartamentos = new ArrayList<>();
-        criarFicheiroCsvSeNaoExistir();
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
         carregarDoCSV();
     }
 
@@ -46,9 +44,7 @@ public class DepartamentoDAL {
 
     public Departamento procurarPorSigla(String sigla) {
         for (Departamento d : listaDepartamentos) {
-            if (d.getSigla().equalsIgnoreCase(sigla)) {
-                return d;
-            }
+            if (d.getSigla().equalsIgnoreCase(sigla)) return d;
         }
         return null;
     }
@@ -57,63 +53,19 @@ public class DepartamentoDAL {
         return new ArrayList<>(listaDepartamentos);
     }
 
-    private void criarFicheiroCsvSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;sigla");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de departamentos: " + e.getMessage());
-            }
-        }
-    }
-
     private void carregarDoCSV() {
         listaDepartamentos.clear();
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (!ficheiro.exists()) return;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
-
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                if (linha.trim().isEmpty()) continue;
-
-                String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 2) continue;
-
-                String nome = campos[0];
-                String sigla = campos[1];
-
-                listaDepartamentos.add(new Departamento(nome, sigla));
-            }
-
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar departamentos do CSV: " + e.getMessage());
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
+            if (campos.length < 2) continue;
+            listaDepartamentos.add(new Departamento(campos[0], campos[1]));
         }
     }
 
     private void guardarNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;sigla");
-
-            for (Departamento departamento : listaDepartamentos) {
-                pw.println(
-                        departamento.getNome() + SEPARADOR +
-                                departamento.getSigla()
-                );
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
+            for (Departamento d : listaDepartamentos) {
+                pw.println(d.getNome() + SEPARADOR + d.getSigla());
             }
-
         } catch (IOException e) {
             System.err.println("Erro ao guardar departamentos no CSV: " + e.getMessage());
         }

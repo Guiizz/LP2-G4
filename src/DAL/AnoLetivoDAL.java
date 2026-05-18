@@ -1,6 +1,7 @@
 package DAL;
 
 import Model.AnoLetivo;
+import Utils.Utils;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -9,12 +10,13 @@ import java.util.ArrayList;
 public class AnoLetivoDAL {
     private static final String FICHEIRO_CSV = "csv/anos_letivos.csv";
     private static final String SEPARADOR = ";";
+    private static final String CABECALHO = "ano;estado;dataAbertura;dataFecho";
 
     private final ArrayList<AnoLetivo> anosLetivos;
 
     public AnoLetivoDAL() {
         this.anosLetivos = new ArrayList<>();
-        criarFicheiroCsvSeNaoExistir();
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
         carregarDoCSV();
     }
 
@@ -62,59 +64,25 @@ public class AnoLetivoDAL {
         return maisRecente;
     }
 
-    private void criarFicheiroCsvSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("ano;estado;dataAbertura;dataFecho");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de anos letivos: " + e.getMessage());
-            }
-        }
-    }
-
     private void carregarDoCSV() {
         anosLetivos.clear();
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (!ficheiro.exists()) return;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
-
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                if (linha.trim().isEmpty()) continue;
-
-                String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 3) continue;
-
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
+            if (campos.length < 3) continue;
+            try {
                 int ano = Integer.parseInt(campos[0]);
                 String estado = campos[1];
                 LocalDate dataAbertura = LocalDate.parse(campos[2]);
                 LocalDate dataFecho = campos.length >= 4 && !campos[3].isBlank()
-                        ? LocalDate.parse(campos[3])
-                        : null;
-
+                        ? LocalDate.parse(campos[3]) : null;
                 anosLetivos.add(new AnoLetivo(ano, estado, dataAbertura, dataFecho));
+            } catch (NumberFormatException e) {
+                System.err.println("Erro ao carregar anos letivos do CSV: " + e.getMessage());
             }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Erro ao carregar anos letivos do CSV: " + e.getMessage());
         }
     }
 
     private void guardarNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("ano;estado;dataAbertura;dataFecho");
-
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (AnoLetivo a : anosLetivos) {
                 pw.println(
                         a.getAno() + SEPARADOR +

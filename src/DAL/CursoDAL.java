@@ -3,19 +3,17 @@ package DAL;
 import Model.Curso;
 import Model.Departamento;
 import Model.UnidadeCurricular;
+import Utils.Utils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Camada DAL para a entidade Curso.
- * Responsável por armazenar e recuperar cursos com persistência em ficheiro CSV.
- */
 public class CursoDAL {
 
     private static final String FICHEIRO_CSV = "csv/cursos.csv";
     private static final String SEPARADOR = ";";
+    private static final String CABECALHO = "nomeCurso;siglaDepartamento;nomesUCs;estado";
 
     private ArrayList<Curso> cursos;
     private DepartamentoDAL departamentoDAL;
@@ -29,7 +27,7 @@ public class CursoDAL {
         this.departamentoDAL = departamentoDAL;
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.cursos = new ArrayList<>();
-        criarFicheiroCsvSeNaoExistir();
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
         carregarDoCSV();
     }
 
@@ -41,7 +39,6 @@ public class CursoDAL {
     public boolean atualizarCurso(Curso cursoAtualizado) {
         for (int i = 0; i < cursos.size(); i++) {
             Curso atual = cursos.get(i);
-
             if (atual.getNomeCurso().equalsIgnoreCase(cursoAtualizado.getNomeCurso())
                     && atual.getDepartamento() != null
                     && cursoAtualizado.getDepartamento() != null
@@ -65,102 +62,51 @@ public class CursoDAL {
 
     public Curso procurarPorNome(String nomeCurso) {
         for (Curso curso : cursos) {
-            if (curso.getNomeCurso().equalsIgnoreCase(nomeCurso)) {
-                return curso;
-            }
+            if (curso.getNomeCurso().equalsIgnoreCase(nomeCurso)) return curso;
         }
         return null;
     }
 
-    private void criarFicheiroCsvSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nomeCurso;siglaDepartamento;nomesUCs;estado");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de cursos: " + e.getMessage());
-            }
-        }
-    }
-
     private void carregarDoCSV() {
         cursos.clear();
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (!ficheiro.exists()) return;
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
+            if (campos.length < 3) continue;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
+            String nomeCurso = campos[0];
+            String siglaDepartamento = campos[1];
+            String nomesUCs = campos[2];
+            String estado = campos.length > 3 && !campos[3].isBlank() ? campos[3] : "PENDENTE";
 
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
+            Departamento departamento = departamentoDAL.procurarPorSigla(siglaDepartamento);
+            if (departamento == null) continue;
+
+            Curso curso = new Curso(nomeCurso, departamento);
+            curso.setEstado(estado);
+
+            if (!nomesUCs.isBlank()) {
+                for (String nomeUC : nomesUCs.split(",")) {
+                    UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC.trim());
+                    if (uc != null) curso.adicionarUnidadeCurricular(uc);
                 }
-
-                if (linha.trim().isEmpty()) continue;
-
-                String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 3) continue;
-
-                String nomeCurso = campos[0];
-                String siglaDepartamento = campos[1];
-                String nomesUCs = campos[2];
-
-                String estado = "PENDENTE";
-                if (campos.length > 3 && !campos[3].isBlank()) {
-                    estado = campos[3];
-                }
-
-                Departamento departamento = departamentoDAL.procurarPorSigla(siglaDepartamento);
-                if (departamento == null) continue;
-
-                Curso curso = new Curso(nomeCurso, departamento);
-                curso.setEstado(estado);
-                if (!nomesUCs.isBlank()) {
-                    String[] nomes = nomesUCs.split(",");
-                    for (String nomeUC : nomes) {
-                        UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC.trim());
-                        if (uc != null) {
-                            curso.adicionarUnidadeCurricular(uc);
-                        }
-                    }
-                }
-
-                cursos.add(curso);
-                departamento.adicionarCurso(curso);
             }
 
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar cursos do CSV: " + e.getMessage());
+            cursos.add(curso);
+            departamento.adicionarCurso(curso);
         }
     }
 
     private void guardarNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nomeCurso;siglaDepartamento;nomesUCs;estado");
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (Curso curso : cursos) {
-                String siglaDepartamento = "";
-                if (curso.getDepartamento() != null) {
-                    siglaDepartamento = curso.getDepartamento().getSigla();
-                }
-
+                String siglaDepartamento = curso.getDepartamento() != null ? curso.getDepartamento().getSigla() : "";
                 List<UnidadeCurricular> ucs = curso.getUnidades();
                 StringBuilder nomesUCs = new StringBuilder();
-
                 if (ucs != null) {
                     for (int i = 0; i < ucs.size(); i++) {
                         nomesUCs.append(ucs.get(i).getNome());
-                        if (i < ucs.size() - 1) {
-                            nomesUCs.append(",");
-                        }
+                        if (i < ucs.size() - 1) nomesUCs.append(",");
                     }
                 }
-
                 pw.println(
                         curso.getNomeCurso() + SEPARADOR +
                                 siglaDepartamento + SEPARADOR +
@@ -168,7 +114,6 @@ public class CursoDAL {
                                 curso.getEstado()
                 );
             }
-
         } catch (IOException e) {
             System.err.println("Erro ao guardar cursos no CSV: " + e.getMessage());
         }

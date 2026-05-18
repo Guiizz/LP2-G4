@@ -2,20 +2,18 @@ package DAL;
 
 import Model.Docente;
 import Model.UnidadeCurricular;
+import Utils.Utils;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Camada DAL para a entidade Docente.
- * Responsável por armazenar e recuperar docentes com persistência em ficheiro CSV.
- */
 public class DocenteDAL {
 
     private static final String FICHEIRO_CSV = "csv/docentes.csv";
     private static final String SEPARADOR = ";";
+    private static final String CABECALHO = "nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin";
 
     private ArrayList<Docente> docentes;
     private UnidadeCurricularDAL unidadeCurricularDAL;
@@ -27,7 +25,7 @@ public class DocenteDAL {
     public DocenteDAL(UnidadeCurricularDAL unidadeCurricularDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.docentes = new ArrayList<>();
-        criarFicheiroCsvSeNaoExistir();
+        Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
         carregarDoCSV();
     }
 
@@ -57,84 +55,45 @@ public class DocenteDAL {
     }
 
     public Docente procurarPorSigla(String sigla) {
-        for (Docente docente : docentes) {
-            if (docente.getSigla().equalsIgnoreCase(sigla)) {
-                return docente;
-            }
+        for (Docente d : docentes) {
+            if (d.getSigla().equalsIgnoreCase(sigla)) return d;
         }
         return null;
     }
 
     public Docente procurarPorNif(String nif) {
-        for (Docente docente : docentes) {
-            if (docente.getNif().equals(nif)) {
-                return docente;
-            }
+        for (Docente d : docentes) {
+            if (d.getNif().equals(nif)) return d;
         }
         return null;
     }
 
     public Docente procurarPorEmail(String email) {
-        for (Docente docente : docentes) {
-            if (docente.getEmail().equalsIgnoreCase(email)) {
-                return docente;
-            }
+        for (Docente d : docentes) {
+            if (d.getEmail().equalsIgnoreCase(email)) return d;
         }
         return null;
     }
 
-    private void criarFicheiroCsvSeNaoExistir() {
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (ficheiro.getParentFile() != null) {
-            ficheiro.getParentFile().mkdirs();
-        }
-
-        if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
-                pw.println("nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin");
-            } catch (IOException e) {
-                System.err.println("Erro ao criar ficheiro CSV de docentes: " + e.getMessage());
-            }
-        }
-    }
-
     private void carregarDoCSV() {
         docentes.clear();
-        File ficheiro = new File(FICHEIRO_CSV);
-        if (!ficheiro.exists()) return;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
-            String linha;
-            boolean primeiraLinha = true;
-
-            while ((linha = br.readLine()) != null) {
-                if (primeiraLinha) {
-                    primeiraLinha = false;
-                    continue;
-                }
-
-                if (linha.trim().isEmpty()) continue;
-
-                String[] campos = linha.split(SEPARADOR, -1);
-                if (campos.length < 8) continue;
-
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
+            if (campos.length < 8) continue;
+            try {
                 String nome = campos[0];
                 LocalDate dataNascimento = LocalDate.parse(campos[1]);
                 String nif = campos[2];
                 String morada = campos[3];
                 String sigla = campos[4];
                 String nomesUCs = campos[5];
-                String password     = campos[6];
+                String password = campos[6];
                 boolean primeiroLogin = Boolean.parseBoolean(campos[7]);
 
                 List<UnidadeCurricular> unidades = new ArrayList<>();
                 if (!nomesUCs.isBlank()) {
-                    String[] nomes = nomesUCs.split(",");
-                    for (String nomeUC : nomes) {
+                    for (String nomeUC : nomesUCs.split(",")) {
                         UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC.trim());
-                        if (uc != null) {
-                            unidades.add(uc);
-                        }
+                        if (uc != null) unidades.add(uc);
                     }
                 }
 
@@ -142,30 +101,23 @@ public class DocenteDAL {
                 docente.setPassword(password);
                 docente.setPrimeiroLogin(primeiroLogin);
                 docentes.add(docente);
+            } catch (Exception e) {
+                System.err.println("Erro ao carregar docentes do CSV: " + e.getMessage());
             }
-
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar docentes do CSV: " + e.getMessage());
         }
     }
 
     private void guardarNoCSV() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV))) {
-            pw.println("nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin");
-
+        try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (Docente docente : docentes) {
                 List<UnidadeCurricular> unidades = docente.getUnidadesLecionadas();
                 StringBuilder nomesUCs = new StringBuilder();
-
                 if (unidades != null) {
                     for (int i = 0; i < unidades.size(); i++) {
                         nomesUCs.append(unidades.get(i).getNome());
-                        if (i < unidades.size() - 1) {
-                            nomesUCs.append(",");
-                        }
+                        if (i < unidades.size() - 1) nomesUCs.append(",");
                     }
                 }
-
                 pw.println(
                         docente.getNome()           + SEPARADOR +
                                 docente.getDataNascimento() + SEPARADOR +
@@ -177,7 +129,6 @@ public class DocenteDAL {
                                 docente.isPrimeiroLogin()
                 );
             }
-
         } catch (IOException e) {
             System.err.println("Erro ao guardar docentes no CSV: " + e.getMessage());
         }

@@ -1,9 +1,12 @@
 package Utils;
 
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -221,5 +224,44 @@ public class Utils {
             sb.append(' ');
         }
         return sb.toString();
+    }
+
+    public static void criarFicheiroSeNaoExistir(String caminho, String cabecalho) {
+        File ficheiro = new File(caminho);
+        if (ficheiro.getParentFile() != null) {
+            ficheiro.getParentFile().mkdirs();
+        }
+        if (!ficheiro.exists()) {
+            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
+                pw.println(cabecalho);
+            } catch (IOException e) {
+                System.err.println("Erro ao criar ficheiro CSV (" + caminho + "): " + e.getMessage());
+            }
+        }
+    }
+
+    public static List<String[]> lerLinhasCSV(String caminho, String separador) {
+        List<String[]> linhas = new ArrayList<>();
+        File ficheiro = new File(caminho);
+        if (!ficheiro.exists()) return linhas;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
+            String linha;
+            boolean primeiraLinha = true;
+            while ((linha = br.readLine()) != null) {
+                if (primeiraLinha) { primeiraLinha = false; continue; }
+                if (linha.trim().isEmpty()) continue;
+                linhas.add(linha.split(separador, -1));
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao ler ficheiro CSV (" + caminho + "): " + e.getMessage());
+        }
+        return linhas;
+    }
+
+    public static PrintWriter abrirEscritorCSV(String caminho, String cabecalho) throws IOException {
+        PrintWriter pw = new PrintWriter(new FileWriter(caminho));
+        pw.println(cabecalho);
+        return pw;
     }
 }
