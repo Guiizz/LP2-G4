@@ -80,8 +80,7 @@ public class UnidadeCurricularView {
 
         for (UnidadeCurricular uc : lista) { System.out.println("  - " + uc.getNome()); }
 
-        System.out.print("Nome da UC a atualizar: ");
-        String nome = scanner.nextLine().trim();
+        String nome = Utils.lerCampo("Nome da UC a atualizar: ", scanner);
         UnidadeCurricular ucEscolhida = null;
         for (UnidadeCurricular uc : lista) {
             if (uc.getNome().equalsIgnoreCase(nome)) { ucEscolhida = uc; break; }
@@ -113,8 +112,7 @@ public class UnidadeCurricularView {
 
         for (UnidadeCurricular uc : lista) { System.out.println("  - " + uc.getNome()); }
 
-        System.out.print("Nome da UC a remover: ");
-        String nome = scanner.nextLine().trim();
+        String nome = Utils.lerCampo("Nome da UC a remover: ", scanner);
         UnidadeCurricular ucEscolhida = null;
         for (UnidadeCurricular uc : lista) {
             if (uc.getNome().equalsIgnoreCase(nome)) { ucEscolhida = uc; break; }
@@ -140,13 +138,11 @@ public class UnidadeCurricularView {
             String docResp = uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "sem docente";
             System.out.println("    - " + uc.getNome() + " [" + docResp + "]");
         }
-        System.out.print("Nome da UC: ");
-        String nomeUC = scanner.nextLine().trim();
+        String nomeUC = Utils.lerCampo("Nome da UC: ", scanner);
 
         System.out.println("  Docentes disponíveis:");
         for (Docente d : docentes) { System.out.println("    - " + d.getNome() + " (" + d.getSigla() + ")"); }
-        System.out.print("Sigla do docente: ");
-        String siglaDocente = scanner.nextLine().trim();
+        String siglaDocente = Utils.lerCampo("Sigla do Docente: ", scanner);
 
         UnidadeCurricular ucEscolhida = null;
         for (UnidadeCurricular uc : ucs) {
@@ -188,8 +184,7 @@ public class UnidadeCurricularView {
                     String.format("%.1f", uc.somaPesos()) + "%]");
         }
 
-        System.out.print("Nome da UC: ");
-        String nome = scanner.nextLine().trim();
+        String nome = Utils.lerCampo("Nome da UC: ", scanner);
         UnidadeCurricular uc = encontrarUC(lista, nome);
         if (uc == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
 

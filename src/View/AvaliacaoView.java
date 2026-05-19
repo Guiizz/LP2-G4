@@ -69,8 +69,7 @@ public class AvaliacaoView {
             System.out.println("    - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
         }
 
-        System.out.print("Nome da UC: ");
-        String nomeUC = scanner.nextLine().trim();
+        String nomeUC = Utils.lerCampo("Nome da UC: ", scanner);
         UnidadeCurricular ucEscolhida = null;
         for (UnidadeCurricular uc : todasUCs) {
             if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
@@ -107,8 +106,7 @@ public class AvaliacaoView {
 
         for (UnidadeCurricular uc : todasUCs) { System.out.println("  - " + uc.getNome()); }
 
-        System.out.print("Nome da UC: ");
-        String nomeUC = scanner.nextLine().trim();
+        String nomeUC = Utils.lerCampo("Nome da UC: ", scanner);
         UnidadeCurricular ucEscolhida = null;
         for (UnidadeCurricular uc : todasUCs) {
             if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }

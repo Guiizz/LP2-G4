@@ -55,12 +55,15 @@ public class DocenteGestorView {
         String morada = Utils.lerCampo("Morada: ", scanner);
         String sigla = Utils.lerCampo("Sigla: ", scanner);
 
-        Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
-        Docente resultado = docenteController.registarDocente(d);
+        String passwordTemporaria = "Issmf" + sigla;
+
         System.out.println("  [✓] Docente registado com sucesso.");
-        System.out.println("  Sigla: " + resultado.getSigla());
-        System.out.println("  E-mail: " + resultado.getEmail());
-        System.out.println("  Password inicial: Issmf" + resultado.getSigla());
+        System.out.println("  Sigla: " + sigla);
+        System.out.println("  Email: " + sigla + "@issmf.pt");
+        System.out.println("  Password inicial: " + passwordTemporaria);
+
+        Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
+        docenteController.registarDocente(d);
         Utils.pausar(scanner);
     }
 

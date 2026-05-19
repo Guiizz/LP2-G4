@@ -89,8 +89,7 @@ public class EstudanteGestorView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.print("\nNº Mecanográfico: ");
-        String num = scanner.nextLine().trim();
+        String num = Utils.lerCampo("\nNº Mecanográfico: ", scanner);
         Estudante e = estudanteController.procurarPorNumMecanografico(num);
         System.out.println("\n" + e);
         Utils.pausar(scanner);
@@ -98,8 +97,7 @@ public class EstudanteGestorView {
 
     private void atualizar() {
         System.out.println("\n--- Atualizar Estudante --- (0 para cancelar)");
-        System.out.print("Nº Mecanográfico do estudante a atualizar: ");
-        String num = scanner.nextLine().trim();
+        String num = Utils.lerCampo("Nº Mecanográfico do estudante a atualizar: ", scanner);
         Estudante e = estudanteController.procurarPorNumMecanografico(num);
 
         System.out.println("  Dados atuais: " + e.getNome() + " | " + e.getMorada());
@@ -116,8 +114,7 @@ public class EstudanteGestorView {
     }
 
     private void remover() {
-        System.out.print("\nNº Mecanográfico do estudante a remover: ");
-        String num = scanner.nextLine().trim();
+        String num = Utils.lerCampo("Nº Mecanográfico do estudante a remover: ", scanner);
         estudanteController.removerEstudante(num);
         System.out.println("  [✓] Estudante removido com sucesso.");
         Utils.pausar(scanner);
@@ -153,8 +150,7 @@ public class EstudanteGestorView {
 
     private void marcarPropinaPaga() {
         System.out.println("\n--- Marcar Propina Atual como Paga ---");
-        System.out.print("Nº Mecanográfico: ");
-        String num = scanner.nextLine().trim();
+        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
 
         estudanteController.marcarPropinaAtualComoPaga(num);
 
@@ -187,8 +183,7 @@ public class EstudanteGestorView {
 
     private void registarNota() {
         System.out.println("\n--- Registar Nota na Inscrição Atual ---");
-        System.out.print("Nº Mecanográfico: ");
-        String num = scanner.nextLine().trim();
+        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
         double nota = Utils.lerDouble("Nota (0-20): ", scanner);
 
         estudanteController.registarNotaNaInscricaoAtual(num, nota);
