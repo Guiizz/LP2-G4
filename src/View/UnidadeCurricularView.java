@@ -27,7 +27,9 @@ public class UnidadeCurricularView {
                 "Listar Unidades Curriculares",
                 "Atualizar Unidade Curricular",
                 "Remover Unidade Curricular",
-                "Atribuir Docente Responsável"
+                "Atribuir Docente Responsável",
+                "Definir Momentos de Avaliação",
+                "Iniciar Unidade Curricular"
         };
 
         int opcao;
@@ -41,6 +43,8 @@ public class UnidadeCurricularView {
                     case 3: atualizar(); break;
                     case 4: remover(); break;
                     case 5: atribuirDocente(); break;
+                    case 6: definirMomentos(); break;
+                    case 7: iniciarUC(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
