@@ -1,10 +1,7 @@
 package View;
 
 import Controller.EstudanteController;
-import Model.Estudante;
-import Model.Inscricao;
-import Model.Pagamento;
-import Model.Propina;
+import Model.*;
 import Utils.Utils;
 
 import java.util.ArrayList;
