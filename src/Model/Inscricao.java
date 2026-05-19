@@ -89,6 +89,28 @@ public class Inscricao {
         return (double) getTotalAvaliacoesAprovadas() / avaliacoes.size();
     }
 
+    /**
+     * Devolve as avaliações lançadas com nota inferior a 10 (reprovadas).
+     * Usado para identificar UCs em atraso de anos anteriores.
+     */
+    public ArrayList<Avaliacao> getAvaliacoesReprovadas() {
+        ArrayList<Avaliacao> reprovadas = new ArrayList<>();
+        if (avaliacoes == null) return reprovadas;
+        for (Avaliacao avaliacao : avaliacoes) {
+            if (avaliacao != null && avaliacao.isLancada() && avaliacao.getNota() < 10) {
+                reprovadas.add(avaliacao);
+            }
+        }
+        return reprovadas;
+    }
+
+    /**
+     * Devolve o número de avaliações reprovadas nesta inscrição.
+     */
+    public int getTotalReprovadas() {
+        return getAvaliacoesReprovadas().size();
+    }
+
     @Override
     public String toString() {
         return "=== Inscricao ===\n" +
