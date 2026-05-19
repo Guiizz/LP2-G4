@@ -94,8 +94,7 @@ public class CursoView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.print("\nNome do curso: ");
-        String nome = scanner.nextLine().trim();
+        String nome = Utils.lerCampo("Nome do curso: ", scanner);
         Curso c = cursoController.procurarPorNome(nome);
         if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
         System.out.println("\n" + c);
@@ -104,8 +103,7 @@ public class CursoView {
 
     private void atualizar() {
         System.out.println("\n--- Atualizar Nome de Curso --- (0 para cancelar)");
-        System.out.print("Nome atual do curso: ");
-        String nomeAtual = scanner.nextLine().trim();
+        String nomeAtual = Utils.lerCampo("Nome atual do curso: ", scanner);
         Curso c = cursoController.procurarPorNome(nomeAtual);
         if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
 
@@ -117,8 +115,7 @@ public class CursoView {
 
     private void remover() {
         System.out.println("\n--- Remover Curso ---");
-        System.out.print("Nome do curso a remover: ");
-        String nome = scanner.nextLine().trim();
+        String nome = Utils.lerCampo("Nome do curso a remover: ", scanner);
         Curso c = cursoController.procurarPorNome(nome);
         if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
 
@@ -149,8 +146,7 @@ public class CursoView {
             System.out.println("    - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
         }
 
-        System.out.print("Nome da UC a adicionar: ");
-        String nomeUC = scanner.nextLine().trim();
+        String nomeUC = Utils.lerCampo("Nome da UC a adicionar: ", scanner);
         UnidadeCurricular ucEscolhida = null;
         for (UnidadeCurricular uc : todasUCs) {
             if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
