@@ -116,7 +116,7 @@ public class LoginView {
                 return;
             }
 
-            vemDeRecuperacao = true;  // marca que o próximo login vem de recuperação
+            vemDeRecuperacao = true;
 
             System.out.println(" [✓] Foi enviada uma password temporária para " + email + ".");
             System.out.println("Use-a para fazer login e defina uma nova password.");
