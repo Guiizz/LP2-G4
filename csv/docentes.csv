@@ -1,0 +1,9 @@
+nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin
+Pedro André Rodrigo;1980-05-01;987654321;Rua das Flores 12, Porto;PAR;Programação I,Programação II,Sistemas Operativos;SHA256:05cb80ba717a9fe1d60ae65ce501b78e4a20baf4e4a8bb2cdc201f1819bee187;false
+Maria Catarina Silva;1975-03-15;876543210;Av. da República 45, Lisboa;MCS;Bases de Dados,Engenharia de Software,Projeto de Software;SHA256:6c14ad1d6e36260cdaa7f09489d806e538e0410a73a2f1f8333b2133ba12daa4;false
+João Sousa Oliveira;1982-07-22;765432109;Rua do Comércio 8, Braga;JSO;Redes de Computadores,Arquitetura de Computadores;SHA256:b4620e5a3d6d556bdeb8e98680f6a10c5fe61f5fbee09ac4fd16eebb5151f9ae;false
+Ana Filipa Ferreira;1978-11-30;654321098;Rua de Santa Catarina 77, Porto;AFF;Matemática Discreta,Cálculo I,Álgebra Linear;SHA256:46e790c054205797a8a2ded91fb3e0f51d87f034d86ef00f3790a1bdb050f13a;false
+Rui Nuno Torres;1985-02-14;543210987;Largo do Paço 3, Coimbra;RNT;Inteligência Artificial,Desenvolvimento Web;SHA256:3e34995eb9dbef19473d0b0d3abd571405acae56840461c597ec72099b6afbc3;false
+Luís Carlos Almeida;1979-09-05;432109876;Rua Garrett 22, Lisboa;LCA;Segurança Informática,Computação em Nuvem;SHA256:f7fed0ce2ee13b5f0f697c98ff57b46c1ce75907376dcdd1d67ac0ae09223640;false
+Bruno Filipe Rodrigues;1983-06-18;321098765;Rua do Heroísmo 55, Porto;BFR;Contabilidade,Gestão de Empresas,Finanças,Gestão de Projetos TI;SHA256:2f054dc5ef4ba4a1d31d3a9796b67e07343111f4a41bb7bca885774498b901ee;false
+Carla Cristina Oliveira;1977-12-03;210987654;Av. Central 14, Braga;CCO;Marketing,Comunicação Digital,Gestão de Recursos Humanos,Qualidade de Software;SHA256:73ad90c44f846c80fbc250a76ddc2ecf0cb80a1ad8ac4acf1ff1a284a02563ba;false
