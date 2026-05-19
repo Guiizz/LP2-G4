@@ -10,30 +10,14 @@ import java.util.Scanner;
 
 public class LoginView {
 
-    private final EstudanteController         estudanteController;
-    private final GestorController            gestorController;
-    private final DocenteController           docenteController;
-    private final DepartamentoController      departamentoController;
-    private final CursoController             cursoController;
-    private final UnidadeCurricularController unidadeCurricularController;
-    private final AvaliacaoController         avaliacaoController;
-    private final InscricaoController         inscricaoController;
-    private final AnoLetivoController anoLetivoController;
-    private final Scanner                     scanner;
+    private final LoginController loginController;
+    private final Scanner scanner;
     private boolean vemDeRecuperacao = false;
 
 
 
     public LoginView() {
-        this.gestorController = new GestorController();
-        this.estudanteController = new EstudanteController();
-        this.docenteController = new DocenteController();
-        this.departamentoController = new DepartamentoController();
-        this.cursoController = new CursoController();
-        this.unidadeCurricularController = new UnidadeCurricularController();
-        this.avaliacaoController = new AvaliacaoController();
-        this.inscricaoController = new InscricaoController();
-        this.anoLetivoController = new AnoLetivoController();
+        this.loginController = new LoginController();
         this.scanner = new Scanner(System.in);
     }
 
@@ -73,25 +57,25 @@ public class LoginView {
 
         try {
             if (prefixo.equalsIgnoreCase("gestor")) {
-                Gestor gestor = gestorController.autenticar(email, password);
+                Gestor gestor = loginController.getGestorController().autenticar(email, password);
                 if (gestor.isPrimeiroLogin()) {
                     tratarPrimeiroLoginGestor(gestor);
                 }
-                new GestorView(gestorController, estudanteController, docenteController, departamentoController, cursoController, unidadeCurricularController, avaliacaoController, inscricaoController, anoLetivoController, scanner).iniciar(gestor);
+                new GestorView(loginController.getGestorController(), loginController.getEstudanteController(), loginController.getDocenteController(), loginController.getDepartamentoController(), loginController.getCursoController(), loginController.getUnidadeCurricularController(), loginController.getAvaliacaoController(), loginController.getInscricaoController(), loginController.getAnoLetivoController(), scanner).iniciar(gestor);
 
             } else if (prefixo.matches("[A-Za-z]{3}")) {
-                Docente docente = docenteController.autenticar(email, password);
+                Docente docente = loginController.getDocenteController().autenticar(email, password);
                 if (docente.isPrimeiroLogin()) {
                     tratarPrimeiroLoginDocente(docente);
                 }
-                new DocenteView(docenteController, estudanteController, avaliacaoController, unidadeCurricularController, scanner).iniciar(docente);
+                new DocenteView(loginController.getDocenteController(), loginController.getEstudanteController(), loginController.getAvaliacaoController(), loginController.getUnidadeCurricularController(), scanner).iniciar(docente);
 
             } else if (prefixo.matches("\\d+")) {
-                Estudante estudante = estudanteController.autenticarEstudante(email, password);
+                Estudante estudante = loginController.getEstudanteController().autenticarEstudante(email, password);
                 if (estudante.isPrimeiroLogin()) {
                     tratarPrimeiroLoginEstudante(estudante);
                 }
-                new EstudanteView(estudanteController, scanner).iniciar(estudante);
+                new EstudanteView(loginController.getEstudanteController(), scanner).iniciar(estudante);
 
             } else {
                 System.out.println("[!] Tipo de utilizador não reconhecido.");
@@ -121,11 +105,11 @@ public class LoginView {
 
         try {
             if (prefixo.equalsIgnoreCase("gestor")) {
-                gestorController.recuperarPassword(email);
+                loginController.getGestorController().recuperarPassword(email);
             } else if (prefixo.matches("[A-Za-z]{3}")) {
-                docenteController.recuperarPassword(email);
+                loginController.getDocenteController().recuperarPassword(email);
             } else if (prefixo.matches("\\d+")) {
-                estudanteController.recuperarPassword(email);
+                loginController.getEstudanteController().recuperarPassword(email);
             } else {
                 System.out.println("  [!] Tipo de utilizador não reconhecido.");
                 Utils.pausar(scanner);
@@ -150,7 +134,7 @@ public class LoginView {
         while (!alterada) {
             try {
                 String novaPassword = pedirNovaPassword();
-                gestorController.alterarPassword(gestor, novaPassword);
+                loginController.getGestorController().alterarPassword(gestor, novaPassword);
                 System.out.println("[✓] Password alterada com sucesso!");
                 alterada = true;
             } catch (IllegalArgumentException e) {
@@ -165,7 +149,7 @@ public class LoginView {
         while (!alterada) {
             try {
                 String novaPassword = pedirNovaPassword();
-                docenteController.alterarPassword(docente, novaPassword);
+                loginController.getDocenteController().alterarPassword(docente, novaPassword);
                 System.out.println("[✓] Password alterada com sucesso!");
                 alterada = true;
             } catch (IllegalArgumentException e) {
@@ -180,7 +164,7 @@ public class LoginView {
         while (!alterada) {
             try {
                 String novaPassword = pedirNovaPassword();
-                estudanteController.alterarPassword(estudante, novaPassword);
+                loginController.getEstudanteController().alterarPassword(estudante, novaPassword);
                 System.out.println("[✓] Password alterada com sucesso!");
                 alterada = true;
             } catch (IllegalArgumentException e) {
