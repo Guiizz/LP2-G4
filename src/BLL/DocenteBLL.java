@@ -175,7 +175,7 @@ public class DocenteBLL {
             throw new IllegalArgumentException("Não existe nenhum docente com esse email.");
         }
 
-        String passwordTemporaria = "Issmf" + docente.getSigla() + "Tmp";
+        String passwordTemporaria = "Issmf" + docente.getSigla() + "Tmp1";
         docente.setPassword(PasswordUtils.hashPassword(passwordTemporaria));
         docente.setPrimeiroLogin(true);
         docenteDAL.atualizarDocente(docente);
