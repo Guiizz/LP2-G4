@@ -1,0 +1,7 @@
+nomeCurso;siglaDepartamento;nomesUCs;estado;valorPropina
+Engenharia Informática;INF;Programação I,Bases de Dados,Matemática Discreta,Redes de Computadores,Sistemas Operativos;ATIVO;1200.0
+Sistemas de Informação;INF;Programação I,Bases de Dados,Engenharia de Software,Redes de Computadores,Gestão de Projetos TI;ATIVO;1100.0
+Gestão;GES;Contabilidade,Gestão de Empresas,Marketing,Finanças,Gestão de Recursos Humanos;ATIVO;950.0
+Marketing Digital;COM;Marketing,Comunicação Digital,Gestão de Empresas,Desenvolvimento Web,Gestão de Projetos TI;ATIVO;900.0
+Engenharia Civil;ENG;Cálculo I,Álgebra Linear,Matemática Discreta,Estatística,Análise Matemática;ATIVO;1050.0
+Matemática Aplicada;MAT;Cálculo I,Álgebra Linear,Estatística,Análise Matemática,Matemática Discreta;ATIVO;980.0

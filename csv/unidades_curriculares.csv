@@ -1,0 +1,26 @@
+nome;anoCurricular;ects;docenteResponsavel
+Programação I;1;6;PAR
+Bases de Dados;1;6;MCS
+Matemática Discreta;1;6;AFF
+Redes de Computadores;1;6;JSO
+Sistemas Operativos;1;6;PAR
+Programação II;2;6;PAR
+Engenharia de Software;2;6;MCS
+Arquitetura de Computadores;2;6;JSO
+Inteligência Artificial;2;6;RNT
+Segurança Informática;2;6;LCA
+Projeto de Software;3;6;MCS
+Computação em Nuvem;3;6;LCA
+Desenvolvimento Web;3;6;RNT
+Gestão de Projetos TI;3;6;BFR
+Qualidade de Software;3;6;CCO
+Contabilidade;1;6;BFR
+Gestão de Empresas;1;6;BFR
+Marketing;1;6;CCO
+Finanças;2;6;BFR
+Gestão de Recursos Humanos;2;6;CCO
+Cálculo I;1;6;AFF
+Álgebra Linear;1;6;AFF
+Estatística;2;6;AFF
+Análise Matemática;2;6;AFF
+Comunicação Digital;1;6;CCO
