@@ -13,6 +13,7 @@ public class Curso {
     private int duracao;
     private List <UnidadeCurricular> unidades;
     private String estado;
+    private double valorPropina;
 
     /**
      * Construtor da classe Curso.
@@ -25,6 +26,7 @@ public class Curso {
         this.duracao = 3;
         this.unidades = new ArrayList<>();
         this.estado = "PENDENTE";
+        this.valorPropina = 0.0;
     }
 
     /**
@@ -84,6 +86,14 @@ public class Curso {
         this.estado = estado;
     }
 
+    public double getValorPropina() {
+        return valorPropina;
+    }
+
+    public void setValorPropina(double valorPropina) {
+        this.valorPropina = valorPropina;
+    }
+
     /**
      * Formato de texto da ficha Curso.
      * @return Uma String formatada com os detalhes do curso.
@@ -94,6 +104,7 @@ public class Curso {
                 "Nome do Curso: " + nomeCurso + "\n" +
                 "Departamento: " + (departamento != null ? departamento.getNome() : "Sem departamento") + "\n" +
                 "Duracao:" + duracao + " anos\n" +
+                "Propina anual: " + String.format("%.2f €", valorPropina) + "\n" +
                 "Unidades:" + unidades.size() + "\n" +
                 "=============";
     }

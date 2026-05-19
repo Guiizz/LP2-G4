@@ -34,7 +34,8 @@ public class CursoView {
                 "Atualizar Nome de Curso",
                 "Remover Curso",
                 "Adicionar UC a Curso",
-                "Listar UCs de um Curso por Ano"
+                "Listar UCs de um Curso por Ano",
+                "Atualizar Valor de Propina"
         };
 
         int opcao;
@@ -50,6 +51,7 @@ public class CursoView {
                     case 5: remover(); break;
                     case 6: adicionarUC(); break;
                     case 7: listarUCsPorAno(); break;
+                    case 8: atualizarPropina(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -78,7 +80,8 @@ public class CursoView {
         if (depto == null) { System.out.println("  [!] Departamento não encontrado."); Utils.pausar(scanner); return; }
 
         String nomeCurso = Utils.lerCampo("Nome do curso: ", scanner);
-        Curso c = cursoController.registarCurso(nomeCurso, depto);
+        double valorPropina = Utils.lerDouble("Valor anual da propina (€): ", scanner);
+        Curso c = cursoController.registarCurso(nomeCurso, depto, valorPropina);
         System.out.println("  [✓] Curso '" + c.getNomeCurso() + "' registado com sucesso.");
         Utils.pausar(scanner);
     }
@@ -169,6 +172,23 @@ public class CursoView {
         List<UnidadeCurricular> ucs = cursoController.listarUCsPorAno(c, ano);
         if (ucs.isEmpty()) { System.out.println("  (sem UCs para o ano " + ano + ")"); Utils.pausar(scanner); return; }
         for (UnidadeCurricular uc : ucs) { System.out.println("  - " + uc.getNome()); }
+        Utils.pausar(scanner);
+    }
+
+    private void atualizarPropina() {
+        System.out.println("\n--- Atualizar Valor de Propina --- (0 para cancelar)");
+        String nomeCurso = Utils.lerCampo("Nome do curso: ", scanner);
+        Curso c = cursoController.procurarPorNome(nomeCurso);
+        if (c == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            Utils.pausar(scanner);
+            return;
+        }
+        System.out.printf("  Propina atual: %.2f €%n", c.getValorPropina());
+        double novoValor = Utils.lerDouble("Novo valor da propina (€): ", scanner);
+        cursoController.atualizarValorPropina(c, novoValor);
+        System.out.printf("  [✓] Propina do curso '%s' atualizada para %.2f €.%n",
+                c.getNomeCurso(), c.getValorPropina());
         Utils.pausar(scanner);
     }
 }

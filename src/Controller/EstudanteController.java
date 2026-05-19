@@ -87,5 +87,9 @@ public class EstudanteController {
     public void lancarNotaMomento(Estudante estudante, int indiceMomento, double nota) {
         estudanteBLL.lancarNotaMomento(estudante, indiceMomento, nota);
     }
+
+    public void pagarPropina(Estudante estudante, double valor) {
+        estudanteBLL.pagarPropina(estudante, valor);
+    }
 }
 

@@ -18,7 +18,7 @@ public class EstudanteDAL {
     private static final String FICHEIRO_INSCRICOES_CSV = "csv/inscricoes.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO_ESTUDANTES = "nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin;estado";
-    private static final String CABECALHO_INSCRICOES = "numMecanografico;anoLetivo;anoDeCurso;nomeCurso;propinaPaga;notas";
+    private static final String CABECALHO_INSCRICOES = "numMecanografico;anoLetivo;anoDeCurso;nomeCurso;valorPago;notas";
 
     private ArrayList<Estudante> estudantes;
     private CursoDAL cursoDAL;
@@ -130,6 +130,7 @@ public class EstudanteDAL {
     private void carregarInscricoesDoCSV() {
         for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_INSCRICOES_CSV, SEPARADOR)) {
             if (campos.length < 5) continue;
+
             try {
                 String numMecanografico = campos[0];
                 int anoLetivo = Integer.parseInt(campos[1]);
@@ -140,11 +141,13 @@ public class EstudanteDAL {
 
                 Estudante estudante = procurarPorNumMecanografico(numMecanografico);
                 Curso curso = cursoDAL.procurarPorNome(nomeCurso);
+
                 if (estudante == null || curso == null) continue;
 
                 Inscricao inscricao = new Inscricao(anoLetivo, anoDeCurso, curso);
                 inscricao.setPropinaPaga(propinaPaga);
                 inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
+
                 estudante.adicionarInscricao(inscricao);
 
             } catch (NumberFormatException e) {
@@ -186,7 +189,7 @@ public class EstudanteDAL {
                                     inscricao.getAnoLetivo() + SEPARADOR +
                                     inscricao.getAnoDeCurso() + SEPARADOR +
                                     inscricao.getCurso().getNomeCurso() + SEPARADOR +
-                                    inscricao.isPropinaPaga() + SEPARADOR +
+                                    (inscricao.getPropina() != null ? inscricao.getPropina().getValorPago() : 0.0) + SEPARADOR +
                                     seRealizarAvaliacoes(inscricao.getAvaliacoes())
                     );
                 }

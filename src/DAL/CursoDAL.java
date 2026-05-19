@@ -13,7 +13,7 @@ public class CursoDAL {
 
     private static final String FICHEIRO_CSV = "csv/cursos.csv";
     private static final String SEPARADOR = ";";
-    private static final String CABECALHO = "nomeCurso;siglaDepartamento;nomesUCs;estado";
+    private static final String CABECALHO = "nomeCurso;siglaDepartamento;nomesUCs;estado;valorPropina";
 
     private ArrayList<Curso> cursos;
     private DepartamentoDAL departamentoDAL;
@@ -76,12 +76,18 @@ public class CursoDAL {
             String siglaDepartamento = campos[1];
             String nomesUCs = campos[2];
             String estado = campos.length > 3 && !campos[3].isBlank() ? campos[3] : "PENDENTE";
+            double valorPropina = 0.0;
+            if (campos.length > 4 && !campos[4].isBlank()) {
+                try { valorPropina = Double.parseDouble(campos[4]); }
+                catch (NumberFormatException ignored) {}
+            }
 
             Departamento departamento = departamentoDAL.procurarPorSigla(siglaDepartamento);
             if (departamento == null) continue;
 
             Curso curso = new Curso(nomeCurso, departamento);
             curso.setEstado(estado);
+            curso.setValorPropina(valorPropina);
 
             if (!nomesUCs.isBlank()) {
                 for (String nomeUC : nomesUCs.split(",")) {
@@ -112,6 +118,7 @@ public class CursoDAL {
                                 siglaDepartamento + SEPARADOR +
                                 nomesUCs + SEPARADOR +
                                 curso.getEstado()
+                                + SEPARADOR + curso.getValorPropina()
                 );
             }
         } catch (IOException e) {

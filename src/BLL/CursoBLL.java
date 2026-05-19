@@ -30,20 +30,23 @@ public class CursoBLL {
     // CRUD
     // -------------------------------------------------------------------------
 
-    public Curso registarCurso(String nomeCurso, Departamento departamento) {
+    public Curso registarCurso(String nomeCurso, Departamento departamento, double valorPropina) {
         Utils.validarNome(nomeCurso);
-
-        if (departamento == null) {
+        if (departamento == null)
             throw new IllegalArgumentException("O departamento não pode ser nulo.");
-        }
-
-        if (procurarPorNome(nomeCurso) != null) {
+        if (valorPropina < 0)
+            throw new IllegalArgumentException("O valor da propina não pode ser negativo.");
+        if (procurarPorNome(nomeCurso) != null)
             throw new IllegalArgumentException("Já existe um curso com o nome: " + nomeCurso);
-        }
 
         Curso novoCurso = new Curso(nomeCurso, departamento);
+        novoCurso.setValorPropina(valorPropina);
         cursoDAL.adicionarCurso(novoCurso);
         return novoCurso;
+    }
+
+    public Curso registarCurso(String nomeCurso, Departamento departamento) {
+        return registarCurso(nomeCurso, departamento, 0.0);
     }
 
     public ArrayList<Curso> listarCursos() {
@@ -251,5 +254,14 @@ public class CursoBLL {
             }
         }
         return contador;
+    }
+
+    public void atualizarValorPropina(Curso curso, double novoValor) {
+        if (curso == null)
+            throw new IllegalArgumentException("O curso não pode ser nulo.");
+        if (novoValor < 0)
+            throw new IllegalArgumentException("O valor da propina não pode ser negativo.");
+        curso.setValorPropina(novoValor);
+        cursoDAL.atualizarCurso(curso);
     }
 }
