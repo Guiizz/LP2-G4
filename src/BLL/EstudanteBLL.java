@@ -56,10 +56,6 @@ public class EstudanteBLL {
             throw new IllegalArgumentException("O estudante não encontrado com o número mecanográfico: " + numMecanografico);
         }
 
-        if (!estudante.getInscricoes().isEmpty()) {
-            throw new IllegalArgumentException("Não é possível alterar os dados de um estudante com inscrições ativas.");
-        }
-
         Utils.validarNome(novoNome);
         Utils.validarMorada(novaMorada);
 
