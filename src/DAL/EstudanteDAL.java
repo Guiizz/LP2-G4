@@ -136,7 +136,12 @@ public class EstudanteDAL {
                 int anoLetivo = Integer.parseInt(campos[1]);
                 int anoDeCurso = Integer.parseInt(campos[2]);
                 String nomeCurso = campos[3];
-                boolean propinaPaga = Boolean.parseBoolean(campos[4]);
+                double valorPago;
+                try {
+                    valorPago = Double.parseDouble(campos[4]);
+                } catch (NumberFormatException e) {
+                    valorPago = Boolean.parseBoolean(campos[4]) ? -1 : 0;
+                }
                 String notas = campos.length >= 6 ? campos[5] : "";
 
                 Estudante estudante = procurarPorNumMecanografico(numMecanografico);
@@ -145,7 +150,15 @@ public class EstudanteDAL {
                 if (estudante == null || curso == null) continue;
 
                 Inscricao inscricao = new Inscricao(anoLetivo, anoDeCurso, curso);
-                inscricao.setPropinaPaga(propinaPaga);
+                if (valorPago == -1) {
+                    inscricao.setPropinaPaga(true);
+                } else if (valorPago > 0 && inscricao.getPropina() != null) {
+                    try {
+                        inscricao.getPropina().pagar(
+                                Math.min(valorPago, inscricao.getPropina().getSaldoEmDebito())
+                        );
+                    } catch (IllegalArgumentException ignored) {}
+                }
                 inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
 
                 estudante.adicionarInscricao(inscricao);
