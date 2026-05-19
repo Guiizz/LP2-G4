@@ -1,7 +1,7 @@
-nomeCurso;siglaDepartamento;nomesUCs
-Engenharia Informática;INF;;PENDENTE
-Sistemas de Informação;INF;;PENDENTE
-Gestão;GES;;PENDENTE
-Marketing Digital;COM;;PENDENTE
-Engenharia Civil;ENG;;PENDENTE
-Matemática Aplicada;MAT;;PENDENTE
+nomeCurso;siglaDepartamento;nomesUCs;estado;valorPropina
+Engenharia Informática;INF;;PENDENTE;0.0
+Sistemas de Informação;INF;;PENDENTE;0.0
+Gestão;GES;;PENDENTE;100.05
+Marketing Digital;COM;;PENDENTE;0.0
+Engenharia Civil;ENG;;PENDENTE;0.0
+Matemática Aplicada;MAT;;PENDENTE;0.0
