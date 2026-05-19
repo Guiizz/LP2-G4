@@ -7,14 +7,15 @@ public class Inscricao {
     private int anoDeCurso;
     private Curso curso;
     private ArrayList<Avaliacao> avaliacoes;
-    private boolean propinaPaga;
+    private Propina propina;
 
     public Inscricao(int anoLetivo, int anoDeCurso, Curso curso) {
         this.anoLetivo = anoLetivo;
         this.anoDeCurso = anoDeCurso;
         this.curso = curso;
         this.avaliacoes = new ArrayList<>();
-        this.propinaPaga = false;
+        double valor = (curso != null) ? curso.getValorPropina() : 0.0;
+        this.propina = new Propina(valor);
     }
 
     public int getAnoLetivo() {
@@ -41,12 +42,19 @@ public class Inscricao {
         this.avaliacoes.add(avaliacao);
     }
 
+    public Propina getPropina() { return propina; }
+
+    public void setPropina(Propina propina) { this.propina = propina; }
+
     public boolean isPropinaPaga() {
-        return propinaPaga;
+        return propina != null && propina.isTotalmentePaga();
     }
 
-    public void setPropinaPaga(boolean propinaPaga) {
-        this.propinaPaga = propinaPaga;
+    public void setPropinaPaga(boolean paga) {
+        if (paga && propina != null && !propina.isTotalmentePaga()) {
+            try { propina.pagar(propina.getSaldoEmDebito()); }
+            catch (IllegalArgumentException ignored) {}
+        }
     }
 
     public int getTotalAvaliacoesLancadas() {
@@ -95,7 +103,7 @@ public class Inscricao {
                 "Ano Letivo: " + anoLetivo + "/" + (anoLetivo + 1) + "\n" +
                 "Ano de Curso: " + anoDeCurso + "\n" +
                 "Curso: " + (curso != null ? curso.getNomeCurso() : "Sem curso") + "\n" +
-                "Propina paga: " + (propinaPaga ? "Sim" : "Não") + "\n" +
+                (propina != null ? propina.toString() : "Sem propina") + "\n" +
                 "Avaliações lançadas: " + getTotalAvaliacoesLancadas() + "/" + (avaliacoes == null ? 0 : avaliacoes.size()) + "\n" +
                 "================";
     }

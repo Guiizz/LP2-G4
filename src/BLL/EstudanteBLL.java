@@ -4,6 +4,7 @@ import DAL.EstudanteDAL;
 import Model.Avaliacao;
 import Model.Estudante;
 import Model.Inscricao;
+import Model.Propina;
 import Utils.Utils;
 import Utils.ServicoEmail;
 import java.time.LocalDate;
@@ -300,6 +301,24 @@ public class EstudanteBLL {
         }
 
         avaliacoes.get(indiceMomento).lancarNota(nota, nota >= 10);
+        estudanteDAL.atualizarEstudante(estudante);
+    }
+
+    public void pagarPropina(Estudante estudante, double valor) {
+        if (estudante == null)
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+
+        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
+        if (inscricaoAtual == null)
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+
+        Propina propina = inscricaoAtual.getPropina();
+        if (propina == null)
+            throw new IllegalArgumentException("A inscrição não tem propina associada.");
+        if (propina.isTotalmentePaga())
+            throw new IllegalArgumentException("A propina deste ano já se encontra totalmente paga.");
+
+        propina.pagar(valor);
         estudanteDAL.atualizarEstudante(estudante);
     }
 }

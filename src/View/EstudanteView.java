@@ -3,6 +3,8 @@ package View;
 import Controller.EstudanteController;
 import Model.Estudante;
 import Model.Inscricao;
+import Model.Pagamento;
+import Model.Propina;
 import Utils.Utils;
 
 import java.util.ArrayList;
@@ -23,7 +25,8 @@ public class EstudanteView {
                 "Ver a minha Ficha",
                 "Ver as minhas Inscrições",
                 "Ver as minhas Avaliações",
-                "Atualizar a minha Morada"
+                "Atualizar a minha Morada",
+                "Propinas"
         };
 
         int opcao;
@@ -36,6 +39,7 @@ public class EstudanteView {
                     case 2: verInscricoes(estudante); break;
                     case 3: verAvaliacoes(estudante); break;
                     case 4: atualizar(estudante);     break;
+                    case 5: verPropinas(estudante); break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -94,6 +98,59 @@ public class EstudanteView {
         estudanteController.atualizarMoradaPropria(estudante, novaMorada);
 
         System.out.println("  [✓] Morada atualizada com sucesso.");
+        Utils.pausar(scanner);
+    }
+
+    private void verPropinas(Estudante estudante) {
+        Utils.limparEcra();
+        System.out.println("\n--- As minhas Propinas ---");
+
+        Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(estudante);
+        if (inscricaoAtual == null) {
+            System.out.println("  (sem inscrição ativa)");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        Propina propina = inscricaoAtual.getPropina();
+        if (propina == null) {
+            System.out.println("  (sem propina associada)");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("\n  Ano letivo: " + inscricaoAtual.getAnoLetivo()
+                + "/" + (inscricaoAtual.getAnoLetivo() + 1));
+        System.out.println("  " + propina);
+
+        System.out.println("\n  Histórico de pagamentos:");
+        if (propina.getHistoricoPagamentos().isEmpty()) {
+            System.out.println("    (sem pagamentos registados)");
+        } else {
+            for (Pagamento p : propina.getHistoricoPagamentos()) {
+                System.out.println("  " + p);
+            }
+        }
+
+        if (!propina.isTotalmentePaga()) {
+            System.out.println("\n  Saldo em dívida: "
+                    + String.format("%.2f €", propina.getSaldoEmDebito()));
+            System.out.print("\n  Deseja efetuar um pagamento? (s/n): ");
+            String resposta = scanner.nextLine().trim();
+
+            if (resposta.equalsIgnoreCase("s")) {
+                double valor = Utils.lerDouble("Valor a pagar (€): ", scanner);
+                estudanteController.pagarPropina(estudante, valor);
+                System.out.printf("  [✓] Pagamento de %.2f € registado.%n", valor);
+                if (propina.isTotalmentePaga())
+                    System.out.println("  [✓] Propina totalmente liquidada!");
+                else
+                    System.out.printf("  Saldo restante: %.2f €%n", propina.getSaldoEmDebito());
+            }
+        } else {
+            System.out.println("\n  [✓] Propina totalmente paga.");
+        }
+
         Utils.pausar(scanner);
     }
 }

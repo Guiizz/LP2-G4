@@ -81,4 +81,12 @@ public class CursoController {
     public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {
         return cursoBLL.contarEstudantesInscritosNoCurso(curso, estudantes);
     }
+
+    public Curso registarCurso(String nomeCurso, Departamento departamento, double valorPropina) {
+        return cursoBLL.registarCurso(nomeCurso, departamento, valorPropina);
+    }
+
+    public void atualizarValorPropina(Curso curso, double novoValor) {
+        cursoBLL.atualizarValorPropina(curso, novoValor);
+    }
 }
