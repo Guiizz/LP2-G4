@@ -10,6 +10,8 @@ public class RelatorioFechoAnoLetivo {
     private final List<String> mensagens;
     private String caminhoFicheiroHistorico;
 
+    private final java.util.Map<String, java.util.List<String>> ucsEmAtrasoPorEstudante = new java.util.HashMap<>();
+
     public RelatorioFechoAnoLetivo() {
         this.mensagens = new ArrayList<>();
     }
@@ -52,5 +54,15 @@ public class RelatorioFechoAnoLetivo {
 
     public void setCaminhoFicheiroHistorico(String caminhoFicheiroHistorico) {
         this.caminhoFicheiroHistorico = caminhoFicheiroHistorico;
+    }
+
+    public void registarUcsEmAtraso(String nomeEstudante, java.util.List<String> ucs) {
+        if (ucs != null && !ucs.isEmpty()) {
+            ucsEmAtrasoPorEstudante.put(nomeEstudante, ucs);
+        }
+    }
+
+    public java.util.Map<String, java.util.List<String>> getUcsEmAtrasoPorEstudante() {
+        return ucsEmAtrasoPorEstudante;
     }
 }

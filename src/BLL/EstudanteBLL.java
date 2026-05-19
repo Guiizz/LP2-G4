@@ -175,11 +175,11 @@ public class EstudanteBLL {
             throw new IllegalArgumentException("O estudante não pode progredir porque existem notas por lançar.");
         }
 
-        double percentagemAprovacao = inscricaoAtual.calcularAproveitamento();
+        double percentagemAprovacao = estudante.calcularAproveitamentoGlobal();
 
         if (percentagemAprovacao < 0.60) {
             throw new IllegalArgumentException(
-                    "O estudante não pode progredir. Aprovação atual: " +
+                    "O estudante não pode progredir. Aprovação global (incluindo UCs em atraso): " +
                             String.format("%.1f", percentagemAprovacao * 100) +
                             "%. Mínimo necessário: 60%."
             );
