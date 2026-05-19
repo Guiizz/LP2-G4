@@ -96,7 +96,8 @@ public class AnoLetivoBLL {
             return;
         }
 
-        double aproveitamento = inscricaoAtual.calcularAproveitamento();
+        double aproveitamento = estudante.calcularAproveitamentoGlobal();
+        int ucsEmAtraso = estudante.getUCsEmAtraso().size();
 
         if (aproveitamento < 0.60) {
             relatorio.incrementarMantidos();

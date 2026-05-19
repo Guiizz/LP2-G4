@@ -3,6 +3,7 @@ package View;
 import Controller.EstudanteController;
 import Model.Estudante;
 import Model.Inscricao;
+import Model.Avaliacao;
 import Utils.Utils;
 
 import java.util.ArrayList;
@@ -81,6 +82,19 @@ public class EstudanteView {
             } else {
                 for (Object a : i.getAvaliacoes()) { System.out.println("    " + a); }
             }
+        }
+        ArrayList<Avaliacao> ucsEmAtraso = estudante.getUCsEmAtraso();
+        if (ucsEmAtraso != null && !ucsEmAtraso.isEmpty()) {
+            System.out.println("\n--- UCs em Atraso ---");
+            for (Avaliacao av : ucsEmAtraso) {
+                String nomeUC = (av.getUc() != null && !av.getUc().isEmpty())
+                        ? av.getUc().get(0).getNome()
+                        : "UC desconhecida";
+                System.out.println("  [!] " + nomeUC + " — Nota: " + av.getNotaFormatada());
+            }
+            System.out.println("  Total em atraso: " + ucsEmAtraso.size());
+        } else {
+            System.out.println("\n  (sem UCs em atraso)");
         }
         Utils.pausar(scanner);
     }

@@ -72,6 +72,60 @@ public class Estudante extends Utilizador {
         this.numMecanografico = numMecanografico;
     }
 
+    /**
+     * Devolve todas as avaliações reprovadas em inscrições anteriores
+     * que ainda não foram recuperadas (aprovadas) em anos seguintes.
+     * Usado para contabilizar UCs em atraso no cálculo de progressão.
+     */
+    public ArrayList<Avaliacao> getUCsEmAtraso() {
+        ArrayList<Avaliacao> emAtraso = new ArrayList<>();
+        if (inscricoes == null || inscricoes.size() <= 1) return emAtraso;
+
+        for (int i = 0; i < inscricoes.size() - 1; i++) {
+            Inscricao inscricao = inscricoes.get(i);
+            for (Avaliacao reprovada : inscricao.getAvaliacoesReprovadas()) {
+                if (!foiRecuperadaDepois(reprovada, i + 1)) {
+                    emAtraso.add(reprovada);
+                }
+            }
+        }
+        return emAtraso;
+    }
+
+    /**
+     * Verifica se uma avaliação reprovada foi aprovada (recuperada)
+     * em alguma das inscrições a partir do índice indicado.
+     */
+    private boolean foiRecuperadaDepois(Avaliacao reprovada, int apartirDeIndice) {
+        for (int i = apartirDeIndice; i < inscricoes.size(); i++) {
+            for (Avaliacao av : inscricoes.get(i).getAvaliacoes()) {
+                if (av != null && av.isLancada() && av.getNota() >= 10
+                        && av.getUc() != null && reprovada.getUc() != null
+                        && av.getUc().equals(reprovada.getUc())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Calcula o aproveitamento global do estudante considerando
+     * as UCs em atraso de anos anteriores + as avaliações do ano atual.
+     * Fórmula: aprovadas_ano_atual / (total_ano_atual + UCs_em_atraso)
+     */
+    public double calcularAproveitamentoGlobal() {
+        if (inscricoes == null || inscricoes.isEmpty()) return 0;
+
+        Inscricao inscricaoAtual = inscricoes.get(inscricoes.size() - 1);
+        int aprovadas = inscricaoAtual.getTotalAvaliacoesAprovadas();
+        int totalAtual = inscricaoAtual.getAvaliacoes().size();
+        int totalEmAtraso = getUCsEmAtraso().size();
+        int totalGlobal = totalAtual + totalEmAtraso;
+
+        if (totalGlobal == 0) return 0;
+        return (double) aprovadas / totalGlobal;
+    }
     @Override
     public String toString() {
         return "=== Ficha de Estudante ===\n" +
