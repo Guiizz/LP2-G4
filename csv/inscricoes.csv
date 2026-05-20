@@ -1,16 +1,1 @@
-numMecanografico;anoLetivo;anoDeCurso;nomeCurso;propinaPaga;notas
-260001;2025;1;Engenharia Informática;false;
-260002;2025;1;Engenharia Informática;false;
-260003;2025;1;Engenharia Informática;false;
-260004;2025;1;Engenharia Informática;false;
-260005;2025;1;Engenharia Informática;false;
-260006;2025;1;Sistemas de Informação;false;
-260007;2025;1;Sistemas de Informação;false;
-260008;2025;1;Gestão;false;
-260009;2025;1;Gestão;false;
-260010;2025;1;Gestão;false;
-260011;2025;1;Marketing Digital;false;
-260012;2025;1;Marketing Digital;false;
-260013;2025;1;Engenharia Civil;false;
-260014;2025;1;Matemática Aplicada;false;
-260015;2025;1;Matemática Aplicada;false;
+numMecanografico;anoLetivo;anoDeCurso;nomeCurso;valorPago;notas
