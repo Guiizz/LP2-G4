@@ -1,3 +1,2 @@
 nome;nif;dataNascimento;morada;email;password;primeiroLogin
 Admin ISSMF;123456789;1985-01-01;Rua ISSMF 1, Santa Maria da Feira;gestor@issmf.pt;SHA256:35c5f985881ec7eba23daa203c6e2dd922621225a91a6f2d03aa7a9e7d8ab45a;false
-Carla Gestora;987123456;1990-06-15;Av. Principal 10, Porto;carla.gestora@issmf.pt;SHA256:35c5f985881ec7eba23daa203c6e2dd922621225a91a6f2d03aa7a9e7d8ab45a;false
