@@ -49,21 +49,20 @@ public class DocenteGestorView {
 
     private void registar() {
         System.out.println("\n--- Registar Docente --- (0 para cancelar)");
-        String nome = Utils.lerCampo("Nome: ", scanner);
-        LocalDate data = Utils.lerData("Data de nascimento (AAAA-MM-DD): ", scanner);
-        String nif = Utils.lerCampo("NIF: ", scanner);
-        String morada = Utils.lerCampo("Morada: ", scanner);
-        String sigla = Utils.lerCampo("Sigla: ", scanner);
+        String nome = Utils.lerNome("Nome: ", scanner);
+        LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
+        String nif = Utils.lerNif("NIF: ", scanner);
+        String morada = Utils.lerMorada("Morada: ", scanner);
+        String sigla = Utils.lerSigla("Sigla (3 letras): ", scanner);
+
+        Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
+        docenteController.registarDocente(d);
 
         String passwordTemporaria = "Issmf" + sigla;
-
         System.out.println("  [✓] Docente registado com sucesso.");
         System.out.println("  Sigla: " + sigla);
         System.out.println("  Email: " + sigla + "@issmf.pt");
         System.out.println("  Password inicial: " + passwordTemporaria);
-
-        Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
-        docenteController.registarDocente(d);
         Utils.pausar(scanner);
     }
 

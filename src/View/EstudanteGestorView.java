@@ -65,10 +65,10 @@ public class EstudanteGestorView {
 
     private void registar() {
         System.out.println("\n--- Registar Estudante --- (0 para cancelar)");
-        String nome = Utils.lerCampo("Nome: ", scanner);
-        LocalDate data = Utils.lerData("Data de nascimento (AAAA-MM-DD): ", scanner);
-        String nif = Utils.lerCampo("NIF: ", scanner);
-        String morada = Utils.lerCampo("Morada: ", scanner);
+        String nome = Utils.lerNome("Nome: ", scanner);
+        LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
+        String nif = Utils.lerNif("NIF: ", scanner);
+        String morada = Utils.lerMorada("Morada: ", scanner);
 
         Estudante e = estudanteController.registarEstudante(nome, data, nif, morada);
         System.out.println("  [✓] Estudante registado com sucesso.");
