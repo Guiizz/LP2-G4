@@ -20,8 +20,14 @@ public class Utils {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("O nome não pode ser vazio.");
         }
-        if (nome.trim().split("\\s+").length < 2) {
-            throw new IllegalArgumentException("O nome deve conter pelo menos nome e apelido. ");
+        String[] partes = nome.trim().split("\\s+");
+        if (partes.length < 2) {
+            throw new IllegalArgumentException("O nome deve conter pelo menos nome e apelido.");
+        }
+        for (String parte : partes) {
+            if (parte.length() < 2) {
+                throw new IllegalArgumentException("Cada parte do nome deve ter pelo menos 2 caracteres.");
+            }
         }
     }
 
@@ -209,7 +215,8 @@ public class Utils {
                 validarDataNascimento(data);
                 return data;
             } catch (IllegalArgumentException e) {
-                throw e;
+                if (e.getMessage().equals("Registo cancelado.")) throw e;
+                System.out.println("  [!] " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
             }
