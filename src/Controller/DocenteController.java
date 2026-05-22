@@ -2,6 +2,7 @@ package Controller;
 
 import BLL.DocenteBLL;
 import DAL.DocenteDAL;
+import DAL.EstudanteDAL;
 import DAL.UnidadeCurricularDAL;
 import Model.Docente;
 
@@ -12,7 +13,7 @@ public class DocenteController {
     private final DocenteBLL docenteBLL;
 
     public DocenteController() {
-        this.docenteBLL = new DocenteBLL(new DocenteDAL(new UnidadeCurricularDAL()));
+        this.docenteBLL = new DocenteBLL(new DocenteDAL(new UnidadeCurricularDAL()), new EstudanteDAL());
     }
 
     public Docente registarDocente(Docente docente) {
@@ -54,5 +55,13 @@ public class DocenteController {
 
     public void recuperarPassword(String email) {
         docenteBLL.recuperarPassword(email);
+    }
+
+    public boolean nifJaExiste(String nif) {
+        try {
+            return docenteBLL.procurarPorNif(nif) != null;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

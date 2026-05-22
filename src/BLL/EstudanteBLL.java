@@ -1,5 +1,6 @@
 package BLL;
 
+import DAL.DocenteDAL;
 import DAL.EstudanteDAL;
 import Model.Avaliacao;
 import Model.Estudante;
@@ -14,9 +15,11 @@ import Utils.PasswordUtils;
 
 public class EstudanteBLL {
     private EstudanteDAL estudanteDAL;
+    private DocenteDAL docenteDAL;
 
-    public EstudanteBLL(EstudanteDAL estudanteDAL) {
+    public EstudanteBLL(EstudanteDAL estudanteDAL, DocenteDAL docenteDAL) {
         this.estudanteDAL = estudanteDAL;
+        this.docenteDAL = docenteDAL;
     }
 
     public Estudante registarEstudante(String nome, LocalDate dataNascimento, String nif, String morada) {
@@ -27,6 +30,9 @@ public class EstudanteBLL {
 
         if (estudanteDAL.procurarPorNif(nif) != null) {
             throw new IllegalArgumentException("Já existe um estudante com este NIF!");
+        }
+        if (docenteDAL.procurarPorNif(nif) != null) {
+            throw new IllegalArgumentException("Este NIF já existe no sistema como docente.");
         }
 
         Estudante novoEstudante = new Estudante(nome, dataNascimento, nif, morada);

@@ -1,6 +1,7 @@
 package View;
 
 import Controller.CursoController;
+import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.InscricaoController;
 import Model.Curso;
@@ -17,12 +18,16 @@ public class EstudanteGestorView {
     private final EstudanteController estudanteController;
     private final CursoController cursoController;
     private final InscricaoController inscricaoController;
+    private final DocenteController docenteController;
     private final Scanner scanner;
 
-    public EstudanteGestorView(EstudanteController estudanteController, CursoController cursoController, InscricaoController inscricaoController, Scanner scanner) {
+    public EstudanteGestorView(EstudanteController estudanteController, CursoController cursoController,
+                               InscricaoController inscricaoController, DocenteController docenteController,
+                               Scanner scanner) {
         this.estudanteController = estudanteController;
         this.cursoController = cursoController;
         this.inscricaoController = inscricaoController;
+        this.docenteController = docenteController;
         this.scanner = scanner;
     }
 
@@ -67,7 +72,14 @@ public class EstudanteGestorView {
         System.out.println("\n--- Registar Estudante --- (0 para cancelar)");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
-        String nif = Utils.lerNif("NIF: ", scanner);
+
+        String nif;
+        while (true) {
+            nif = Utils.lerNif("NIF: ", scanner);
+            if (!estudanteController.nifJaExiste(nif) && !docenteController.nifJaExiste(nif)) break;
+            System.out.println("  [!] Este NIF já existe no sistema.");
+        }
+
         String morada = Utils.lerMorada("Morada: ", scanner);
 
         Estudante e = estudanteController.registarEstudante(nome, data, nif, morada);
@@ -91,7 +103,7 @@ public class EstudanteGestorView {
         Utils.limparEcra();
         String num = Utils.lerCampo("\nNº Mecanográfico: ", scanner);
         Estudante e = estudanteController.procurarPorNumMecanografico(num);
-        System.out.println("\n" + e);
+        System.out.println("\n" + e.toStringDetalhado());
         Utils.pausar(scanner);
     }
 

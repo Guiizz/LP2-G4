@@ -78,7 +78,7 @@ public class GestorMenuView {
         String nif = scanner.nextLine().trim();
         Gestor g = gestorController.procurarPorNif(nif);
         if (g == null) { System.out.println("  [!] Gestor não encontrado."); Utils.pausar(scanner); return; }
-        System.out.println("\n" + g);
+        System.out.println("\n" + g.toStringDetalhado());
         Utils.pausar(scanner);
     }
 

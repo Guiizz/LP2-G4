@@ -1,6 +1,7 @@
 package View;
 
 import Controller.DocenteController;
+import Controller.EstudanteController;
 import Model.Docente;
 import Utils.Utils;
 
@@ -11,10 +12,12 @@ import java.util.Scanner;
 public class DocenteGestorView {
 
     private final DocenteController docenteController;
+    private final EstudanteController estudanteController;
     private final Scanner scanner;
 
-    public DocenteGestorView(DocenteController docenteController, Scanner scanner) {
+    public DocenteGestorView(DocenteController docenteController, EstudanteController estudanteController, Scanner scanner) {
         this.docenteController = docenteController;
+        this.estudanteController = estudanteController;
         this.scanner = scanner;
     }
 
@@ -51,7 +54,14 @@ public class DocenteGestorView {
         System.out.println("\n--- Registar Docente --- (0 para cancelar)");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
-        String nif = Utils.lerNif("NIF: ", scanner);
+
+        String nif;
+        while (true) {
+            nif = Utils.lerNif("NIF: ", scanner);
+            if (!docenteController.nifJaExiste(nif) && !estudanteController.nifJaExiste(nif)) break;
+            System.out.println("  [!] Este NIF já existe no sistema.");
+        }
+
         String morada = Utils.lerMorada("Morada: ", scanner);
         String sigla = Utils.lerSigla("Sigla (3 letras): ", scanner);
 
@@ -81,7 +91,7 @@ public class DocenteGestorView {
         String sigla = scanner.nextLine().trim();
         Docente d = docenteController.procurarPorSigla(sigla);
         if (d == null) { System.out.println("  [!] Docente não encontrado."); Utils.pausar(scanner); return; }
-        System.out.println("\n" + d);
+        System.out.println("\n" + d.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
