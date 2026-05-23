@@ -1,7 +1,9 @@
 package Controller;
 
 import BLL.EstudanteBLL;
+import DAL.DocenteDAL;
 import DAL.EstudanteDAL;
+import DAL.UnidadeCurricularDAL;
 import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
@@ -13,7 +15,7 @@ public class InscricaoController {
     private final EstudanteBLL estudanteBLL;
 
     public InscricaoController() {
-        this.estudanteBLL = new EstudanteBLL(new EstudanteDAL());
+        this.estudanteBLL = new EstudanteBLL(new EstudanteDAL(), new DocenteDAL(new UnidadeCurricularDAL()));
     }
 
     public Inscricao inscreverEstudante(Estudante estudante, Curso curso, int anoLetivo) {

@@ -1,5 +1,6 @@
 package BLL;
 
+import DAL.EstudanteDAL;
 import Utils.Utils;
 import Utils.ServicoEmail;
 import DAL.DocenteDAL;
@@ -9,13 +10,15 @@ import java.util.ArrayList;
 
 public class DocenteBLL {
     private DocenteDAL docenteDAL;
+    private EstudanteDAL estudanteDAL;
 
     /**
      * Construtor da classe DocenteBLL.
      * Inicializa a camada de acesso a dados.
      */
-    public DocenteBLL(DocenteDAL docenteDAL) {
+    public DocenteBLL(DocenteDAL docenteDAL, EstudanteDAL estudanteDAL) {
         this.docenteDAL = docenteDAL;
+        this.estudanteDAL = estudanteDAL;
     }
 
     /**
@@ -41,6 +44,10 @@ public class DocenteBLL {
 
         if (docenteDAL.procurarPorNif(docente.getNif()) != null) {
             throw new IllegalArgumentException("Já existe um docente com o NIF: " + docente.getNif());
+        }
+
+        if (estudanteDAL.procurarPorNif(docente.getNif()) != null) {
+            throw new IllegalArgumentException("Este NIF já existe no sistema como estudante.");
         }
 
         if (docenteDAL.procurarPorEmail(docente.getEmail()) != null) {

@@ -9,6 +9,19 @@ public class Gestor extends Utilizador {
 
     @Override
     public String toString() {
-        return "Gestor{" + super.toString() + "}";
+        return "=== Ficha de Gestor ===\n" +
+                "Nome: " + getNome() + "\n" +
+                "Email: " + getEmail() + "\n" +
+                "=======================";
+    }
+
+    public String toStringDetalhado() {
+        return "=== Ficha de Gestor ===\n" +
+                "Nome: " + getNome() + "\n" +
+                "Data de Nascimento: " + getDataNascimento() + "\n" +
+                "NIF: " + getNif() + "\n" +
+                "Morada: " + getMorada() + "\n" +
+                "Email: " + getEmail() + "\n" +
+                "=======================";
     }
 }

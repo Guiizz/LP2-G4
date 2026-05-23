@@ -129,14 +129,24 @@ public class Estudante extends Utilizador {
     @Override
     public String toString() {
         return "=== Ficha de Estudante ===\n" +
-                "NºMecanográfico: " + getNumMecanografico() + "\n" +
+                "Nº Mecanográfico: " + numMecanografico + "\n" +
                 "Nome: " + getNome() + "\n" +
                 "E-mail: " + getEmail() + "\n" +
-                "Ano: " + getAnoAtual() + "\n" +
-                "Estado: " + getEstado() + "\n" +
+                "Ano: " + anoAtual + "\n" +
+                "Estado: " + estado + "\n" +
+                "=========================";
+    }
+
+    public String toStringDetalhado() {
+        return "=== Ficha de Estudante ===\n" +
+                "Nº Mecanográfico: " + numMecanografico + "\n" +
+                "Nome: " + getNome() + "\n" +
+                "E-mail: " + getEmail() + "\n" +
                 "Data de Nascimento: " + getDataNascimento() + "\n" +
-                "NIF " + getNif() + "\n" +
+                "NIF: " + getNif() + "\n" +
                 "Morada: " + getMorada() + "\n" +
+                "Ano: " + anoAtual + "\n" +
+                "Estado: " + estado + "\n" +
                 "=========================";
     }
 }

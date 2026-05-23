@@ -20,23 +20,49 @@ public class Utils {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("O nome não pode ser vazio.");
         }
+        String[] partes = nome.trim().split("\\s+");
+        if (partes.length < 2) {
+            throw new IllegalArgumentException("O nome deve conter pelo menos nome e apelido.");
+        }
+        for (String parte : partes) {
+            if (parte.length() < 2) {
+                throw new IllegalArgumentException("Cada parte do nome deve ter pelo menos 2 caracteres.");
+            }
+        }
     }
 
     public static void validarNif(String nif) {
-        if (nif == null || nif.length() != 9) {
+        if (nif == null || nif.trim().isEmpty()) {
+            throw new IllegalArgumentException("O NIF não pode estar vazio.");
+        }
+        if (nif.length() != 9) {
             throw new IllegalArgumentException("NIF inválido. Deve conter exatamente 9 dígitos.");
+        }
+        for (char c : nif.toCharArray()) {
+            if(!Character.isDigit(c)) {
+                throw new IllegalArgumentException("NIF inválido. Deve conter apenas digitos.");
+            }
         }
     }
 
     public static void validarDataNascimento(LocalDate dataNascimento) {
-        if (dataNascimento == null || dataNascimento.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Data de nascimento inválida.");
+        if (dataNascimento == null) {
+            throw new IllegalArgumentException("Data de nascimento não pode ser nula.");
+        }
+        if (dataNascimento.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("A data de nascimento não pode ser no futuro.");
+        }
+        if (dataNascimento.isAfter(LocalDate.now().minusYears(18))) {
+            throw new IllegalArgumentException("O utilizador deve ter pelo menos 18 anos.");
         }
     }
 
     public static void validarMorada(String morada) {
         if (morada == null || morada.trim().isEmpty()) {
             throw new IllegalArgumentException("A morada não pode ser vazia.");
+        }
+        if (morada.trim().length() < 5) {
+            throw new IllegalArgumentException("A morada deve ter pelo menos 5 caracteres.");
         }
     }
 
@@ -94,6 +120,107 @@ public class Utils {
             throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
         }
         return valor;
+    }
+    public static String lerNome(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarNome(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerNif(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarNif(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerMorada(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarMorada(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerSigla(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarSigla(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerEmail(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarEmail(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerPassword(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarPassword(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static LocalDate lerDataNascimento(String mensagem, Scanner scanner) {
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) throw new IllegalArgumentException("Registo cancelado.");
+                LocalDate data = LocalDate.parse(input);
+                validarDataNascimento(data);
+                return data;
+            } catch (IllegalArgumentException e) {
+                if (e.getMessage().equals("Registo cancelado.")) throw e;
+                System.out.println("  [!] " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
+            }
+        }
     }
 
     /**
