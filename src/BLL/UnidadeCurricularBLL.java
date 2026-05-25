@@ -84,24 +84,30 @@ public class UnidadeCurricularBLL {
      *  - A soma dos pesos após a adição não pode ultrapassar 100%.
      */
     public void adicionarMomento(UnidadeCurricular uc, String nome, double peso) {
-        if (uc == null)
+        if (uc == null) {
             throw new IllegalArgumentException("A UC não pode ser nula.");
-        if (nome == null || nome.isBlank())
+        }
+        if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("O nome do momento não pode ser vazio.");
-        if (peso <= 0 || peso > 100)
+        }
+        if (peso <= 0 || peso > 100) {
             throw new IllegalArgumentException("O peso deve ser um valor entre 0 e 100.");
-        if (uc.getMomentosAvaliacao().size() >= 3)
-            throw new IllegalArgumentException("A UC já tem 3 momentos de avaliação definidos. Não é possível adicionar mais.");
+        }
+        if (uc.getMomentosAvaliacao().size() >= 3) {
+            throw new IllegalArgumentException("Não é possível adicionar outro momento. A UC já atingiu o limite máximo de 3 avaliações.");
+        }
 
         double somaAtual = uc.somaPesos();
-        if (somaAtual + peso > 100.0 + 0.01)
+        if (somaAtual + peso > 100.0 + 0.01) {
             throw new IllegalArgumentException(
-                    "Peso inválido. A soma atual é " + String.format("%.1f", somaAtual) +
-                            "% e ao adicionar " + String.format("%.1f", peso) +
-                            "% ultrapassaria 100%."
+                    "Peso inválido. A soma atual é " + String.format("%.1f", somaAtual)
+                            + "% e ao adicionar " + String.format("%.1f", peso)
+                            + "% ultrapassaria 100%."
             );
+        }
 
         uc.adicionarMomento(new MomentoAvaliacao(nome, peso));
+        unidadeCurricularDAL.atualizarUnidade(uc);
     }
 
     /**
@@ -111,28 +117,40 @@ public class UnidadeCurricularBLL {
      *  - A soma dos pesos tem de ser exatamente 100%.
      */
     public void iniciarUC(UnidadeCurricular uc) {
-        if (uc == null)
+        if (uc == null) {
             throw new IllegalArgumentException("A UC não pode ser nula.");
-        if (uc.isAtiva())
+        }
+
+        if (uc.isAtiva()) {
             throw new IllegalArgumentException("A UC '" + uc.getNome() + "' já está ativa.");
+        }
 
         int numMomentos = uc.getMomentosAvaliacao().size();
         double soma = uc.somaPesos();
 
-        if (numMomentos != 3) {
+        if (numMomentos < 1) {
             throw new IllegalArgumentException(
-                    "Não é possível iniciar a UC '" + uc.getNome() + "'.\n" +
-                            "  Motivo: tem " + numMomentos + " momento(s) definido(s) — são necessários exatamente 3."
+                    "Não é possível iniciar a UC '" + uc.getNome() + "'.\n"
+                            + "  Motivo: deve existir pelo menos 1 momento de avaliação."
             );
         }
+
+        if (numMomentos > 3) {
+            throw new IllegalArgumentException(
+                    "Não é possível iniciar a UC '" + uc.getNome() + "'.\n"
+                            + "  Motivo: não podem existir mais de 3 momentos de avaliação."
+            );
+        }
+
         if (Math.abs(soma - 100.0) > 0.01) {
             throw new IllegalArgumentException(
-                    "Não é possível iniciar a UC '" + uc.getNome() + "'.\n" +
-                            "  Motivo: a soma dos pesos é " + String.format("%.1f", soma) + "% — tem de ser 100%."
+                    "Não é possível iniciar a UC '" + uc.getNome() + "'.\n"
+                            + "  Motivo: a soma dos pesos é " + String.format("%.1f", soma)
+                            + "% — tem de ser 100%."
             );
         }
 
         uc.setAtiva(true);
+        unidadeCurricularDAL.atualizarUnidade(uc);
     }
-
 }

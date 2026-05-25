@@ -44,8 +44,8 @@ public class DepartamentoView {
 
     private void registar() {
         System.out.println("\n--- Registar Departamento --- (0 para cancelar)");
-        String nome  = Utils.lerCampo("Nome: ", scanner);
-        String sigla = Utils.lerCampo("Sigla: ", scanner);
+        String nome  = Utils.lerNome("Nome: ", scanner);
+        String sigla = Utils.lerSigla("Sigla (3 Letras): ", scanner);
 
         Departamento d = departamentoController.registarDepartamento(nome, sigla);
         System.out.println("  [✓] Departamento '" + d.getNome() + "' registado com sucesso.");

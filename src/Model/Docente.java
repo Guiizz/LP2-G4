@@ -43,32 +43,50 @@ public class Docente extends Utilizador {
         this.unidadesLecionadas = unidadesLecionadas;
     }
 
-    /**
-     * toString
-     * @return
-     */
     @Override
     public String toString() {
+        String ucs;
+        if (unidadesLecionadas == null || unidadesLecionadas.isEmpty()) {
+            ucs = "(nenhuma)";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < unidadesLecionadas.size(); i++) {
+                sb.append(unidadesLecionadas.get(i).getNome());
+                if (i < unidadesLecionadas.size() - 1) {
+                    sb.append(", ");
+                }
+            }
+            ucs = sb.toString();
+        }
         return "===== Ficha do Docente =====\n" +
                 "Nome: " + getNome() + "\n" +
                 "Email: " + getEmail() + "\n" +
-                "Unidades Lecionadas: " + unidadesLecionadas + "\n" +
+                "Unidades Lecionadas: " + ucs + "\n" +
                 "============================";
     }
 
-    /**
-     * toStringDetalhado
-     * @return
-     */
     public String toStringDetalhado() {
-        return  "===== Ficha do Docente =====\n" +
+        String ucs;
+        if (unidadesLecionadas == null || unidadesLecionadas.isEmpty()) {
+            ucs = "(nenhuma)";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < unidadesLecionadas.size(); i++) {
+                sb.append(unidadesLecionadas.get(i).getNome());
+                if (i < unidadesLecionadas.size() - 1) {
+                    sb.append(", ");
+                }
+            }
+            ucs = sb.toString();
+        }
+        return "===== Ficha do Docente =====\n" +
                 "Nome: " + getNome() + "\n" +
                 "Data de Nascimento: " + getDataNascimento() + "\n" +
                 "NIF: " + getNif() + "\n" +
                 "Morada: " + getMorada() + "\n" +
                 "Email: " + getEmail() + "\n" +
                 "Sigla: " + sigla + "\n" +
-                "Unidades Lecionadas: " + unidadesLecionadas + "\n" +
+                "Unidades Lecionadas: " + ucs + "\n" +
                 "============================";
     }
 }

@@ -51,12 +51,12 @@ public class GestorMenuView {
 
     private void registar() {
         System.out.println("\n--- Registar Gestor --- (0 para cancelar)");
-        String nome = Utils.lerCampo("Nome: ", scanner);
-        LocalDate data = Utils.lerData("Data de nascimento (AAAA-MM-DD): ", scanner);
-        String nif = Utils.lerCampo("NIF: ", scanner);
-        String morada = Utils.lerCampo("Morada: ", scanner);
-        String email = Utils.lerCampo("Email (@issmf.pt): ", scanner);
-        String password = Utils.lerCampo("Password: ", scanner);
+        String nome = Utils.lerNome("Nome: ", scanner);
+        LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
+        String nif = Utils.lerNif("NIF: ", scanner);
+        String morada = Utils.lerMorada("Morada: ", scanner);
+        String email = Utils.lerEmail("Email (@issmf.pt): ", scanner);
+        String password = Utils.lerPassword("Password: ", scanner);
 
         gestorController.registarGestor(nome, data, nif, morada, email, password);
         System.out.println("  [✓] Gestor registado com sucesso.");
@@ -78,7 +78,7 @@ public class GestorMenuView {
         String nif = scanner.nextLine().trim();
         Gestor g = gestorController.procurarPorNif(nif);
         if (g == null) { System.out.println("  [!] Gestor não encontrado."); Utils.pausar(scanner); return; }
-        System.out.println("\n" + g);
+        System.out.println("\n" + g.toStringDetalhado());
         Utils.pausar(scanner);
     }
 

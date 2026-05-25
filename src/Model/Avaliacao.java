@@ -77,6 +77,7 @@ public class Avaliacao {
         this.nota = nota;
         this.aprovado = aprovado;
         this.lancada = true;
+        this.dataModificacao = new Date();
     }
 
     public Date getDataModificacao() { return dataModificacao; }

@@ -1,5 +1,9 @@
 package Utils;
 
+import Model.AnoLetivo;
+import Model.Curso;
+import Model.Inscricao;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,23 +24,49 @@ public class Utils {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("O nome não pode ser vazio.");
         }
+        String[] partes = nome.trim().split("\\s+");
+        if (partes.length < 2) {
+            throw new IllegalArgumentException("O nome deve conter pelo menos nome e apelido.");
+        }
+        for (String parte : partes) {
+            if (parte.length() < 2) {
+                throw new IllegalArgumentException("Cada parte do nome deve ter pelo menos 2 caracteres.");
+            }
+        }
     }
 
     public static void validarNif(String nif) {
-        if (nif == null || nif.length() != 9) {
+        if (nif == null || nif.trim().isEmpty()) {
+            throw new IllegalArgumentException("O NIF não pode estar vazio.");
+        }
+        if (nif.length() != 9) {
             throw new IllegalArgumentException("NIF inválido. Deve conter exatamente 9 dígitos.");
+        }
+        for (char c : nif.toCharArray()) {
+            if(!Character.isDigit(c)) {
+                throw new IllegalArgumentException("NIF inválido. Deve conter apenas digitos.");
+            }
         }
     }
 
     public static void validarDataNascimento(LocalDate dataNascimento) {
-        if (dataNascimento == null || dataNascimento.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Data de nascimento inválida.");
+        if (dataNascimento == null) {
+            throw new IllegalArgumentException("Data de nascimento não pode ser nula.");
+        }
+        if (dataNascimento.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("A data de nascimento não pode ser no futuro.");
+        }
+        if (dataNascimento.isAfter(LocalDate.now().minusYears(18))) {
+            throw new IllegalArgumentException("O utilizador deve ter pelo menos 18 anos.");
         }
     }
 
     public static void validarMorada(String morada) {
         if (morada == null || morada.trim().isEmpty()) {
             throw new IllegalArgumentException("A morada não pode ser vazia.");
+        }
+        if (morada.trim().length() < 5) {
+            throw new IllegalArgumentException("A morada deve ter pelo menos 5 caracteres.");
         }
     }
 
@@ -94,6 +124,107 @@ public class Utils {
             throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
         }
         return valor;
+    }
+    public static String lerNome(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarNome(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerNif(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarNif(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerMorada(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarMorada(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerSigla(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarSigla(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerEmail(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarEmail(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static String lerPassword(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarPassword(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    public static LocalDate lerDataNascimento(String mensagem, Scanner scanner) {
+        while (true) {
+            try {
+                System.out.print(mensagem);
+                String input = scanner.nextLine().trim();
+                if (input.equals("0")) throw new IllegalArgumentException("Registo cancelado.");
+                LocalDate data = LocalDate.parse(input);
+                validarDataNascimento(data);
+                return data;
+            } catch (IllegalArgumentException e) {
+                if (e.getMessage().equals("Registo cancelado.")) throw e;
+                System.out.println("  [!] " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
+            }
+        }
     }
 
     /**
@@ -278,5 +409,66 @@ public class Utils {
         PrintWriter pw = new PrintWriter(new FileWriter(caminho));
         pw.println(cabecalho);
         return pw;
+    }
+
+    public static void validarInscricaoComAnoLetivoECursoAtivos(
+            Inscricao inscricao,
+            AnoLetivo anoLetivo,
+            String acao
+    ) {
+        if (inscricao == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        if (anoLetivo == null || !anoLetivo.isAberto()) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + acao + ": o ano letivo "
+                            + inscricao.getAnoLetivo() + "/" + (inscricao.getAnoLetivo() + 1)
+                            + " não está iniciado ou aberto."
+            );
+        }
+
+        Curso curso = inscricao.getCurso();
+        if (curso == null) {
+            throw new IllegalArgumentException("Não é possível " + acao + ": a inscrição não tem curso associado.");
+        }
+
+        if (!"ATIVO".equalsIgnoreCase(curso.getEstado())) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + acao + ": o curso '" + curso.getNomeCurso() + "' ainda não está ativo."
+            );
+        }
+    }
+
+    public static void validarPropinaPaga(Inscricao inscricao, String acao) {
+        if (inscricao == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        if (!inscricao.isPropinaPaga()) {
+            throw new IllegalArgumentException("O estudante não pode " + acao + " porque tem propina em dívida.");
+        }
+    }
+
+    public static void validarNotasTodasLancadas(Inscricao inscricao, String acao) {
+        if (inscricao == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        if (inscricao.temNotasPorLancar()) {
+            throw new IllegalArgumentException("O estudante não pode " + acao + " porque existem notas por lançar.");
+        }
+    }
+
+    public static void validarAproveitamentoMinimo(double aproveitamento, double minimo, String acao) {
+        if (aproveitamento < minimo) {
+            throw new IllegalArgumentException(
+                    "O estudante não pode " + acao + ". Aprovação global (incluindo UCs em atraso): "
+                            + String.format("%.1f", aproveitamento * 100)
+                            + "%. Mínimo necessário: "
+                            + String.format("%.0f", minimo * 100)
+                            + "%."
+            );
+        }
     }
 }
