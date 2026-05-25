@@ -90,8 +90,13 @@ public class DocenteView {
             if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
                 System.out.println("  UC: " + uc.getNome());
                 for (Estudante e : todosEstudantes) {
-                    System.out.println("    - " + e.getNome() + " (" + e.getNumMecanografico() + ")");
-                    encontrouAluno = true;
+                    Inscricao inscricao = estudanteController.obterInscricaoAtual(e);
+                    if (inscricao != null && inscricao.getCurso() != null) {
+                        if (inscricao.getCurso().getUnidades().contains(uc)) {
+                            System.out.println("    - " + e.getNome() + " (" + e.getNumMecanografico() + ")");
+                            encontrouAluno = true;
+                        }
+                    }
                 }
             }
         }
