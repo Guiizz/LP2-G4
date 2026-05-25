@@ -92,11 +92,14 @@ public class UnidadeCurricular {
      * Condição obrigatória para poder iniciar a UC.
      */
     public boolean momentosValidos() {
-        if (momentosAvaliacao.size() != 3) return false;
+        if (momentosAvaliacao == null || momentosAvaliacao.isEmpty()) return false;
+        if (momentosAvaliacao.size() > 3) return false;
+
         double soma = 0;
         for (MomentoAvaliacao m : momentosAvaliacao) {
             soma += m.getPeso();
         }
+
         return Math.abs(soma - 100.0) < 0.01;
     }
 
