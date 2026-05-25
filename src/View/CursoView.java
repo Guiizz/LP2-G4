@@ -2,6 +2,7 @@ package View;
 
 import Controller.CursoController;
 import Controller.DepartamentoController;
+import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
 import Model.Curso;
 import Model.Departamento;
@@ -17,12 +18,14 @@ public class CursoView {
     private final CursoController cursoController;
     private final DepartamentoController departamentoController;
     private final UnidadeCurricularController unidadeCurricularController;
+    private final EstudanteController estudanteController;
     private final Scanner scanner;
 
-    public CursoView(CursoController cursoController, DepartamentoController departamentoController, UnidadeCurricularController unidadeCurricularController, Scanner scanner) {
+    public CursoView(CursoController cursoController, DepartamentoController departamentoController, UnidadeCurricularController unidadeCurricularController, EstudanteController estudanteController, Scanner scanner) {
         this.cursoController = cursoController;
         this.departamentoController = departamentoController;
         this.unidadeCurricularController = unidadeCurricularController;
+        this.estudanteController = estudanteController;
         this.scanner = scanner;
     }
 
@@ -35,7 +38,8 @@ public class CursoView {
                 "Remover Curso",
                 "Adicionar UC a Curso",
                 "Listar UCs de um Curso por Ano",
-                "Atualizar Valor de Propina"
+                "Atualizar Valor de Propina",
+                "Iniciar Curso"
         };
 
         int opcao;
@@ -52,6 +56,7 @@ public class CursoView {
                     case 6: adicionarUC(); break;
                     case 7: listarUCsPorAno(); break;
                     case 8: atualizarPropina(); break;
+                    case 9: iniciarCurso(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -189,6 +194,37 @@ public class CursoView {
         cursoController.atualizarValorPropina(c, novoValor);
         System.out.printf("  [✓] Propina do curso '%s' atualizada para %.2f €.%n",
                 c.getNomeCurso(), c.getValorPropina());
+        Utils.pausar(scanner);
+    }
+
+    private void iniciarCurso() {
+        System.out.println("\n--- Iniciar Curso ---");
+
+        ArrayList<Curso> lista = cursoController.listarCursos();
+        if (lista.isEmpty()) {
+            System.out.println("  [!] Não existem cursos registados.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("  Cursos disponíveis:");
+        for (Curso c : lista) {
+            int inscritos = cursoController.contarEstudantesInscritosNoCurso(
+                    c, estudanteController.listarEstudante());
+            System.out.println("    - " + c.getNomeCurso() +
+                    " [" + c.getEstado() + " | " + inscritos + " inscritos]");
+        }
+
+        String nome = Utils.lerCampo("Nome do curso a iniciar: ", scanner);
+        Curso c = cursoController.procurarPorNome(nome);
+        if (c == null) {
+            System.out.println("  [!] Curso não encontrado.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        cursoController.iniciarCurso(c, estudanteController.listarEstudante());
+        System.out.println("  [✓] Curso '" + c.getNomeCurso() + "' iniciado com sucesso.");
         Utils.pausar(scanner);
     }
 }
