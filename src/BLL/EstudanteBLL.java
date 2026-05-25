@@ -1,11 +1,9 @@
 package BLL;
 
+import DAL.AnoLetivoDAL;
 import DAL.DocenteDAL;
 import DAL.EstudanteDAL;
-import Model.Avaliacao;
-import Model.Estudante;
-import Model.Inscricao;
-import Model.Propina;
+import Model.*;
 import Utils.Utils;
 import Utils.ServicoEmail;
 import java.time.LocalDate;
@@ -16,10 +14,16 @@ import Utils.PasswordUtils;
 public class EstudanteBLL {
     private EstudanteDAL estudanteDAL;
     private DocenteDAL docenteDAL;
+    private AnoLetivoDAL anoLetivoDAL;
 
-    public EstudanteBLL(EstudanteDAL estudanteDAL, DocenteDAL docenteDAL) {
+    public EstudanteBLL(EstudanteDAL estudanteDAL,DocenteDAL docenteDAL) {
+        this(estudanteDAL, docenteDAL, new AnoLetivoDAL());
+    }
+
+    public EstudanteBLL(EstudanteDAL estudanteDAL, DocenteDAL docenteDAL, AnoLetivoDAL anoLetivoDAL) {
         this.estudanteDAL = estudanteDAL;
         this.docenteDAL = docenteDAL;
+        this.anoLetivoDAL = anoLetivoDAL;
     }
 
     public Estudante registarEstudante(String nome, LocalDate dataNascimento, String nif, String morada) {
@@ -160,32 +164,32 @@ public class EstudanteBLL {
         }
 
         if (estudante.getAnoAtual() >= 3) {
-            throw new IllegalArgumentException("O estudante já se encontra no último ano do curso.");
+            throw new IllegalArgumentException("O estudante está no 3.º ano. Deve concluir o curso, não progredir de ano.");
         }
 
-        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
+        validarRegrasAcademicas(estudante, obterInscricaoAtual(estudante), "progredir");
+    }
 
-        if (inscricaoAtual == null) {
-            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+    public void podeConcluirCurso(Estudante estudante) {
+        if (estudante == null) {
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
         }
 
-        if (!inscricaoAtual.isPropinaPaga()) {
-            throw new IllegalArgumentException("O estudante não pode progredir porque tem propina em dívida.");
+        if (estudante.isConcluido()) {
+            throw new IllegalArgumentException("O estudante já concluiu o curso.");
         }
 
-        if (inscricaoAtual.temNotasPorLancar()) {
-            throw new IllegalArgumentException("O estudante não pode progredir porque existem notas por lançar.");
+        if (estudante.getAnoAtual() != 3) {
+            throw new IllegalArgumentException("Só estudantes do 3.º ano podem concluir o curso.");
         }
 
-        double percentagemAprovacao = estudante.calcularAproveitamentoGlobal();
+        validarRegrasAcademicas(estudante, obterInscricaoAtual(estudante), "concluir o curso");
+    }
 
-        if (percentagemAprovacao < 0.60) {
-            throw new IllegalArgumentException(
-                    "O estudante não pode progredir. Aprovação global (incluindo UCs em atraso): " +
-                            String.format("%.1f", percentagemAprovacao * 100) +
-                            "%. Mínimo necessário: 60%."
-            );
-        }
+    public void concluirCurso(Estudante estudante) {
+        podeConcluirCurso(estudante);
+        estudante.setEstado("CONCLUIDO");
+        estudanteDAL.atualizarEstudante(estudante);
     }
 
     public void passarDeAno(Estudante estudante, Inscricao novaInscricao) {
@@ -247,11 +251,39 @@ public class EstudanteBLL {
         Estudante estudante = procurarPorNumMecanografico(numMecanografico);
         Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
 
-        if (inscricaoAtual == null) {
-            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
-        }
+        Utils.validarInscricaoComAnoLetivoECursoAtivos(
+                inscricaoAtual,
+                obterAnoLetivoDaInscricao(inscricaoAtual),
+                "marcar a propina como paga"
+        );
 
         inscricaoAtual.setPropinaPaga(true);
+        estudanteDAL.atualizarEstudante(estudante);
+    }
+
+    public void pagarPropina(Estudante estudante, double valor) {
+        if (estudante == null) {
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+        }
+
+        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
+
+        Utils.validarInscricaoComAnoLetivoECursoAtivos(
+                inscricaoAtual,
+                obterAnoLetivoDaInscricao(inscricaoAtual),
+                "pagar propina"
+        );
+
+        Propina propina = inscricaoAtual.getPropina();
+        if (propina == null) {
+            throw new IllegalArgumentException("A inscrição não tem propina associada.");
+        }
+
+        if (propina.isTotalmentePaga()) {
+            throw new IllegalArgumentException("A propina deste ano já se encontra totalmente paga.");
+        }
+
+        propina.pagar(valor);
         estudanteDAL.atualizarEstudante(estudante);
     }
 
@@ -286,10 +318,35 @@ public class EstudanteBLL {
     }
 
     public void lancarNotaMomento(Estudante estudante, int indiceMomento, double nota) {
+        lancarNotaMomento(estudante, null, indiceMomento, nota);
+    }
+
+    public void lancarNotaMomento(Estudante estudante, UnidadeCurricular uc, int indiceMomento, double nota) {
         Utils.validarNota(nota);
 
         if (estudante == null) {
             throw new IllegalArgumentException("O estudante não pode ser nulo.");
+        }
+
+        if (indiceMomento < 0) {
+            throw new IllegalArgumentException("Momento de avaliação inválido.");
+        }
+
+        if (uc != null) {
+            if (!uc.isAtiva()) {
+                throw new IllegalArgumentException("A UC '" + uc.getNome() + "' ainda não está ativa.");
+            }
+
+            if (uc.getMomentosAvaliacao() == null || uc.getMomentosAvaliacao().isEmpty()) {
+                throw new IllegalArgumentException("A UC '" + uc.getNome() + "' não tem momentos de avaliação definidos.");
+            }
+
+            if (indiceMomento >= uc.getMomentosAvaliacao().size()) {
+                throw new IllegalArgumentException(
+                        "Momento inválido. A UC '" + uc.getNome() + "' só tem "
+                                + uc.getMomentosAvaliacao().size() + " momento(s) de avaliação."
+                );
+            }
         }
 
         Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
@@ -298,29 +355,50 @@ public class EstudanteBLL {
         }
 
         ArrayList<Avaliacao> avaliacoes = inscricaoAtual.getAvaliacoes();
-        if (avaliacoes == null || indiceMomento < 0 || indiceMomento >= avaliacoes.size()) {
-            throw new IllegalArgumentException("Momento de avaliação inválido para '" + estudante.getNome() + "'.");
+        if (avaliacoes == null) {
+            avaliacoes = new ArrayList<>();
+            inscricaoAtual.setAvaliacoes(avaliacoes);
         }
 
-        avaliacoes.get(indiceMomento).lancarNota(nota, nota >= 10);
+        while (avaliacoes.size() <= indiceMomento) {
+            avaliacoes.add(criarAvaliacaoPendenteParaMomento(uc, avaliacoes.size()));
+        }
+
+        Avaliacao avaliacao = avaliacoes.get(indiceMomento);
+        if (avaliacao == null || avaliacao.getUc() == null || avaliacao.getUc().isEmpty()) {
+            avaliacao = criarAvaliacaoPendenteParaMomento(uc, indiceMomento);
+            avaliacoes.set(indiceMomento, avaliacao);
+        }
+
+        avaliacao.lancarNota(nota, nota >= 10);
         estudanteDAL.atualizarEstudante(estudante);
     }
 
-    public void pagarPropina(Estudante estudante, double valor) {
-        if (estudante == null)
-            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+    private AnoLetivo obterAnoLetivoDaInscricao(Inscricao inscricao) {
+        if (inscricao == null) return null;
+        return anoLetivoDAL.procurarPorAno(inscricao.getAnoLetivo());
+    }
 
-        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
-        if (inscricaoAtual == null)
-            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+    private void validarRegrasAcademicas(Estudante estudante, Inscricao inscricaoAtual, String acao) {
+        AnoLetivo anoLetivo = obterAnoLetivoDaInscricao(inscricaoAtual);
 
-        Propina propina = inscricaoAtual.getPropina();
-        if (propina == null)
-            throw new IllegalArgumentException("A inscrição não tem propina associada.");
-        if (propina.isTotalmentePaga())
-            throw new IllegalArgumentException("A propina deste ano já se encontra totalmente paga.");
+        Utils.validarInscricaoComAnoLetivoECursoAtivos(inscricaoAtual, anoLetivo, acao);
+        Utils.validarPropinaPaga(inscricaoAtual, acao);
+        Utils.validarNotasTodasLancadas(inscricaoAtual, acao);
+        Utils.validarAproveitamentoMinimo(estudante.calcularAproveitamentoGlobal(), 0.60, acao);
+    }
 
-        propina.pagar(valor);
-        estudanteDAL.atualizarEstudante(estudante);
+    private Avaliacao criarAvaliacaoPendenteParaMomento(UnidadeCurricular uc, int indiceMomento) {
+        ArrayList<UnidadeCurricular> ucs = new ArrayList<>();
+        double peso = 100.0;
+
+        if (uc != null) {
+            ucs.add(uc);
+            if (uc.getMomentosAvaliacao() != null && indiceMomento < uc.getMomentosAvaliacao().size()) {
+                peso = uc.getMomentosAvaliacao().get(indiceMomento).getPeso();
+            }
+        }
+
+        return new Avaliacao(ucs, peso, new Date());
     }
 }

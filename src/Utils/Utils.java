@@ -1,5 +1,9 @@
 package Utils;
 
+import Model.AnoLetivo;
+import Model.Curso;
+import Model.Inscricao;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -405,5 +409,66 @@ public class Utils {
         PrintWriter pw = new PrintWriter(new FileWriter(caminho));
         pw.println(cabecalho);
         return pw;
+    }
+
+    public static void validarInscricaoComAnoLetivoECursoAtivos(
+            Inscricao inscricao,
+            AnoLetivo anoLetivo,
+            String acao
+    ) {
+        if (inscricao == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        if (anoLetivo == null || !anoLetivo.isAberto()) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + acao + ": o ano letivo "
+                            + inscricao.getAnoLetivo() + "/" + (inscricao.getAnoLetivo() + 1)
+                            + " não está iniciado ou aberto."
+            );
+        }
+
+        Curso curso = inscricao.getCurso();
+        if (curso == null) {
+            throw new IllegalArgumentException("Não é possível " + acao + ": a inscrição não tem curso associado.");
+        }
+
+        if (!"ATIVO".equalsIgnoreCase(curso.getEstado())) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + acao + ": o curso '" + curso.getNomeCurso() + "' ainda não está ativo."
+            );
+        }
+    }
+
+    public static void validarPropinaPaga(Inscricao inscricao, String acao) {
+        if (inscricao == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        if (!inscricao.isPropinaPaga()) {
+            throw new IllegalArgumentException("O estudante não pode " + acao + " porque tem propina em dívida.");
+        }
+    }
+
+    public static void validarNotasTodasLancadas(Inscricao inscricao, String acao) {
+        if (inscricao == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        if (inscricao.temNotasPorLancar()) {
+            throw new IllegalArgumentException("O estudante não pode " + acao + " porque existem notas por lançar.");
+        }
+    }
+
+    public static void validarAproveitamentoMinimo(double aproveitamento, double minimo, String acao) {
+        if (aproveitamento < minimo) {
+            throw new IllegalArgumentException(
+                    "O estudante não pode " + acao + ". Aprovação global (incluindo UCs em atraso): "
+                            + String.format("%.1f", aproveitamento * 100)
+                            + "%. Mínimo necessário: "
+                            + String.format("%.0f", minimo * 100)
+                            + "%."
+            );
+        }
     }
 }

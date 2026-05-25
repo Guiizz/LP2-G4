@@ -6,6 +6,7 @@ import DAL.EstudanteDAL;
 import DAL.UnidadeCurricularDAL;
 import Model.Estudante;
 import Model.Inscricao;
+import Model.UnidadeCurricular;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -88,6 +89,18 @@ public class EstudanteController {
 
     public void lancarNotaMomento(Estudante estudante, int indiceMomento, double nota) {
         estudanteBLL.lancarNotaMomento(estudante, indiceMomento, nota);
+    }
+
+    public void lancarNotaMomento(Estudante estudante, UnidadeCurricular uc, int indiceMomento, double nota) {
+        estudanteBLL.lancarNotaMomento(estudante, uc, indiceMomento, nota);
+    }
+
+    public void verificarConclusaoCurso(Estudante estudante) {
+        estudanteBLL.podeConcluirCurso(estudante);
+    }
+
+    public void concluirCurso(Estudante estudante) {
+        estudanteBLL.concluirCurso(estudante);
     }
 
     public void pagarPropina(Estudante estudante, double valor) {
