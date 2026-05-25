@@ -55,33 +55,17 @@ public class AvaliacaoView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        System.out.println("\n--- Registar Avaliação --- (0 para cancelar)");
+        System.out.println("\n--- Registar Avaliação ---");
 
-        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
-        if (todasUCs.isEmpty()) {
-            System.out.println("  [!] Não existem unidades curriculares registadas.");
-            Utils.pausar(scanner);
-            return;
-        }
-
-        System.out.println("  Unidades Curriculares disponíveis:");
-        for (UnidadeCurricular uc : todasUCs) {
-            System.out.println("    - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
-        }
-
-        String nomeUC = Utils.lerCampo("Nome da UC: ", scanner);
-        UnidadeCurricular ucEscolhida = null;
-        for (UnidadeCurricular uc : todasUCs) {
-            if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
-        }
-        if (ucEscolhida == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
+        UnidadeCurricular uc = selecionarUC();
+        if (uc == null) return;
 
         double peso = Utils.lerDouble("Peso (%): ", scanner);
         Date data = Utils.lerDataAvaliacao("Data (DD/MM/AAAA): ", scanner);
         double nota = Utils.lerDouble("Nota (0-20): ", scanner);
 
         List<UnidadeCurricular> ucs = new ArrayList<>();
-        ucs.add(ucEscolhida);
+        ucs.add(uc);
 
         Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, nota);
         System.out.println("  [✓] Avaliação registada com sucesso.");
@@ -101,19 +85,11 @@ public class AvaliacaoView {
     private void procurarPorUC() {
         Utils.limparEcra();
         System.out.println("\n--- Avaliações por Unidade Curricular ---");
-        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
-        if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
 
-        for (UnidadeCurricular uc : todasUCs) { System.out.println("  - " + uc.getNome()); }
+        UnidadeCurricular uc = selecionarUC();
+        if (uc == null) return;
 
-        String nomeUC = Utils.lerCampo("Nome da UC: ", scanner);
-        UnidadeCurricular ucEscolhida = null;
-        for (UnidadeCurricular uc : todasUCs) {
-            if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
-        }
-        if (ucEscolhida == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
-
-        ArrayList<Avaliacao> avaliacoes = avaliacaoController.procurarPorUC(ucEscolhida);
+        ArrayList<Avaliacao> avaliacoes = avaliacaoController.procurarPorUC(uc);
         if (avaliacoes.isEmpty()) { System.out.println("  (sem avaliações para esta UC)"); Utils.pausar(scanner); return; }
         for (Avaliacao a : avaliacoes) { System.out.println(a + "\n"); }
         Utils.pausar(scanner);
@@ -136,5 +112,26 @@ public class AvaliacaoView {
         avaliacaoController.removerAvaliacao(alvo);
         System.out.println("  [✓] Avaliação removida com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private UnidadeCurricular selecionarUC() {
+        ArrayList<UnidadeCurricular> ucs = unidadeCurricularController.listarUnidades();
+        if (ucs.isEmpty()) {
+            System.out.println("  [!] Não existem UCs registadas.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("  UCs disponíveis:");
+        for (int i = 0; i < ucs.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + ucs.get(i).getNome()
+                    + " (Ano " + ucs.get(i).getAnoCurricular() + ")");
+        }
+        int escolha = Utils.lerInteiro("Selecione a UC (número): ", scanner);
+        if (escolha < 1 || escolha > ucs.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return ucs.get(escolha - 1);
     }
 }

@@ -39,9 +39,7 @@ public class EstudanteGestorView {
                 "Atualizar Estudante",
                 "Remover Estudante",
                 "Inscrever Estudante em Curso",
-                "Marcar Propina Atual como Paga",
-                "Listar Estudantes com Propina em Dívida",
-                "Registar Nota na Inscrição Atual"
+                "Propinas"
         };
 
         int opcao;
@@ -56,9 +54,7 @@ public class EstudanteGestorView {
                     case 4: atualizar(); break;
                     case 5: remover(); break;
                     case 6: inscrever(); break;
-                    case 7: marcarPropinaPaga(); break;
-                    case 8: listarPropinasEmDivida(); break;
-                    case 9: registarNota(); break;
+                    case 7: menuPropinas(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -72,7 +68,6 @@ public class EstudanteGestorView {
         System.out.println("\n--- Registar Estudante --- (0 para cancelar)");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
-
         String nif;
         while (true) {
             nif = Utils.lerNif("NIF: ", scanner);
@@ -134,20 +129,23 @@ public class EstudanteGestorView {
 
     private void inscrever() {
         System.out.println("\n--- Inscrever Estudante em Curso ---");
-        System.out.print("Nº Mecanográfico: ");
-        Estudante e = estudanteController.procurarPorNumMecanografico(scanner.nextLine().trim());
+        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
+        Estudante e = estudanteController.procurarPorNumMecanografico(num);
 
         ArrayList<Curso> cursos = cursoController.listarCursos();
         if (cursos.isEmpty()) { System.out.println("  [!] Não existem cursos registados."); Utils.pausar(scanner); return; }
 
-        System.out.println("  Cursos disponíveis:");
-        for (Curso c : cursos) {
-            System.out.println("    - " + c.getNomeCurso() + " | " + c.getDepartamento().getNome());
+        System.out.println("\n  Cursos disponíveis:");
+        for (int i = 0; i < cursos.size(); i++) {
+            Curso c = cursos.get(i);
+            System.out.println("  " + (i + 1) + ". " + c.getNomeCurso() + " | " + c.getDepartamento().getNome() + " [" + c.getEstado() + "]");
         }
 
-        System.out.print("Nome do curso: ");
-        Curso curso = cursoController.procurarPorNome(scanner.nextLine().trim());
-        if (curso == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
+        int escolha = Utils.lerInteiro("Selecione o curso (número): ", scanner);
+        if (escolha < 1 || escolha > cursos.size()) {
+            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
+        }
+        Curso curso = cursos.get(escolha - 1);
 
         Inscricao inscricao = inscricaoController.inscreverEstudante(e, curso, LocalDate.now().getYear());
 
@@ -155,7 +153,6 @@ public class EstudanteGestorView {
         inscricao.setPropinaPaga(propinaPaga.equalsIgnoreCase("S"));
 
         estudanteController.guardarEstadoEstudante(e);
-
         System.out.println("  [✓] Estudante inscrito em '" + curso.getNomeCurso() + "' com sucesso.");
         Utils.pausar(scanner);
     }
@@ -193,14 +190,26 @@ public class EstudanteGestorView {
         Utils.pausar(scanner);
     }
 
-    private void registarNota() {
-        System.out.println("\n--- Registar Nota na Inscrição Atual ---");
-        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
-        double nota = Utils.lerDouble("Nota (0-20): ", scanner);
+    private void menuPropinas() {
+        String[] opcoesPropinas = {
+                "Marcar Propina Atual como Paga",
+                "Listar Estudantes com Propina em Dívida"
+        };
 
-        estudanteController.registarNotaNaInscricaoAtual(num, nota);
-
-        System.out.println("  [✓] Nota registada na inscrição atual do estudante.");
-        Utils.pausar(scanner);
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("PROPINAS", opcoesPropinas, scanner);
+            try {
+                switch (opcao) {
+                    case 1: marcarPropinaPaga(); break;
+                    case 2: listarPropinasEmDivida(); break;
+                    case 0: System.out.println("  A voltar..."); break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
     }
 }

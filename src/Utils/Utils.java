@@ -59,6 +59,9 @@ public class Utils {
         if (dataNascimento.isAfter(LocalDate.now().minusYears(18))) {
             throw new IllegalArgumentException("O utilizador deve ter pelo menos 18 anos.");
         }
+        if (dataNascimento.isBefore(LocalDate.now().minusYears(100))) {
+            throw new IllegalArgumentException("O utilizador não pode ter mais de 100 anos.");
+        }
     }
 
     public static void validarMorada(String morada) {

@@ -72,17 +72,18 @@ public class CursoView {
         ArrayList<Departamento> deptos = departamentoController.listarDepartamentos();
         if (deptos.isEmpty()) {
             System.out.println("  [!] Não existem departamentos registados. Registe um primeiro.");
-            Utils.pausar(scanner);
-            return;
+            Utils.pausar(scanner); return;
         }
         System.out.println("  Departamentos disponíveis:");
-        for (Departamento d : deptos) {
-            System.out.println("    - " + d.getNome() + " (" + d.getSigla() + ")");
+        for (int i = 0; i < deptos.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + deptos.get(i).getNome()
+                    + " (" + deptos.get(i).getSigla() + ")");
         }
-
-        String siglaDepto = Utils.lerCampo("Sigla do departamento: ", scanner);
-        Departamento depto = departamentoController.procurarDepartamento(siglaDepto);
-        if (depto == null) { System.out.println("  [!] Departamento não encontrado."); Utils.pausar(scanner); return; }
+        int escolha = Utils.lerInteiro("Selecione o departamento (número): ", scanner);
+        if (escolha < 1 || escolha > deptos.size()) {
+            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
+        }
+        Departamento depto = deptos.get(escolha - 1);
 
         String nomeCurso = Utils.lerCampo("Nome do curso: ", scanner);
         double valorPropina = Utils.lerDouble("Valor anual da propina (€): ", scanner);
@@ -102,19 +103,17 @@ public class CursoView {
 
     private void procurar() {
         Utils.limparEcra();
-        String nome = Utils.lerCampo("Nome do curso: ", scanner);
-        Curso c = cursoController.procurarPorNome(nome);
-        if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
+        System.out.println("\n--- Procurar Curso ---");
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
         System.out.println("\n" + c);
         Utils.pausar(scanner);
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Nome de Curso --- (0 para cancelar)");
-        String nomeAtual = Utils.lerCampo("Nome atual do curso: ", scanner);
-        Curso c = cursoController.procurarPorNome(nomeAtual);
-        if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
-
+        System.out.println("\n--- Atualizar Nome de Curso ---");
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
         String novoNome = Utils.lerCampo("Novo nome: ", scanner);
         cursoController.atualizarNomeCurso(c, novoNome);
         System.out.println("  [✓] Nome do curso atualizado com sucesso.");
@@ -123,11 +122,8 @@ public class CursoView {
 
     private void remover() {
         System.out.println("\n--- Remover Curso ---");
-        String nome = Utils.lerCampo("Nome do curso a remover: ", scanner);
-        Curso c = cursoController.procurarPorNome(nome);
-        if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
-
-
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
         cursoController.removerCurso(c);
         System.out.println("  [✓] Curso removido com sucesso.");
         Utils.pausar(scanner);
@@ -135,44 +131,29 @@ public class CursoView {
 
     private void adicionarUC() {
         System.out.println("\n--- Adicionar UC a Curso ---");
-        System.out.print("Nome do curso: ");
-        Curso c = cursoController.procurarPorNome(scanner.nextLine().trim());
-        if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
 
-        System.out.println("\n  Vagas de UCs disponíveis por ano no curso '" + c.getNomeCurso() + "':");
+        System.out.println("\n  Vagas por ano no curso '" + c.getNomeCurso() + "':");
         for (int ano = 1; ano <= 3; ano++) {
             int vagas = cursoController.vagasUCsDisponiveis(c, ano);
             List<UnidadeCurricular> ucsAno = cursoController.listarUCsPorAno(c, ano);
-            System.out.println("    Ano " + ano + ": " + ucsAno.size() + "/5 UCs  (" + vagas + " vaga(s) disponível(is))");
+            System.out.println("    Ano " + ano + ": " + ucsAno.size() + "/5 UCs  (" + vagas + " vaga(s))");
         }
 
-        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
-        if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
+        UnidadeCurricular uc = selecionarUC("UCs disponíveis");
+        if (uc == null) return;
 
-        System.out.println("  UCs disponíveis:");
-        for (UnidadeCurricular uc : todasUCs) {
-            System.out.println("    - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
-        }
-
-        String nomeUC = Utils.lerCampo("Nome da UC a adicionar: ", scanner);
-        UnidadeCurricular ucEscolhida = null;
-        for (UnidadeCurricular uc : todasUCs) {
-            if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucEscolhida = uc; break; }
-        }
-        if (ucEscolhida == null) { System.out.println("  [!] UC não encontrada."); Utils.pausar(scanner); return; }
-
-        cursoController.adicionarUnidadeCurricular(c, ucEscolhida);
-        System.out.println("  [✓] UC '" + ucEscolhida.getNome() + "' adicionada ao curso '" + c.getNomeCurso() + "'.");
+        cursoController.adicionarUnidadeCurricular(c, uc);
+        System.out.println("  [✓] UC '" + uc.getNome() + "' adicionada ao curso '" + c.getNomeCurso() + "'.");
         Utils.pausar(scanner);
     }
 
     private void listarUCsPorAno() {
         Utils.limparEcra();
         System.out.println("\n--- Listar UCs de um Curso por Ano ---");
-        System.out.print("Nome do curso: ");
-        Curso c = cursoController.procurarPorNome(scanner.nextLine().trim());
-        if (c == null) { System.out.println("  [!] Curso não encontrado."); Utils.pausar(scanner); return; }
-
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
         int ano = Utils.lerInteiro("Ano curricular (1, 2 ou 3): ", scanner);
         List<UnidadeCurricular> ucs = cursoController.listarUCsPorAno(c, ano);
         if (ucs.isEmpty()) { System.out.println("  (sem UCs para o ano " + ano + ")"); Utils.pausar(scanner); return; }
@@ -181,19 +162,13 @@ public class CursoView {
     }
 
     private void atualizarPropina() {
-        System.out.println("\n--- Atualizar Valor de Propina --- (0 para cancelar)");
-        String nomeCurso = Utils.lerCampo("Nome do curso: ", scanner);
-        Curso c = cursoController.procurarPorNome(nomeCurso);
-        if (c == null) {
-            System.out.println("  [!] Curso não encontrado.");
-            Utils.pausar(scanner);
-            return;
-        }
+        System.out.println("\n--- Atualizar Valor de Propina ---");
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
         System.out.printf("  Propina atual: %.2f €%n", c.getValorPropina());
         double novoValor = Utils.lerDouble("Novo valor da propina (€): ", scanner);
         cursoController.atualizarValorPropina(c, novoValor);
-        System.out.printf("  [✓] Propina do curso '%s' atualizada para %.2f €.%n",
-                c.getNomeCurso(), c.getValorPropina());
+        System.out.printf("  [✓] Propina de '%s' atualizada para %.2f €.%n", c.getNomeCurso(), c.getValorPropina());
         Utils.pausar(scanner);
     }
 
@@ -226,5 +201,47 @@ public class CursoView {
         cursoController.iniciarCurso(c, estudanteController.listarEstudante());
         System.out.println("  [✓] Curso '" + c.getNomeCurso() + "' iniciado com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private Curso selecionarCurso(String titulo) {
+        ArrayList<Curso> cursos = cursoController.listarCursos();
+        if (cursos.isEmpty()) {
+            System.out.println("  [!] Não existem cursos registados.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("\n  " + titulo + ":");
+        for (int i = 0; i < cursos.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + cursos.get(i).getNomeCurso()
+                    + " [" + cursos.get(i).getEstado() + "]");
+        }
+        int escolha = Utils.lerInteiro("Selecione o curso (número): ", scanner);
+        if (escolha < 1 || escolha > cursos.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return cursos.get(escolha - 1);
+    }
+
+    private UnidadeCurricular selecionarUC(String titulo) {
+        ArrayList<UnidadeCurricular> ucs = unidadeCurricularController.listarUnidades();
+        if (ucs.isEmpty()) {
+            System.out.println("  [!] Não existem UCs registadas.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("\n  " + titulo + ":");
+        for (int i = 0; i < ucs.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + ucs.get(i).getNome()
+                    + " (Ano " + ucs.get(i).getAnoCurricular() + ")");
+        }
+        int escolha = Utils.lerInteiro("Selecione a UC (número): ", scanner);
+        if (escolha < 1 || escolha > ucs.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return ucs.get(escolha - 1);
     }
 }
