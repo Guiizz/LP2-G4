@@ -40,11 +40,11 @@ public class EstudanteBLL {
         }
 
         Estudante novoEstudante = new Estudante(nome, dataNascimento, nif, morada);
+        String passwordPlainText = "Issmf" + novoEstudante.getNumMecanografico();
         estudanteDAL.adicionarEstudante(novoEstudante);
-
         ServicoEmail.enviarCredenciais(
-                novoEstudante.getNumMecanografico() + "@issmf.pt",
-                "Issmf" + novoEstudante.getNumMecanografico(),
+                novoEstudante.getEmail(),   // ← usa getter consistente
+                passwordPlainText,
                 "Estudante"
         );
 
