@@ -125,7 +125,7 @@ public class UnidadeCurricular {
                 "Avaliações: " + this.avaliacoes.size() + "\n" +
                 "Docente: " + docente + "\n" +
                 "Momentos: " + this.momentosAvaliacao.size() + "\n" +
-                "Estado: " + this.ativa + "\n" +
+                "Estado: " + (this.ativa ? "Ativa" : "Inativa") + "\n" +
                 "===========================";
     }
 }
