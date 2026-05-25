@@ -21,7 +21,9 @@ public class DepartamentoView {
         String[] opcoes = {
                 "Registar Departamento",
                 "Listar Departamentos",
-                "Procurar Departamento por Sigla"
+                "Procurar Departamento por Sigla",
+                "Atualizar Departamento",
+                "Remover Departamento"
         };
 
         int opcao;
@@ -33,6 +35,8 @@ public class DepartamentoView {
                     case 1: registar(); break;
                     case 2: listar(); break;
                     case 3: procurar(); break;
+                    case 4: atualizar(); break;
+                    case 5: remover(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -68,6 +72,36 @@ public class DepartamentoView {
         Departamento d = departamentoController.procurarDepartamento(sigla);
         if (d == null) { System.out.println("  [!] Departamento não encontrado."); Utils.pausar(scanner); return; }
         System.out.println("\n" + d);
+        Utils.pausar(scanner);
+    }
+
+    private void atualizar() {
+        System.out.println("\n--- Atualizar Departamento --- (0 para cancelar)");
+        String sigla = Utils.lerCampo("Sigla do departamento a atualizar: ", scanner);
+        Departamento d = departamentoController.procurarDepartamento(sigla);
+        if (d == null) {
+            System.out.println("  [!] Departamento não encontrado.");
+            Utils.pausar(scanner);
+            return;
+        }
+        System.out.println("  Dados atuais: " + d.getNome() + " (" + d.getSigla() + ")");
+        String novoNome = Utils.lerCampo("Novo nome: ", scanner);
+        departamentoController.atualizarDepartamento(d, novoNome);
+        System.out.println("  [✓] Departamento atualizado com sucesso.");
+        Utils.pausar(scanner);
+    }
+
+    private void remover() {
+        System.out.println("\n--- Remover Departamento ---");
+        String sigla = Utils.lerCampo("Sigla do departamento a remover: ", scanner);
+        Departamento d = departamentoController.procurarDepartamento(sigla);
+        if (d == null) {
+            System.out.println("  [!] Departamento não encontrado.");
+            Utils.pausar(scanner);
+            return;
+        }
+        departamentoController.removerDepartamento(d);
+        System.out.println("  [✓] Departamento removido com sucesso.");
         Utils.pausar(scanner);
     }
 }

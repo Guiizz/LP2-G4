@@ -26,6 +26,14 @@ public class DepartamentoController {
         return departamentoBLL.procurarDepartamento(sigla);
     }
 
+    public void atualizarDepartamento(Departamento departamento, String novoNome) {
+        departamentoBLL.atualizarDepartamento(departamento, novoNome);
+    }
+
+    public void removerDepartamento(Departamento departamento) {
+        departamentoBLL.removerDepartamento(departamento);
+    }
+
     public Departamento procurarPorSigla(String sigla) {
         return departamentoBLL.procurarDepartamento(sigla);
     }
