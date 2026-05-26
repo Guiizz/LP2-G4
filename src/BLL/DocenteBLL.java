@@ -58,11 +58,11 @@ public class DocenteBLL {
             throw new IllegalArgumentException("Já existe um docente com a sigla: " + docente.getSigla());
         }
 
+        String passwordPlainText = "Issmf" + docente.getSigla();
         docenteDAL.adicionarDocente(docente);
-
         ServicoEmail.enviarCredenciais(
                 docente.getEmail(),
-                docente.getPassword(),
+                passwordPlainText,       // ← texto simples
                 "Docente"
         );
     }
