@@ -24,6 +24,14 @@ public class Estudante extends Utilizador {
         this.inscricoes = new ArrayList<>();
     }
 
+    public Estudante(String nome, LocalDate dataNascimento, String nif, String morada, boolean carregarDoCSV) {
+        super(nome, dataNascimento, nif, morada, "", "");
+        this.numMecanografico = "";
+        this.anoAtual = 1;
+        this.estado = "ATIVO";
+        this.inscricoes = new ArrayList<>();
+    }
+
     public static int getContadorSequencial() {
         return contadorSequencial;
     }

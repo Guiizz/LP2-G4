@@ -177,9 +177,9 @@ public class LoginView {
 
     private String pedirNovaPassword() {
         System.out.print("Nova password: ");
-        String p1 = scanner.nextLine().trim();
+        String p1 = lerPassword();
         System.out.print("Confirmar password: ");
-        String p2 = scanner.nextLine().trim();
+        String p2 = lerPassword();
         if (!p1.equals(p2)) throw new IllegalArgumentException("As passwords não coincidem. Tente novamente.");
         return p1;
     }

@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static Utils.Utils.lerPassword;
+
 public class GestorMenuView {
 
     private final GestorController gestorController;
@@ -56,7 +58,8 @@ public class GestorMenuView {
         String nif = Utils.lerNif("NIF: ", scanner);
         String morada = Utils.lerMorada("Morada: ", scanner);
         String email = Utils.lerEmail("Email (@issmf.pt): ", scanner);
-        String password = Utils.lerPassword("Password: ", scanner);
+        System.out.print("Password: ");
+        String password = lerPassword();
 
         gestorController.registarGestor(nome, data, nif, morada, email, password);
         System.out.println("  [✓] Gestor registado com sucesso.");
@@ -107,5 +110,13 @@ public class GestorMenuView {
         gestorController.removerGestor(nif);
         System.out.println("  [✓] Gestor removido com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private String lerPassword() {
+        if (System.console() != null) {
+            char[] chars = System.console().readPassword();
+            return chars != null ? new String(chars) : "";
+        }
+        return scanner.nextLine().trim();
     }
 }
