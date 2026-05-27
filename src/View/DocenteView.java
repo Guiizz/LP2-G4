@@ -224,6 +224,22 @@ public class DocenteView {
 
         Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
 
+        Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);
+        if (inscricaoAluno != null
+                && inscricaoAluno.getAvaliacoes() != null
+                && indiceMomento < inscricaoAluno.getAvaliacoes().size()) {
+            Avaliacao avExistente = inscricaoAluno.getAvaliacoes().get(indiceMomento);
+            if (avExistente != null && avExistente.isLancada()) {
+                System.out.println("  [!] Já existe uma nota lançada para este aluno neste momento.");
+                System.out.print("  Deseja substituir? (S/N): ");
+                String resposta = scanner.nextLine().trim();
+                if (!resposta.equalsIgnoreCase("S")) {
+                    Utils.pausar(scanner);
+                    return;
+                }
+            }
+        }
+
         double nota = Utils.lerDouble("Nota (0-20): ", scanner);
 
         estudanteController.lancarNotaMomento(
