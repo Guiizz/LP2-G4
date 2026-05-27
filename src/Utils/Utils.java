@@ -5,6 +5,7 @@ import Model.Curso;
 import Model.Inscricao;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -381,7 +382,8 @@ public class Utils {
             ficheiro.getParentFile().mkdirs();
         }
         if (!ficheiro.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(ficheiro))) {
+            try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+                    new FileOutputStream(ficheiro), StandardCharsets.UTF_8))) {
                 pw.println(cabecalho);
             } catch (IOException e) {
                 System.err.println("Erro ao criar ficheiro CSV (" + caminho + "): " + e.getMessage());
@@ -394,7 +396,8 @@ public class Utils {
         File ficheiro = new File(caminho);
         if (!ficheiro.exists()) return linhas;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(ficheiro))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(ficheiro), StandardCharsets.UTF_8))) {
             String linha;
             boolean primeiraLinha = true;
             while ((linha = br.readLine()) != null) {
@@ -409,7 +412,8 @@ public class Utils {
     }
 
     public static PrintWriter abrirEscritorCSV(String caminho, String cabecalho) throws IOException {
-        PrintWriter pw = new PrintWriter(new FileWriter(caminho));
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+                new FileOutputStream(caminho), StandardCharsets.UTF_8));
         pw.println(cabecalho);
         return pw;
     }

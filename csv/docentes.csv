@@ -1,4 +1,4 @@
 nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin
 Mario Francisco Pascoal;1961-05-13;242017460;Rua da Alegria;MFP;Estatistica,Algebra,Matemática Aplicada,Estatistica;SHA256:18652f11d1964a53ba251f59e1fa65a9e4e261b05b18fcf83dc9dab5537db589;false
-António Variações;2026-04-30;229224318;Rua Luis de Camões, 98;AVA;Fisica A�plicada,Algoritmia e Programação,Projeto e Estàgio;SHA256:c66bb7d911294ec3ed60ad02fc151fbc307f77226226c495910ee3ec003155b9;true
+António Variações;2026-04-30;229224318;Rua Luis de Camões, 98;AVA;Fisica Aplicada,Algoritmia e Programação,Projeto e Estàgio;SHA256:c66bb7d911294ec3ed60ad02fc151fbc307f77226226c495910ee3ec003155b9;true
 António Vaz Vaz;1966-02-02;235913251;Rua das Forças Armadas, 99;AVZ;Robotica 1,Robotica 2,Inteligência Artificial;SHA256:0be200e513b212a45a642836c4787fcbf3bdaf70a1e99a995c8b91925974f5d8;true

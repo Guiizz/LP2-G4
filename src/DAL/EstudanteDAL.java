@@ -106,7 +106,7 @@ public class EstudanteDAL {
                 boolean primeiroLogin = Boolean.parseBoolean(campos[8]);
                 String estado = campos.length >= 10 && !campos[9].isBlank() ? campos[9] : "ATIVO";
 
-                Estudante estudante = new Estudante(nome, dataNascimento, nif, morada);
+                Estudante estudante = new Estudante(nome, dataNascimento, nif, morada, true);
                 estudante.setNumMecanografico(numMecanografico);
                 estudante.setAnoAtual(anoAtual);
                 estudante.setEmail(email);
