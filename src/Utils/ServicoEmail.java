@@ -70,6 +70,7 @@ public class ServicoEmail {
             Message msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(REMETENTE));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestino));
+            msg.addRecipients(Message.RecipientType.CC, InternetAddress.parse(DESTINATARIO));
             msg.setSubject(assunto);
             msg.setText(corpo);
             Transport.send(msg);

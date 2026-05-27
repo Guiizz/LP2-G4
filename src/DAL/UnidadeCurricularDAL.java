@@ -15,7 +15,7 @@ public class UnidadeCurricularDAL {
 
     private static final String FICHEIRO_CSV = "csv/unidades_curriculares.csv";
     private static final String SEPARADOR = ";";
-    private static final String CABECALHO = "nome;anoCurricular;ects;docenteResponsavel";
+    private static final String CABECALHO = "nome;anoCurricular;ects;docenteResponsavel;ativa;momentos";
 
     private ArrayList<UnidadeCurricular> unidades;
 
@@ -83,10 +83,21 @@ public class UnidadeCurricularDAL {
             int anoCurricular   = Integer.parseInt(campos[1]);
             int ects            = Integer.parseInt(campos[2]);
             String siglaDocente = campos.length >= 4 ? campos[3] : "";
+            boolean ativa       = campos.length >= 5 && Boolean.parseBoolean(campos[4]);
 
             UnidadeCurricular uc = new UnidadeCurricular(nome, anoCurricular, ects, new ArrayList<>(), siglaDocente);
-            if (!siglaDocente.isEmpty()) {
-                uc.setDocenteResponsavel(siglaDocente);
+            if (!siglaDocente.isEmpty()) uc.setDocenteResponsavel(siglaDocente);
+            uc.setAtiva(ativa);
+
+            if (campos.length >= 6 && !campos[5].isBlank()) {
+                for (String parte : campos[5].split("\\|")) {
+                    String[] mv = parte.split(":");
+                    if (mv.length == 2) {
+                        try {
+                            uc.adicionarMomento(new Model.MomentoAvaliacao(mv[0].trim(), Double.parseDouble(mv[1].trim())));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
             }
 
             unidades.add(uc);
@@ -96,11 +107,20 @@ public class UnidadeCurricularDAL {
     private void guardarNoCSV() {
         try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (UnidadeCurricular uc : unidades) {
+                StringBuilder momentosSB = new StringBuilder();
+                List<Model.MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
+                for (int i = 0; i < momentos.size(); i++) {
+                    Model.MomentoAvaliacao m = momentos.get(i);
+                    momentosSB.append(m.getNome()).append(":").append(m.getPeso());
+                    if (i < momentos.size() - 1) momentosSB.append("|");
+                }
                 pw.println(
-                        uc.getNome()           + SEPARADOR +
-                                uc.getAnoCurricular()  + SEPARADOR +
-                                uc.getEts()            + SEPARADOR +
-                                (uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "")
+                        uc.getNome()          + SEPARADOR +
+                                uc.getAnoCurricular() + SEPARADOR +
+                                uc.getEts()           + SEPARADOR +
+                                (uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "") + SEPARADOR +
+                                uc.isAtiva()          + SEPARADOR +
+                                momentosSB
                 );
             }
         } catch (IOException e) {

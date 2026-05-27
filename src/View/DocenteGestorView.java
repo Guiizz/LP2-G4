@@ -68,11 +68,10 @@ public class DocenteGestorView {
         Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
         docenteController.registarDocente(d);
 
-        String passwordTemporaria = "Issmf" + sigla;
         System.out.println("  [✓] Docente registado com sucesso.");
         System.out.println("  Sigla: " + sigla);
         System.out.println("  Email: " + sigla + "@issmf.pt");
-        System.out.println("  Password inicial: " + passwordTemporaria);
+        System.out.println("  As credenciais foram enviadas por email.");
         Utils.pausar(scanner);
     }
 

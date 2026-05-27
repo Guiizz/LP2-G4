@@ -174,29 +174,13 @@ public class CursoView {
 
     private void iniciarCurso() {
         System.out.println("\n--- Iniciar Curso ---");
+        Curso c = selecionarCurso("Cursos disponíveis");
+        if (c == null) return;
 
-        ArrayList<Curso> lista = cursoController.listarCursos();
-        if (lista.isEmpty()) {
-            System.out.println("  [!] Não existem cursos registados.");
-            Utils.pausar(scanner);
-            return;
-        }
-
-        System.out.println("  Cursos disponíveis:");
-        for (Curso c : lista) {
-            int inscritos = cursoController.contarEstudantesInscritosNoCurso(
-                    c, estudanteController.listarEstudante());
-            System.out.println("    - " + c.getNomeCurso() +
-                    " [" + c.getEstado() + " | " + inscritos + " inscritos]");
-        }
-
-        String nome = Utils.lerCampo("Nome do curso a iniciar: ", scanner);
-        Curso c = cursoController.procurarPorNome(nome);
-        if (c == null) {
-            System.out.println("  [!] Curso não encontrado.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int inscritos = cursoController.contarEstudantesInscritosNoCurso(
+                c, estudanteController.listarEstudante());
+        System.out.println("  Curso: " + c.getNomeCurso()
+                + " [" + c.getEstado() + " | " + inscritos + " inscritos]");
 
         cursoController.iniciarCurso(c, estudanteController.listarEstudante());
         System.out.println("  [✓] Curso '" + c.getNomeCurso() + "' iniciado com sucesso.");
