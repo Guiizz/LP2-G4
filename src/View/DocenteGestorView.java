@@ -7,6 +7,7 @@ import Utils.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class DocenteGestorView {
@@ -63,7 +64,40 @@ public class DocenteGestorView {
         }
 
         String morada = Utils.lerMorada("Morada: ", scanner);
-        String sigla = Utils.lerSigla("Sigla (3 letras): ", scanner);
+        // Gerar sigla automaticamente com base nas iniciais do nome
+        java.util.List<String> siglasExistentes = new java.util.ArrayList<>();
+        for (Docente doc : docenteController.listarDocentes()) {
+            siglasExistentes.add(doc.getSigla().toLowerCase());
+        }
+        String siglaGerada = Utils.gerarSigla(nome, siglasExistentes);
+
+        System.out.println("  Sigla sugerida: " + siglaGerada);
+        System.out.print("  Aceitar sigla sugerida? (Enter para aceitar / escreva outra sigla): ");
+        String respostaSigla = scanner.nextLine().trim();
+
+        String sigla;
+        if (respostaSigla.isEmpty()) {
+            sigla = siglaGerada;
+        } else {
+            // Validar a sigla introduzida manualmente e garantir minúsculas
+            while (true) {
+                try {
+                    Utils.validarSigla(respostaSigla);
+                    sigla = respostaSigla.toLowerCase();
+                    if (siglasExistentes.contains(sigla)) {
+                        System.out.println("  [!] Já existe um docente com a sigla: " + sigla);
+                        System.out.print("  Introduza outra sigla: ");
+                        respostaSigla = scanner.nextLine().trim();
+                    } else {
+                        break;
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.out.println("  [!] " + e.getMessage());
+                    System.out.print("  Introduza uma sigla válida (3 letras): ");
+                    respostaSigla = scanner.nextLine().trim();
+                }
+            }
+        }
 
         Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
         docenteController.registarDocente(d);
