@@ -116,6 +116,28 @@ public class Utils {
         }
     }
 
+    public static String gerarSigla(String nome, List<String> existentes) {
+        String[] palavras = nome.trim().split("\\s+");
+        StringBuilder letrasNome = new StringBuilder();
+        for (String p : palavras) {
+            if (p.length() >= 2) letrasNome.append(p.charAt(0));
+        }
+        String letras = letrasNome.toString().toLowerCase();
+        if (letras.length() >= 3) {
+            String candidata = letras.substring(0, 3);
+            if (!existentes.contains(candidata)) return candidata;
+        }
+        // fallback: combinar letras do nome até achar sigla única
+        String todas = nome.replaceAll("[^A-Za-z]", "").toLowerCase();
+        for (int i=0; i<todas.length(); i++)
+              for (int j=i+1; j<todas.length(); j++)
+                for (int k=j+1; k<todas.length(); k++) {
+                  String c = ""+todas.charAt(i)+todas.charAt(j)+todas.charAt(k);
+                  if (!existentes.contains(c)) return c;
+                }
+        throw new IllegalArgumentException("Não foi possível gerar sigla única.");
+    }
+
     // ── Leitura ──────────────────────────────────────────────────────
 
     /**
