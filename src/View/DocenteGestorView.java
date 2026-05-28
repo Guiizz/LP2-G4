@@ -72,40 +72,14 @@ public class DocenteGestorView {
         String siglaGerada = Utils.gerarSigla(nome, siglasExistentes);
 
         System.out.println("  Sigla sugerida: " + siglaGerada);
-        System.out.print("  Aceitar sigla sugerida? (Enter para aceitar / escreva outra sigla): ");
-        String respostaSigla = scanner.nextLine().trim();
 
-        String sigla;
-        if (respostaSigla.isEmpty()) {
-            sigla = siglaGerada;
-        } else {
-            // Validar a sigla introduzida manualmente e garantir minúsculas
-            while (true) {
-                try {
-                    Utils.validarSigla(respostaSigla);
-                    sigla = respostaSigla.toLowerCase();
-                    if (siglasExistentes.contains(sigla)) {
-                        System.out.println("  [!] Já existe um docente com a sigla: " + sigla);
-                        System.out.print("  Introduza outra sigla: ");
-                        respostaSigla = scanner.nextLine().trim();
-                    } else {
-                        break;
-                    }
-                } catch (IllegalArgumentException e) {
-                    System.out.println("  [!] " + e.getMessage());
-                    System.out.print("  Introduza uma sigla válida (3 letras): ");
-                    respostaSigla = scanner.nextLine().trim();
-                }
-            }
-        }
-
-        Docente d = new Docente(nome, data, nif, morada, sigla, new ArrayList<>());
+        Docente d = new Docente(nome, data, nif, morada, siglaGerada, new ArrayList<>());
         docenteController.registarDocente(d);
 
         System.out.println("  [✓] Docente registado com sucesso.");
-        System.out.println("  Sigla: " + sigla);
-        System.out.println("  Email: " + sigla + "@issmf.pt");
-        System.out.println("  Password inicial: enviada por email para " + sigla + "@issmf.pt");
+        System.out.println("  Sigla: " + siglaGerada);
+        System.out.println("  Email: " + siglaGerada + "@issmf.pt");
+        System.out.println("  Password inicial: enviada por email para " + siglaGerada + "@issmf.pt");
         Utils.pausar(scanner);
     }
 
