@@ -1,21 +1,18 @@
 package DAL;
 
+import Model.MomentoAvaliacao;
 import Model.UnidadeCurricular;
+import Utils.Utils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import Utils.Utils;
 
-/**
- * Camada DAL para a entidade UnidadeCurricular.
- * Responsável por armazenar e recuperar UCs com persistência em ficheiro CSV.
- */
 public class UnidadeCurricularDAL {
 
     private static final String FICHEIRO_CSV = "csv/unidades_curriculares.csv";
     private static final String SEPARADOR = ";";
-    private static final String CABECALHO = "nome;anoCurricular;ects;docenteResponsavel;ativa;momentos";
+    private static final String CABECALHO = "nome;anoCurricular;ects;docenteResponsavel;momentos;ativa";
 
     private ArrayList<UnidadeCurricular> unidades;
 
@@ -33,8 +30,7 @@ public class UnidadeCurricularDAL {
     public boolean atualizarUnidade(UnidadeCurricular unidadeAtualizada) {
         for (int i = 0; i < unidades.size(); i++) {
             UnidadeCurricular atual = unidades.get(i);
-            if (atual.getNome().equalsIgnoreCase(unidadeAtualizada.getNome())
-                    && atual.getAnoCurricular() == unidadeAtualizada.getAnoCurricular()) {
+            if (atual.getNome().equalsIgnoreCase(unidadeAtualizada.getNome()) && atual.getAnoCurricular() == unidadeAtualizada.getAnoCurricular()) {
                 unidades.set(i, unidadeAtualizada);
                 guardarNoCSV();
                 return true;
@@ -54,9 +50,7 @@ public class UnidadeCurricularDAL {
 
     public UnidadeCurricular procurarPorNome(String nome) {
         for (UnidadeCurricular uc : unidades) {
-            if (uc.getNome().equalsIgnoreCase(nome)) {
-                return uc;
-            }
+            if (uc.getNome().equalsIgnoreCase(nome)) return uc;
         }
         return null;
     }
@@ -74,31 +68,31 @@ public class UnidadeCurricularDAL {
 
     private void carregarDoCSV() {
         unidades.clear();
-        List<String[]> linhas = Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR);
-
-        for (String[] campos : linhas) {
+        for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
             if (campos.length < 3) continue;
 
-            String nome         = campos[0];
-            int anoCurricular   = Integer.parseInt(campos[1]);
-            int ects            = Integer.parseInt(campos[2]);
-            String siglaDocente = campos.length >= 4 ? campos[3] : "";
-            boolean ativa       = campos.length >= 5 && Boolean.parseBoolean(campos[4]);
+            String nome = campos[0];
+            int anoCurricular = Integer.parseInt(campos[1]);
+            int ects = Integer.parseInt(campos[2]);
+            String sigla = campos.length >= 4 ? campos[3] : "";
 
-            UnidadeCurricular uc = new UnidadeCurricular(nome, anoCurricular, ects, new ArrayList<>(), siglaDocente);
-            if (!siglaDocente.isEmpty()) uc.setDocenteResponsavel(siglaDocente);
-            uc.setAtiva(ativa);
+            UnidadeCurricular uc = new UnidadeCurricular(nome, anoCurricular, ects, new ArrayList<>(), sigla);
+            if (!sigla.isEmpty()) uc.setDocenteResponsavel(sigla);
 
-            if (campos.length >= 6 && !campos[5].isBlank()) {
-                for (String parte : campos[5].split("\\|")) {
+            String momentosStr = campos.length >= 5 ? campos[4] : "";
+            if (!momentosStr.isBlank()) {
+                for (String parte : momentosStr.split("\\|")) {
                     String[] mv = parte.split(":");
                     if (mv.length == 2) {
                         try {
-                            uc.adicionarMomento(new Model.MomentoAvaliacao(mv[0].trim(), Double.parseDouble(mv[1].trim())));
+                            uc.adicionarMomento(new MomentoAvaliacao(mv[0], Double.parseDouble(mv[1])));
                         } catch (NumberFormatException ignored) {}
                     }
                 }
             }
+
+            boolean ativa = campos.length >= 6 && Boolean.parseBoolean(campos[5]);
+            uc.setAtiva(ativa);
 
             unidades.add(uc);
         }
@@ -107,20 +101,24 @@ public class UnidadeCurricularDAL {
     private void guardarNoCSV() {
         try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (UnidadeCurricular uc : unidades) {
+
                 StringBuilder momentosSB = new StringBuilder();
-                List<Model.MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
-                for (int i = 0; i < momentos.size(); i++) {
-                    Model.MomentoAvaliacao m = momentos.get(i);
-                    momentosSB.append(m.getNome()).append(":").append(m.getPeso());
-                    if (i < momentos.size() - 1) momentosSB.append("|");
+                if (uc.getMomentosAvaliacao() != null) {
+                    List<MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
+                    for (int i = 0; i < momentos.size(); i++) {
+                        MomentoAvaliacao m = momentos.get(i);
+                        momentosSB.append(m.getNome().replace("|", "-").replace(":", "-")).append(":").append(m.getPeso());
+                        if (i < momentos.size() - 1) momentosSB.append("|");
+                    }
                 }
+
                 pw.println(
-                        uc.getNome()          + SEPARADOR +
+                        uc.getNome() + SEPARADOR +
                                 uc.getAnoCurricular() + SEPARADOR +
-                                uc.getEts()           + SEPARADOR +
+                                uc.getEts() + SEPARADOR +
                                 (uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "") + SEPARADOR +
-                                uc.isAtiva()          + SEPARADOR +
-                                momentosSB
+                                momentosSB + SEPARADOR +
+                                uc.isAtiva()
                 );
             }
         } catch (IOException e) {

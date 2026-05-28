@@ -105,7 +105,7 @@ public class DocenteGestorView {
         System.out.println("  [✓] Docente registado com sucesso.");
         System.out.println("  Sigla: " + sigla);
         System.out.println("  Email: " + sigla + "@issmf.pt");
-        System.out.println("  As credenciais foram enviadas por email.");
+        System.out.println("  Password inicial: enviada por email para " + sigla + "@issmf.pt");
         Utils.pausar(scanner);
     }
 
