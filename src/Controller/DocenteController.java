@@ -1,9 +1,6 @@
 package Controller;
 
 import BLL.DocenteBLL;
-import DAL.DocenteDAL;
-import DAL.EstudanteDAL;
-import DAL.UnidadeCurricularDAL;
 import Model.Docente;
 
 import java.util.ArrayList;
@@ -12,8 +9,8 @@ public class DocenteController {
 
     private final DocenteBLL docenteBLL;
 
-    public DocenteController() {
-        this.docenteBLL = new DocenteBLL(new DocenteDAL(new UnidadeCurricularDAL()), new EstudanteDAL());
+    public DocenteController(DocenteBLL docenteBLL) {
+        this.docenteBLL = docenteBLL;
     }
 
     public Docente registarDocente(Docente docente) {
@@ -52,16 +49,12 @@ public class DocenteController {
     public void alterarPassword(Docente docente, String novaPassword) {
         docenteBLL.alterarPassword(docente, novaPassword);
     }
-
     public void recuperarPassword(String email) {
         docenteBLL.recuperarPassword(email);
     }
 
     public boolean nifJaExiste(String nif) {
-        try {
-            return docenteBLL.procurarPorNif(nif) != null;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        try { return docenteBLL.procurarPorNif(nif) != null; }
+        catch (IllegalArgumentException e) { return false; }
     }
 }

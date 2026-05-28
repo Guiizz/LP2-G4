@@ -36,7 +36,10 @@ public class ServicoEmail {
                         + "Por segurança, altere a sua password no primeiro login.\n"
                         + "ISSMF - Sistema de Gestão Académica";
 
-        enviar(DESTINATARIO, assunto, corpo);
+        boolean emailFicticio = !emailSistema.equalsIgnoreCase("gestor@issmf.pt")
+                && DESTINATARIO != null;
+
+        enviar(emailSistema, emailFicticio ? DESTINATARIO : null, assunto, corpo);
     }
 
     public static void enviarPasswordTemporaria(String emailDestino, String passwordTemporaria, String tipoUtilizador) {
@@ -50,12 +53,15 @@ public class ServicoEmail {
                         + "Se não solicitou esta recuperação, contacte o administrador do sistema.\n\n"
                         + "ISSMF - Sistema de Gestão Académica";
 
-        enviar(DESTINATARIO, assunto, corpo);
+        boolean emailFicticio = !emailDestino.equalsIgnoreCase("gestor@issmf.pt")
+                && DESTINATARIO != null;
+
+        enviar(emailDestino, emailFicticio ? DESTINATARIO : null, assunto, corpo);
     }
 
-    private static void enviar(String emailDestino, String assunto, String corpo) {
+    private static void enviar(String emailDestino, String emailCC, String assunto, String corpo) {
         Properties props = new Properties();
-        props.put("mail.smtp.auth","true");
+        props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
@@ -70,7 +76,12 @@ public class ServicoEmail {
             Message msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(REMETENTE));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestino));
-            msg.addRecipients(Message.RecipientType.CC, InternetAddress.parse(DESTINATARIO));
+
+            // CC só adicionado se email for fictício
+            if (emailCC != null && !emailCC.isBlank()) {
+                msg.addRecipients(Message.RecipientType.CC, InternetAddress.parse(emailCC));
+            }
+
             msg.setSubject(assunto);
             msg.setText(corpo);
             Transport.send(msg);

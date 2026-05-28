@@ -23,13 +23,17 @@ public class EstudanteDAL {
     private ArrayList<Estudante> estudantes;
     private CursoDAL cursoDAL;
 
-    public EstudanteDAL() {
+    public EstudanteDAL(CursoDAL cursoDAL) {
         this.estudantes = new ArrayList<>();
-        this.cursoDAL = new CursoDAL();
+        this.cursoDAL = cursoDAL;
         Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO_ESTUDANTES);
         Utils.criarFicheiroSeNaoExistir(FICHEIRO_INSCRICOES_CSV, CABECALHO_INSCRICOES);
         carregarDoCSV();
         carregarInscricoesDoCSV();
+    }
+
+    public EstudanteDAL() {
+        this(new CursoDAL());
     }
 
     public void adicionarEstudante(Estudante estudante) {

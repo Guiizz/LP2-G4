@@ -1,9 +1,6 @@
 package Controller;
 
 import BLL.EstudanteBLL;
-import DAL.DocenteDAL;
-import DAL.EstudanteDAL;
-import DAL.UnidadeCurricularDAL;
 import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
@@ -14,8 +11,8 @@ public class InscricaoController {
 
     private final EstudanteBLL estudanteBLL;
 
-    public InscricaoController() {
-        this.estudanteBLL = new EstudanteBLL(new EstudanteDAL(), new DocenteDAL(new UnidadeCurricularDAL()));
+    public InscricaoController(EstudanteBLL estudanteBLL) {
+        this.estudanteBLL = estudanteBLL;
     }
 
     public Inscricao inscreverEstudante(Estudante estudante, Curso curso, int anoLetivo) {
@@ -26,6 +23,7 @@ public class InscricaoController {
 
         Inscricao inscricao = new Inscricao(anoLetivo, 1, curso);
         estudante.adicionarInscricao(inscricao);
+        estudanteBLL.guardarEstadoEstudante(estudante); // ← persistência garantida
         return inscricao;
     }
 
@@ -46,14 +44,5 @@ public class InscricaoController {
         if (estudante == null) throw new IllegalArgumentException("O estudante não pode ser nulo.");
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
         return inscricoes.isEmpty() ? null : inscricoes.get(inscricoes.size() - 1);
-    }
-
-    public boolean estaInscritoNoCurso(Estudante estudante, Curso curso) {
-        if (estudante == null) throw new IllegalArgumentException("O estudante não pode ser nulo.");
-        if (curso == null)     throw new IllegalArgumentException("O curso não pode ser nulo.");
-        for (Inscricao inscricao : estudante.getInscricoes()) {
-            if (inscricao.getCurso() != null && inscricao.getCurso().equals(curso)) return true;
-        }
-        return false;
     }
 }

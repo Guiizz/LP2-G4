@@ -230,8 +230,18 @@ public class CursoBLL {
         }
 
         int numeroInscritos = contarEstudantesInscritosNoCurso(curso, estudantes);
-        if (numeroInscritos < QUORUM_MINIMO) {
-            throw new IllegalArgumentException("Número mínimo de 5 estudantes não atingido.");
+
+        boolean primeiroAnoLetivo = estudantes.stream()
+                .flatMap(e -> e.getInscricoes().stream())
+                .filter(i -> i.getCurso() != null
+                        && i.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso()))
+                .allMatch(i -> i.getAnoDeCurso() == 1);
+
+        int quorumNecessario = primeiroAnoLetivo ? QUORUM_MINIMO : 1;
+        if (numeroInscritos < quorumNecessario) {
+            throw new IllegalArgumentException(
+                    "Número mínimo de " + quorumNecessario + " estudante(s) não atingido. "
+                            + "Inscritos: " + numeroInscritos + ".");
         }
 
         curso.setEstado("ATIVO");
