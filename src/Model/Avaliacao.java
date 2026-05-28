@@ -53,7 +53,7 @@ public class Avaliacao {
 
     public double getPeso() {return peso;}
 
-    public double setPeso(double peso) {return this.peso = peso;}
+    public void setPeso(double peso) { this.peso = peso; }
 
     public Date getData() {return data;}
 
@@ -113,7 +113,7 @@ public class Avaliacao {
     @Override
     public String toString() {
         return  "===== Momento de Avaliação =====\n"+
-                "Cadeira: "+ uc + "\n" +
+                "Cadeira: " + (uc != null && !uc.isEmpty() ? uc.get(0).getNome() : "(sem UC)") + "\n" +
                 "Peso: " + peso + "\n" +
                 "Nota: " + getNotaFormatada()+ "\n" +
                 "Data: " + getDataFormatada() + "\n" +

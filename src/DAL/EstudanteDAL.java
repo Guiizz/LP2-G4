@@ -220,8 +220,13 @@ public class EstudanteDAL {
         if (avaliacoes == null || avaliacoes.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < avaliacoes.size(); i++) {
-            Avaliacao avaliacao = avaliacoes.get(i);
-            sb.append(avaliacao == null || !avaliacao.isLancada() ? "P" : avaliacao.getNota());
+            Avaliacao av = avaliacoes.get(i);
+            String nomeUC = "";
+            if (av != null && av.getUc() != null && !av.getUc().isEmpty()) {
+                nomeUC = av.getUc().get(0).getNome().replace(",", "-").replace(":", "-");
+            }
+            String nota = (av == null || !av.isLancada()) ? "P" : String.valueOf(av.getNota());
+            sb.append(nomeUC).append(":").append(nota);
             if (i < avaliacoes.size() - 1) sb.append(",");
         }
         return sb.toString();
