@@ -178,6 +178,7 @@ public class DocenteView {
 
             if (inscricao != null
                     && inscricao.getCurso() != null
+                    && inscricao.getCurso().getUnidades().contains(ucEscolhida)
                     && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
                 alunosDaUC.add(e);
             }

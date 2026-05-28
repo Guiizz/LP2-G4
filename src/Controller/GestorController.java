@@ -1,7 +1,6 @@
 package Controller;
 
 import BLL.GestorBLL;
-import DAL.GestorDAL;
 import Model.Gestor;
 
 import java.time.LocalDate;
@@ -11,12 +10,11 @@ public class GestorController {
 
     private final GestorBLL gestorBLL;
 
-    public GestorController() {
-        this.gestorBLL = new GestorBLL(new GestorDAL());
+    public GestorController(GestorBLL gestorBLL) {
+        this.gestorBLL = gestorBLL;
     }
 
-    public void registarGestor(String nome, LocalDate dataNascimento, String nif,
-                               String morada, String email, String password) {
+    public void registarGestor(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password) {
         gestorBLL.registarGestor(nome, dataNascimento, nif, morada, email, password);
     }
 
@@ -51,5 +49,4 @@ public class GestorController {
     public void recuperarPassword(String email) {
         gestorBLL.recuperarPassword(email);
     }
-
 }

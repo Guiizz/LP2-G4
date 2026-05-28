@@ -166,7 +166,8 @@ public class GestorBLL {
             throw new IllegalArgumentException("Não existe nenhum gestor com esse email.");
         }
 
-        String passwordTemporaria = "IssmfGestor" + gestor.getNif().substring(0, 4) + "Tmp";
+        String nifParcial = gestor.getNif().length() >= 4 ? gestor.getNif().substring(0, 4) : gestor.getNif();
+        String passwordTemporaria = "IssmfGestor" + nifParcial + "Tmp";
         gestor.setPassword(PasswordUtils.hashPassword(passwordTemporaria));
         gestor.setPrimeiroLogin(true);
         gestorDAL.atualizarGestor(gestor);
