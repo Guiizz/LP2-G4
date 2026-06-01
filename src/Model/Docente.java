@@ -22,7 +22,7 @@ public class Docente extends Utilizador {
      * @param unidadesLecionadas
      */
     public Docente(String nome, LocalDate dataNascimento, String nif, String morada, String sigla, List<UnidadeCurricular> unidadesLecionadas) {
-        super(nome, dataNascimento, nif, morada, sigla.toLowerCase() + "@issmf.pt", PasswordUtils.hashPassword("Issmf" + sigla.toLowerCase()));
+        super(nome, dataNascimento, nif, morada, sigla.toLowerCase() + "@issmf.pt", PasswordUtils.hashPassword("Issmf1" + sigla.toLowerCase()));
         this.sigla = sigla.toLowerCase();
         this.unidadesLecionadas = unidadesLecionadas;
     }
