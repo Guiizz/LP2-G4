@@ -2,7 +2,9 @@ package View;
 
 import Controller.DocenteController;
 import Controller.EstudanteController;
+import Controller.UnidadeCurricularController;
 import Model.Docente;
+import Model.UnidadeCurricular;
 import Utils.Utils;
 
 import java.time.LocalDate;
@@ -14,11 +16,13 @@ public class DocenteGestorView {
 
     private final DocenteController docenteController;
     private final EstudanteController estudanteController;
+    private final UnidadeCurricularController unidadeCurricularController;
     private final Scanner scanner;
 
-    public DocenteGestorView(DocenteController docenteController, EstudanteController estudanteController, Scanner scanner) {
+    public DocenteGestorView(DocenteController docenteController, EstudanteController estudanteController, UnidadeCurricularController unidadeCurricularController, Scanner scanner) {
         this.docenteController = docenteController;
         this.estudanteController = estudanteController;
+        this.unidadeCurricularController = unidadeCurricularController;
         this.scanner = scanner;
     }
 
@@ -28,7 +32,8 @@ public class DocenteGestorView {
                 "Listar Docentes",
                 "Procurar Docente por Sigla",
                 "Atualizar Docente",
-                "Remover Docente"
+                "Remover Docente",
+                "Atribuir Docente Responsável"
         };
 
         int opcao;
@@ -42,6 +47,7 @@ public class DocenteGestorView {
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover(); break;
+                    case 6: atribuirDocente(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -127,5 +133,54 @@ public class DocenteGestorView {
         docenteController.removerDocente(sigla);
         System.out.println("  [✓] Docente removido com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private void atribuirDocente() {
+        System.out.println("\n--- Atribuir Docente Responsável ---");
+
+        ArrayList<UnidadeCurricular> ucs = unidadeCurricularController.listarUnidades();
+        if (ucs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
+
+        ArrayList<Docente> docentes = docenteController.listarDocentes();
+        if (docentes.isEmpty()) { System.out.println("  [!] Não existem docentes registados."); Utils.pausar(scanner); return; }
+
+        System.out.println("  UCs disponíveis:");
+        UnidadeCurricular uc = selecionarUC(ucs);
+        if (uc == null) return;
+
+        System.out.println("  Docentes disponíveis:");
+        for (int i = 0; i < docentes.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + docentes.get(i).getNome()
+                    + " (" + docentes.get(i).getSigla() + ")");
+        }
+        int escolha = Utils.lerInteiro("Selecione o docente (número): ", scanner);
+        if (escolha < 1 || escolha > docentes.size()) {
+            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
+        }
+        Docente docente = docentes.get(escolha - 1);
+
+        unidadeCurricularController.atribuirDocenteResponsavel(uc.getNome(), docente.getSigla());
+
+        if (docente.getUnidadesLecionadas() != null && !docente.getUnidadesLecionadas().contains(uc)) {
+            docente.getUnidadesLecionadas().add(uc);
+            docenteController.atualizarDocente(docente);
+        }
+
+        System.out.println("  [✓] Docente '" + docente.getSigla() + "' atribuído à UC '" + uc.getNome() + "'.");
+        Utils.pausar(scanner);
+    }
+
+    private UnidadeCurricular selecionarUC(ArrayList<UnidadeCurricular> lista) {
+        for (int i = 0; i < lista.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
+                    + " (Ano " + lista.get(i).getAnoCurricular() + ")");
+        }
+        int escolha = Utils.lerInteiro("Selecione a UC (número): ", scanner);
+        if (escolha < 1 || escolha > lista.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return lista.get(escolha - 1);
     }
 }
