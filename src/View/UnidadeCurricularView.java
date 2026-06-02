@@ -107,6 +107,12 @@ public class UnidadeCurricularView {
         UnidadeCurricular uc = selecionarUC(lista);
         if (uc == null) return;
 
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover a UC '" + uc.getNome() + "'? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         unidadeCurricularController.removerUnidade(uc);
         System.out.println("  [✓] UC '" + uc.getNome() + "' removida com sucesso.");
         Utils.pausar(scanner);

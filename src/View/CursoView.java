@@ -124,6 +124,13 @@ public class CursoView {
         System.out.println("\n--- Remover Curso ---");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
+
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o curso '" + c.getNomeCurso() + "'? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         cursoController.removerCurso(c);
         System.out.println("  [✓] Curso removido com sucesso.");
         Utils.pausar(scanner);

@@ -100,6 +100,12 @@ public class DepartamentoView {
             Utils.pausar(scanner);
             return;
         }
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o departamento '" + d.getNome() + "'? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         departamentoController.removerDepartamento(d);
         System.out.println("  [✓] Departamento removido com sucesso.");
         Utils.pausar(scanner);

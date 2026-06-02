@@ -95,7 +95,6 @@ public class AnoLetivoBLL {
         }
 
         double aproveitamento = estudante.calcularAproveitamentoGlobal();
-        int ucsEmAtraso = estudante.getUCsEmAtraso().size();
 
         if (aproveitamento < 0.60) {
             relatorio.incrementarMantidos();
@@ -113,12 +112,10 @@ public class AnoLetivoBLL {
         int proximoAnoCurso = estudante.getAnoAtual() + 1;
 
         List<String> nomesUCsEmAtraso = new ArrayList<>();
-
         for (Avaliacao av : estudante.getUCsEmAtraso()) {
             if (av.getUc() != null) {
                 for (UnidadeCurricular uc : av.getUc()) {
                     String nome = uc.getNome();
-
                     if (!nomesUCsEmAtraso.contains(nome)) {
                         nomesUCsEmAtraso.add(nome);
                     }
