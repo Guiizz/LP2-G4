@@ -528,5 +528,5 @@ public class Utils {
         }
     }
 
-    public static final int ECTS_POR_UC = 6; // valor a confirmar com o enunciado/docente
+    public static final int ECTS_POR_UC = 6;
 }

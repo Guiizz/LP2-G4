@@ -109,6 +109,12 @@ public class AvaliacaoView {
         }
         if (alvo == null) { System.out.println("  [!] Avaliação não encontrada."); Utils.pausar(scanner); return; }
 
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover esta avaliação? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         avaliacaoController.removerAvaliacao(alvo);
         System.out.println("  [✓] Avaliação removida com sucesso.");
         Utils.pausar(scanner);

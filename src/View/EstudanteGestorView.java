@@ -122,6 +122,13 @@ public class EstudanteGestorView {
 
     private void remover() {
         String num = Utils.lerCampo("Nº Mecanográfico do estudante a remover: ", scanner);
+        Estudante e = estudanteController.procurarPorNumMecanografico(num);
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o estudante '" + e.getNome() + "'? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         estudanteController.removerEstudante(num);
         System.out.println("  [✓] Estudante removido com sucesso.");
         Utils.pausar(scanner);

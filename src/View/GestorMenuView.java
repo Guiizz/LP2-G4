@@ -107,6 +107,15 @@ public class GestorMenuView {
     private void remover() {
         System.out.print("\nNIF do gestor a remover: ");
         String nif = scanner.nextLine().trim();
+        Gestor g = gestorController.procurarPorNif(nif);
+        if (g == null) { System.out.println("  [!] Gestor não encontrado."); Utils.pausar(scanner); return; }
+
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o gestor '" + g.getNome() + "'? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         gestorController.removerGestor(nif);
         System.out.println("  [✓] Gestor removido com sucesso.");
         Utils.pausar(scanner);

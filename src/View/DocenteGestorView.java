@@ -130,6 +130,12 @@ public class DocenteGestorView {
     private void remover() {
         System.out.print("\nSigla do docente a remover: ");
         String sigla = scanner.nextLine().trim();
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o docente '" + sigla + "'? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
         docenteController.removerDocente(sigla);
         System.out.println("  [✓] Docente removido com sucesso.");
         Utils.pausar(scanner);
