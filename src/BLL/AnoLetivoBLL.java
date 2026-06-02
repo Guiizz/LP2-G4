@@ -1,13 +1,11 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
-import Model.AnoLetivo;
-import Model.Estudante;
-import Model.Inscricao;
-import Model.RelatorioFechoAnoLetivo;
+import Model.*;
 import DAL.HistoricoAnoLetivoDAL;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AnoLetivoBLL {
@@ -113,6 +111,23 @@ public class AnoLetivoBLL {
         }
 
         int proximoAnoCurso = estudante.getAnoAtual() + 1;
+
+        List<String> nomesUCsEmAtraso = new ArrayList<>();
+
+        for (Avaliacao av : estudante.getUCsEmAtraso()) {
+            if (av.getUc() != null) {
+                for (UnidadeCurricular uc : av.getUc()) {
+                    String nome = uc.getNome();
+
+                    if (!nomesUCsEmAtraso.contains(nome)) {
+                        nomesUCsEmAtraso.add(nome);
+                    }
+                }
+            }
+        }
+
+        relatorio.registarUcsEmAtraso(estudante.getNome(), nomesUCsEmAtraso);
+
         estudante.setAnoAtual(proximoAnoCurso);
         estudante.adicionarInscricao(new Inscricao(anoAtual.getAno() + 1, proximoAnoCurso, inscricaoAtual.getCurso()));
 

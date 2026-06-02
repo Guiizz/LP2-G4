@@ -60,9 +60,8 @@ public class UnidadeCurricularView {
         System.out.println("\n--- Registar Unidade Curricular --- (0 para cancelar)");
         String nome = Utils.lerCampo("Nome: ", scanner);
         int ano     = Utils.lerInteiro("Ano curricular (1, 2 ou 3): ", scanner);
-        int ects    = Utils.lerInteiro("ECTS: ", scanner);
 
-        UnidadeCurricular uc = new UnidadeCurricular(nome, ano, ects);
+        UnidadeCurricular uc = new UnidadeCurricular(nome, ano, 0);
         unidadeCurricularController.adicionarUnidade(uc);
         System.out.println("  [✓] Unidade Curricular '" + nome + "' registada com sucesso.");
         Utils.pausar(scanner);

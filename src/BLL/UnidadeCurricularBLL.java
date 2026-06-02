@@ -15,18 +15,18 @@ public class UnidadeCurricularBLL {
     }
 
     public void adicionarUnidade(UnidadeCurricular unidade){
-        if (unidade == null) {
-            throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
-        }
-        Utils.validarNome(unidade.getNome());
+            if (unidade == null) {
+                throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
+            }
+            Utils.validarNome(unidade.getNome());
+            if (unidade.getAnoCurricular() < 1 || unidade.getAnoCurricular() > 3) {
+                throw new IllegalArgumentException("Ano curricular inválido, deve ser entre 1 e 3.");
+            }
 
-        if (unidade.getEts() <= 0) {
-            throw new IllegalArgumentException("Os ETCS devem ser um valor positivo.");
-        }
-        if (unidade.getAnoCurricular() < 1 || unidade.getAnoCurricular() > 3){
-            throw new IllegalArgumentException("Ano curricular invalido, deve ser entre 1 e 3.");
-        }
-        unidadeCurricularDAL.adicionarUnidade(unidade);
+            // Todos os ECTS são iguais no sistema — forçar valor fixo
+            unidade.setEts(Utils.ECTS_POR_UC);
+
+            unidadeCurricularDAL.adicionarUnidade(unidade);
     }
 
     public ArrayList<UnidadeCurricular> listarUnidades(){

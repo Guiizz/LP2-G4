@@ -240,17 +240,15 @@ public class CursoBLL {
                 .flatMap(e -> e.getInscricoes().stream())
                 .filter(i -> i.getCurso() != null
                         && i.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso()))
-                .allMatch(i -> i.getAnoDeCurso() == 1);
+                .noneMatch(i -> i.getAnoDeCurso() > 1);
 
         int quorumNecessario = primeiroAnoLetivo ? QUORUM_MINIMO : 1;
         if (numeroInscritos < quorumNecessario) {
             throw new IllegalArgumentException(
-                    "Número mínimo de " + quorumNecessario + " estudante(s) não atingido. "
-                            + "Inscritos: " + numeroInscritos + ".");
+                    "Número mínimo de " + quorumNecessario + " estudante(s) não atingido " +
+                            (primeiroAnoLetivo ? "(1.º ano letivo do curso)" : "(anos seguintes)") +
+                            ". Inscritos: " + numeroInscritos + ".");
         }
-
-        curso.setEstado("ATIVO");
-        cursoDAL.atualizarCurso(curso);
     }
 
     public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {

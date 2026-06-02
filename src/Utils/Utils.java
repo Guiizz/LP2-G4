@@ -500,4 +500,33 @@ public class Utils {
             );
         }
     }
+
+    public static void validarCursoAtivo(Curso curso, String acao) {
+        if (curso == null) {
+            throw new IllegalArgumentException("A inscrição não tem curso associado.");
+        }
+        if ("PENDENTE".equalsIgnoreCase(curso.getEstado())) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + acao + ": o curso '" + curso.getNomeCurso() +
+                            "' ainda não foi iniciado.");
+        }
+        if (!"ATIVO".equalsIgnoreCase(curso.getEstado())) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + acao + ": o curso '" + curso.getNomeCurso() +
+                            "' não está ativo (estado: " + curso.getEstado() + ").");
+        }
+    }
+
+    public static final int MAX_MOMENTOS_AVALIACAO = 3;
+
+    public static void validarIndiceMomento(int indiceMomento, String nomeUC) {
+        if (indiceMomento < 0 || indiceMomento >= MAX_MOMENTOS_AVALIACAO) {
+            throw new IllegalArgumentException(
+                    "Momento inválido para a UC '" + nomeUC + "'. " +
+                            "O índice deve estar entre 0 e " + (MAX_MOMENTOS_AVALIACAO - 1) +
+                            " (máximo de " + MAX_MOMENTOS_AVALIACAO + " avaliações por UC).");
+        }
+    }
+
+    public static final int ECTS_POR_UC = 6; // valor a confirmar com o enunciado/docente
 }
