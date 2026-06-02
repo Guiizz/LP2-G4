@@ -149,9 +149,6 @@ public class EstudanteGestorView {
 
         Inscricao inscricao = inscricaoController.inscreverEstudante(e, curso, LocalDate.now().getYear());
 
-        String propinaPaga = Utils.lerCampo("Propina inicial já está paga? (S/N): ", scanner);
-        inscricao.setPropinaPaga(propinaPaga.equalsIgnoreCase("S"));
-
         estudanteController.guardarEstadoEstudante(e);
         System.out.println("  [✓] Estudante inscrito em '" + curso.getNomeCurso() + "' com sucesso.");
         Utils.pausar(scanner);
