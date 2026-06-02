@@ -268,17 +268,24 @@ public class EstudanteBLL {
 
         Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
 
-        Utils.validarInscricaoComAnoLetivoECursoAtivos(
-                inscricaoAtual,
-                obterAnoLetivoDaInscricao(inscricaoAtual),
-                "pagar propina"
-        );
+        if (inscricaoAtual == null) {
+            throw new IllegalArgumentException("O estudante não tem inscrição ativa.");
+        }
+
+        Utils.validarCursoAtivo(inscricaoAtual.getCurso(), "pagar propinas");
+
+        AnoLetivo anoLetivo = obterAnoLetivoDaInscricao(inscricaoAtual);
+        if (anoLetivo == null || !anoLetivo.isAberto()) {
+            throw new IllegalArgumentException(
+                    "Não é possível pagar propinas: o ano letivo " +
+                            inscricaoAtual.getAnoLetivo() + "/" + (inscricaoAtual.getAnoLetivo() + 1) +
+                            " não está aberto.");
+        }
 
         Propina propina = inscricaoAtual.getPropina();
         if (propina == null) {
             throw new IllegalArgumentException("A inscrição não tem propina associada.");
         }
-
         if (propina.isTotalmentePaga()) {
             throw new IllegalArgumentException("A propina deste ano já se encontra totalmente paga.");
         }
@@ -329,7 +336,7 @@ public class EstudanteBLL {
         }
 
         if (indiceMomento < 0) {
-            throw new IllegalArgumentException("Momento de avaliação inválido.");
+            Utils.validarIndiceMomento(indiceMomento, uc != null ? uc.getNome() : "desconhecida");
         }
 
         if (uc != null) {
