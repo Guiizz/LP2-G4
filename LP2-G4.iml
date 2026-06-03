@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="jdk" jdkName="17" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/javax.mail.jar!/" />
@@ -16,7 +16,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/activation-1.1.1.jar!/" />
@@ -25,7 +25,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/mssql-jdbc-12.6.1.jre11.jar!/" />
@@ -34,7 +34,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/dotenv-java-3.0.0.jar!/" />
@@ -44,5 +44,7 @@
         <jarDirectory url="jar://$MODULE_DIR$/libs/dotenv-java-3.0.0.jar!/" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="dotenv-java-3.0.0" level="project" />
+    <orderEntry type="library" exported="" name="mssql-jdbc-12.6.1.jre11" level="project" />
   </component>
 </module>
