@@ -1,0 +1,9 @@
+nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin;estado
+Estudante 1;1999-06-30;242017460;Rua do Estudante 1;260016;1;260016@issmf.pt;SHA256:4085fc54320bfdc21b40501af0e456134680512e1f67854244e058aaabc4ca82;false;ATIVO
+Estudante 2;1999-01-01;192837465;Rua do Estudante 3;260017;1;260017@issmf.pt;SHA256:5328c562c31892f780e92b986eba14dd84df6c725a22109d4ac2e9b5b45d4524;true;ATIVO
+Estudante 3;1999-01-01;123456543;Rua do Estudante 4;260018;1;260018@issmf.pt;SHA256:f33c3da6af9bf9874d85b61538668bd06644f4bddbf31222870662bcca923d7e;true;ATIVO
+Estudante 5;1999-01-01;987659871;Rua do Estudante 5;260019;1;260019@issmf.pt;SHA256:8531bbe6c19a0449719e5a1c5032e16f1cac5e4499ffd5ea88d517492680a5ca;true;ATIVO
+Estudante 4;1998-01-01;123432112;Rua do Estudante 4;260020;1;260020@issmf.pt;SHA256:e4693d1447ca0b7d111aabe655c1de9c0ae710ea88c78c4129ef0e5e8425f877;true;ATIVO
+Estudante 6;2000-10-19;654321231;Rua do Estudante 6;260021;1;260021@issmf.pt;SHA256:1dda7dd40ddbea237dbaccb50a2f0787f09fe811748a2d0ecbf1e2b8076261c4;true;ATIVO
+Estudante 7;2002-01-12;098765432;Rua do Estudante 7;260022;1;260022@issmf.pt;SHA256:793ef3a0594d379410f8db79f30cd11e7f30a30fe66acf12f8e06043b2b8e3d5;true;ATIVO
+Estudante 8;2002-01-01;789789789;Rua do Estudante 8;260023;1;260023@issmf.pt;SHA256:653df3835e985d86abf67470fdcd7ff136bd28d5a9fc4afb96c251a6965703bf;false;ATIVO
