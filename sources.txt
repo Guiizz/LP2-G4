@@ -56,3 +56,4 @@ src/DAL/GestorDAL.java
 src/DAL/AvaliacaoDAL.java
 src/DAL/AnoLetivoDAL.java
 src/DAL/CursoDAL.java
+src/DAL/ConexaoBD.java
