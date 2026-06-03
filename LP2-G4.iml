@@ -41,6 +41,7 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="jar://$MODULE_DIR$/libs/dotenv-java-3.0.0.jar!/" recursive="false" />
       </library>
     </orderEntry>
   </component>
