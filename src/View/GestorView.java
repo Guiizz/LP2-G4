@@ -53,12 +53,12 @@ public class GestorView {
             try {
                 switch (opcao) {
                     case 1: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
-                    case 2: new DepartamentoView(departamentoController, scanner).iniciar(); break;
+                    case 2: new DepartamentoView(departamentoController, cursoController, scanner).iniciar(); break;
                     case 3: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
-                    case 4: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, scanner).iniciar(); break;
-                    case 5: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, scanner).iniciar(); break;
+                    case 4: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar(); break;
+                    case 5: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
                     case 6: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar(); break;
-                    case 7: new AvaliacaoView(avaliacaoController, unidadeCurricularController, scanner).iniciar(); break;
+                    case 7: new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
                     case 8:
                         Utils.limparEcra();
                         System.out.println("\n" + gestor);

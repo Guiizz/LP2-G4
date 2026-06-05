@@ -1,8 +1,10 @@
 package View;
 
 import Controller.AvaliacaoController;
+import Controller.CursoController;
 import Controller.UnidadeCurricularController;
 import Model.Avaliacao;
+import Model.Curso;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
@@ -15,14 +17,17 @@ public class AvaliacaoView {
 
     private final AvaliacaoController         avaliacaoController;
     private final UnidadeCurricularController unidadeCurricularController;
+    private final CursoController             cursoController;
     private final Scanner                     scanner;
 
     public AvaliacaoView(AvaliacaoController avaliacaoController,
                          UnidadeCurricularController unidadeCurricularController,
+                         CursoController cursoController,
                          Scanner scanner) {
-        this.avaliacaoController = avaliacaoController;
+        this.avaliacaoController         = avaliacaoController;
         this.unidadeCurricularController = unidadeCurricularController;
-        this.scanner = scanner;
+        this.cursoController             = cursoController;
+        this.scanner                     = scanner;
     }
 
     public void iniciar() {
@@ -55,7 +60,7 @@ public class AvaliacaoView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        System.out.println("\n--- Registar Avaliação ---");
+        Utils.tituloPagina("Registar Avaliação");
 
         UnidadeCurricular uc = selecionarUC();
         if (uc == null) return;
@@ -75,7 +80,7 @@ public class AvaliacaoView {
 
     private void listar() {
         Utils.limparEcra();
-        System.out.println("\n--- Lista de Avaliações ---");
+        Utils.tituloPagina("Lista de Avaliações");
         ArrayList<Avaliacao> lista = avaliacaoController.listarAvaliacoes();
         if (lista.isEmpty()) { System.out.println("  (sem avaliações registadas)"); Utils.pausar(scanner); return; }
         for (Avaliacao a : lista) { System.out.println(a + "\n"); }
@@ -84,7 +89,7 @@ public class AvaliacaoView {
 
     private void procurarPorUC() {
         Utils.limparEcra();
-        System.out.println("\n--- Avaliações por Unidade Curricular ---");
+        Utils.tituloPagina("Avaliações por Unidade Curricular");
 
         UnidadeCurricular uc = selecionarUC();
         if (uc == null) return;
@@ -97,17 +102,22 @@ public class AvaliacaoView {
 
     private void remover() {
         Utils.limparEcra();
-        System.out.println("\n--- Remover Avaliação ---");
+        Utils.tituloPagina("Remover Avaliação");
         ArrayList<Avaliacao> lista = avaliacaoController.listarAvaliacoes();
         if (lista.isEmpty()) { System.out.println("  (sem avaliações registadas)"); Utils.pausar(scanner); return; }
-        for (Avaliacao a : lista) { System.out.println(a + "\n"); }
 
-        Date data = Utils.lerDataAvaliacao("Data da avaliação a remover (DD/MM/AAAA): ", scanner);
-        Avaliacao alvo = null;
-        for (Avaliacao a : lista) {
-            if (a.getData().equals(data)) { alvo = a; break; }
+        for (int i = 0; i < lista.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + lista.get(i));
         }
-        if (alvo == null) { System.out.println("  [!] Avaliação não encontrada."); Utils.pausar(scanner); return; }
+
+        int escolha = Utils.lerInteiro("  Selecione a avaliação a remover (0 para voltar): ", scanner);
+        if (escolha == 0) return;
+        if (escolha < 1 || escolha > lista.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        Avaliacao alvo = lista.get(escolha - 1);
 
         String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover esta avaliação? (S/N): ", scanner);
         if (!confirmar.equalsIgnoreCase("S")) {
@@ -129,15 +139,29 @@ public class AvaliacaoView {
         }
         System.out.println("  UCs disponíveis:");
         for (int i = 0; i < ucs.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + ucs.get(i).getNome()
-                    + " (Ano " + ucs.get(i).getAnoCurricular() + ")");
+            UnidadeCurricular uc = ucs.get(i);
+            System.out.println("  " + (i + 1) + ". " + uc.getNome()
+                    + " (Ano " + uc.getAnoCurricular() + ")"
+                    + " — " + cursosComUC(uc));
         }
-        int escolha = Utils.lerInteiro("Selecione a UC (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
         if (escolha < 1 || escolha > ucs.size()) {
             System.out.println("  [!] Opção inválida.");
             Utils.pausar(scanner);
             return null;
         }
         return ucs.get(escolha - 1);
+    }
+
+    private String cursosComUC(UnidadeCurricular uc) {
+        StringBuilder sb = new StringBuilder();
+        for (Curso c : cursoController.listarCursos()) {
+            if (c.getUnidades().contains(uc)) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(c.getNomeCurso());
+            }
+        }
+        return sb.length() > 0 ? sb.toString() : "(sem curso)";
     }
 }

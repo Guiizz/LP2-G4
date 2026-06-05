@@ -64,7 +64,7 @@ public class CursoView {
     }
 
     private void registar() {
-        System.out.println("\n--- Registar Curso --- (0 para cancelar)");
+        Utils.tituloPagina("Registar Curso");
 
         ArrayList<Departamento> deptos = departamentoController.listarDepartamentos();
         if (deptos.isEmpty()) {
@@ -91,7 +91,7 @@ public class CursoView {
 
     private void listar() {
         Utils.limparEcra();
-        System.out.println("\n--- Lista de Cursos ---");
+        Utils.tituloPagina("Lista de Cursos");
         ArrayList<Curso> lista = cursoController.listarCursos();
         if (lista.isEmpty()) { System.out.println("  (sem cursos registados)"); Utils.pausar(scanner); return; }
         for (Curso c : lista) { System.out.println(c + "\n"); }
@@ -100,7 +100,7 @@ public class CursoView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.println("\n--- Procurar Curso ---");
+        Utils.tituloPagina("Procurar Curso");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
         System.out.println("\n" + c);
@@ -108,7 +108,7 @@ public class CursoView {
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Nome de Curso ---");
+        Utils.tituloPagina("Atualizar Nome de Curso");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
         String novoNome = Utils.lerCampo("Novo nome: ", scanner);
@@ -118,7 +118,7 @@ public class CursoView {
     }
 
     private void remover() {
-        System.out.println("\n--- Remover Curso ---");
+        Utils.tituloPagina("Remover Curso");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
 
@@ -134,7 +134,7 @@ public class CursoView {
     }
 
     private void adicionarUC(Curso c) {
-        System.out.println("\n--- Adicionar UC ao Curso '" + c.getNomeCurso() + "' ---");
+        Utils.tituloPagina("Adicionar UC ao Curso '" + c.getNomeCurso() + "'");
 
         System.out.println("\n  Vagas por ano no curso '" + c.getNomeCurso() + "':");
         for (int ano = 1; ano <= 3; ano++) {
@@ -153,8 +153,13 @@ public class CursoView {
 
     private void listarUCsPorAno(Curso c) {
         Utils.limparEcra();
-        System.out.println("\n--- UCs do Curso '" + c.getNomeCurso() + "' por Ano ---");
-        int ano = Utils.lerInteiro("Ano curricular (1, 2 ou 3): ", scanner);
+        Utils.tituloPagina("UCs do Curso '" + c.getNomeCurso() + "' por Ano");
+        System.out.println("  1. Ano 1");
+        System.out.println("  2. Ano 2");
+        System.out.println("  3. Ano 3");
+        int ano = Utils.lerInteiro("  Selecione o ano curricular (0 para voltar): ", scanner);
+        if (ano == 0) return;
+        if (ano < 1 || ano > 3) { System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return; }
         List<UnidadeCurricular> ucs = cursoController.listarUCsPorAno(c, ano);
         if (ucs.isEmpty()) { System.out.println("  (sem UCs para o ano " + ano + ")"); Utils.pausar(scanner); return; }
         for (UnidadeCurricular uc : ucs) { System.out.println("  - " + uc.getNome()); }
@@ -162,7 +167,7 @@ public class CursoView {
     }
 
     private void atualizarPropina(Curso c) {
-        System.out.println("\n--- Atualizar Valor de Propina: " + c.getNomeCurso() + " ---");
+        Utils.tituloPagina("Atualizar Propina: " + c.getNomeCurso());
         System.out.printf("  Propina atual: %.2f €%n", c.getValorPropina());
         System.out.println("  (Enter para cancelar)");
         double novoValor = Utils.lerDouble("Novo valor da propina (€): ", scanner);
@@ -172,7 +177,7 @@ public class CursoView {
     }
 
     private void iniciarCurso() {
-        System.out.println("\n--- Iniciar Curso ---");
+        Utils.tituloPagina("Iniciar Curso");
         Curso c = selecionarCurso("Cursos disponíveis (apenas PENDENTE)");
         if (c == null) return;
 
@@ -209,7 +214,7 @@ public class CursoView {
 
     private void listarAlunosInscritos(Curso c) {
         Utils.limparEcra();
-        System.out.println("\n--- Alunos Inscritos: " + c.getNomeCurso() + " ---");
+        Utils.tituloPagina("Alunos Inscritos: " + c.getNomeCurso());
 
         List<Estudante> todosEstudantes = estudanteController.listarEstudante();
         List<Estudante> inscritos = cursoController.listarEstudantesInscritos(c, todosEstudantes);
@@ -273,10 +278,13 @@ public class CursoView {
         }
         System.out.println("\n  " + titulo + ":");
         for (int i = 0; i < cursos.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + cursos.get(i).getNomeCurso()
-                    + " [" + cursos.get(i).getEstado() + "]");
+            Curso c = cursos.get(i);
+            String dept = c.getDepartamento() != null ? c.getDepartamento().getNome() : "sem dept.";
+            System.out.println("  " + (i + 1) + ". " + c.getNomeCurso()
+                    + " [" + c.getEstado() + "] — " + dept);
         }
-        int escolha = Utils.lerInteiro("Selecione o curso (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
         if (escolha < 1 || escolha > cursos.size()) {
             System.out.println("  [!] Opção inválida.");
             Utils.pausar(scanner);

@@ -56,14 +56,14 @@ public class EstudanteView {
 
     private void verFicha(Estudante estudante) {
         Utils.limparEcra();
-        System.out.println("\n--- A minha Ficha ---");
+        Utils.tituloPagina("A minha Ficha");
         System.out.println(estudante.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void verAvaliacoes(Estudante estudante) {
         Utils.limparEcra();
-        System.out.println("\n--- As minhas Avaliações ---");
+        Utils.tituloPagina("As minhas Avaliações");
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
         if (inscricoes.isEmpty()) {
             System.out.println("  (sem inscrições registadas)");
@@ -95,7 +95,7 @@ public class EstudanteView {
     }
 
     private void atualizar(Estudante estudante) {
-        System.out.println("\n--- Atualizar a minha Morada --- (0 para cancelar)");
+        Utils.tituloPagina("Atualizar a minha Morada");
         System.out.println("  Nome, nº mecanográfico, email, NIF e data de nascimento não são editáveis.");
         System.out.println("  Morada atual: " + estudante.getMorada());
 
@@ -107,7 +107,7 @@ public class EstudanteView {
     }
 
     private void alterarPassword(Estudante estudante) {
-        System.out.println("\n--- Alterar Password ---");
+        Utils.tituloPagina("Alterar Password");
         System.out.print("  Password atual: ");
         String atual = lerPasswordMascarada();
         System.out.print("  Nova password : ");
@@ -141,7 +141,7 @@ public class EstudanteView {
 
     private void verPropinas(Estudante estudante) {
         Utils.limparEcra();
-        System.out.println("\n--- As minhas Propinas ---");
+        Utils.tituloPagina("As minhas Propinas");
 
         Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(estudante);
         if (inscricaoAtual == null) {

@@ -52,7 +52,7 @@ public class GestorMenuView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        System.out.println("\n--- Registar Gestor --- (0 para cancelar)");
+        Utils.tituloPagina("Registar Gestor");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
         String nif = Utils.lerNif("NIF: ", scanner);
@@ -68,7 +68,7 @@ public class GestorMenuView {
 
     private void listar() {
         Utils.limparEcra();
-        System.out.println("\n--- Lista de Gestores ---");
+        Utils.tituloPagina("Lista de Gestores");
         ArrayList<Gestor> gestores = gestorController.listarGestores();
         if (gestores.isEmpty()) { System.out.println("  (sem gestores registados)"); Utils.pausar(scanner); return; }
         for (Gestor g : gestores) { System.out.println(g + "\n"); }
@@ -77,20 +77,17 @@ public class GestorMenuView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.print("\nNIF do gestor: ");
-        String nif = scanner.nextLine().trim();
-        Gestor g = gestorController.procurarPorNif(nif);
-        if (g == null) { System.out.println("  [!] Gestor não encontrado."); Utils.pausar(scanner); return; }
+        Utils.tituloPagina("Procurar Gestor");
+        Gestor g = selecionarGestor();
+        if (g == null) return;
         System.out.println("\n" + g.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Gestor --- (0 para cancelar)");
-        System.out.print("NIF do gestor a atualizar: ");
-        String nif = scanner.nextLine().trim();
-        Gestor g = gestorController.procurarPorNif(nif);
-        if (g == null) { System.out.println("  [!] Gestor não encontrado."); Utils.pausar(scanner); return; }
+        Utils.tituloPagina("Atualizar Gestor");
+        Gestor g = selecionarGestor();
+        if (g == null) return;
 
         System.out.println("  Dados atuais: " + g.getNome() + " | " + g.getMorada());
         String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
@@ -105,10 +102,9 @@ public class GestorMenuView {
     }
 
     private void remover() {
-        System.out.print("\nNIF do gestor a remover: ");
-        String nif = scanner.nextLine().trim();
-        Gestor g = gestorController.procurarPorNif(nif);
-        if (g == null) { System.out.println("  [!] Gestor não encontrado."); Utils.pausar(scanner); return; }
+        Utils.tituloPagina("Remover Gestor");
+        Gestor g = selecionarGestor();
+        if (g == null) return;
 
         String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o gestor '" + g.getNome() + "'? (S/N): ", scanner);
         if (!confirmar.equalsIgnoreCase("S")) {
@@ -116,9 +112,31 @@ public class GestorMenuView {
             Utils.pausar(scanner);
             return;
         }
-        gestorController.removerGestor(nif);
+        gestorController.removerGestor(g.getNif());
         System.out.println("  [✓] Gestor removido com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private Gestor selecionarGestor() {
+        ArrayList<Gestor> lista = gestorController.listarGestores();
+        if (lista.isEmpty()) {
+            System.out.println("  [!] Não existem gestores registados.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("\n  Gestores registados:");
+        for (int i = 0; i < lista.size(); i++) {
+            Gestor g = lista.get(i);
+            System.out.println("  " + (i + 1) + ". " + g.getNome() + " (" + g.getNif() + ") — " + g.getEmail());
+        }
+        int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
+        if (escolha < 1 || escolha > lista.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return lista.get(escolha - 1);
     }
 
     private String lerPassword() {

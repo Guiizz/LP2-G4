@@ -348,29 +348,26 @@ public class Utils {
     // ── Menu ──────────────────────────────────────────────────────────────────
 
     public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
-        int larguraMaxima = ("  " + titulo).length();
+        int larguraMaxima = titulo.length() + 4;
 
         for (int i = 0; i < opcoes.length; i++) {
             String linhaOpcao = "  " + (i + 1) + " - " + opcoes[i];
-            if (linhaOpcao.length() > larguraMaxima) {
-                larguraMaxima = linhaOpcao.length();
-            }
+            if (linhaOpcao.length() > larguraMaxima) larguraMaxima = linhaOpcao.length();
         }
 
         String linhaSair = "  0 - Voltar / Sair";
-        if (linhaSair.length() > larguraMaxima) {
-            larguraMaxima = linhaSair.length();
-        }
+        if (linhaSair.length() > larguraMaxima) larguraMaxima = linhaSair.length();
 
-        final int LARGURA = Math.max(38, larguraMaxima + 2);
+        final int LARGURA = Math.max(42, larguraMaxima + 2);
 
         while (true) {
             System.out.println("\n╔" + "═".repeat(LARGURA) + "╗");
-            System.out.println("║" + padDir("  " + titulo, LARGURA) + "║");
+            System.out.println("║" + centrar(titulo, LARGURA) + "║");
             System.out.println("╠" + "═".repeat(LARGURA) + "╣");
             for (int i = 0; i < opcoes.length; i++) {
                 System.out.println("║" + padDir("  " + (i + 1) + " - " + opcoes[i], LARGURA) + "║");
             }
+            System.out.println("╠" + "═".repeat(LARGURA) + "╣");
             System.out.println("║" + padDir("  0 - Voltar / Sair", LARGURA) + "║");
             System.out.println("╚" + "═".repeat(LARGURA) + "╝");
             System.out.print("  Opção: ");
@@ -378,13 +375,31 @@ public class Utils {
             String linha = scanner.nextLine().trim();
             try {
                 int opcao = Integer.parseInt(linha);
-                if (opcao >= 0 && opcao <= opcoes.length) {
-                    return opcao;
-                }
+                if (opcao >= 0 && opcao <= opcoes.length) return opcao;
             } catch (NumberFormatException ignored) {}
 
             System.out.println("  [!] Opção inválida. Tente novamente.");
         }
+    }
+
+    public static void tituloPagina(String titulo) {
+        int largura = Math.max(36, titulo.length() + 4);
+        System.out.println("\n  ┌" + "─".repeat(largura) + "┐");
+        System.out.println("  │" + centrar(titulo, largura) + "│");
+        System.out.println("  └" + "─".repeat(largura) + "┘");
+    }
+
+    private static String centrar(String texto, int largura) {
+        int len = texto.codePointCount(0, texto.length());
+        int pad = largura - len;
+        if (pad <= 0) return padDir(texto, largura);
+        int esq = pad / 2;
+        int dir = pad - esq;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < esq; i++) sb.append(' ');
+        sb.append(texto);
+        for (int i = 0; i < dir; i++) sb.append(' ');
+        return sb.toString();
     }
 
     private static String padDir(String texto, int largura) {
@@ -392,9 +407,7 @@ public class Utils {
         int espacos = largura - visualLen;
         if (espacos < 0) espacos = 0;
         StringBuilder sb = new StringBuilder(texto);
-        for (int i = 0; i < espacos; i++) {
-            sb.append(' ');
-        }
+        for (int i = 0; i < espacos; i++) sb.append(' ');
         return sb.toString();
     }
 

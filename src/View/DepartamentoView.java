@@ -1,6 +1,8 @@
 package View;
 
+import Controller.CursoController;
 import Controller.DepartamentoController;
+import Model.Curso;
 import Model.Departamento;
 import Utils.Utils;
 
@@ -10,18 +12,22 @@ import java.util.Scanner;
 public class DepartamentoView {
 
     private final DepartamentoController departamentoController;
-    private final Scanner scanner;
+    private final CursoController        cursoController;
+    private final Scanner                scanner;
 
-    public DepartamentoView(DepartamentoController departamentoController, Scanner scanner) {
+    public DepartamentoView(DepartamentoController departamentoController,
+                            CursoController cursoController,
+                            Scanner scanner) {
         this.departamentoController = departamentoController;
-        this.scanner = scanner;
+        this.cursoController        = cursoController;
+        this.scanner                = scanner;
     }
 
     public void iniciar() {
         String[] opcoes = {
                 "Registar Departamento",
                 "Listar Departamentos",
-                "Procurar Departamento por Sigla",
+                "Procurar Departamento",
                 "Atualizar Departamento",
                 "Remover Departamento"
         };
@@ -33,10 +39,10 @@ public class DepartamentoView {
             try {
                 switch (opcao) {
                     case 1: registar(); break;
-                    case 2: listar(); break;
+                    case 2: listar();   break;
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
-                    case 5: remover(); break;
+                    case 5: remover();  break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -47,7 +53,7 @@ public class DepartamentoView {
     }
 
     private void registar() {
-        System.out.println("\n--- Registar Departamento --- (0 para cancelar)");
+        Utils.tituloPagina("Registar Departamento");
         String nome  = Utils.lerNome("Nome: ", scanner);
         String sigla = Utils.lerSigla("Sigla (3 Letras): ", scanner);
 
@@ -58,24 +64,33 @@ public class DepartamentoView {
 
     private void listar() {
         Utils.limparEcra();
-        System.out.println("\n--- Lista de Departamentos ---");
+        Utils.tituloPagina("Lista de Departamentos");
         ArrayList<Departamento> lista = departamentoController.listarDepartamentos();
-        if (lista.isEmpty()) { System.out.println("  (sem departamentos registados)"); Utils.pausar(scanner); return; }
-        for (Departamento d : lista) { System.out.println(d + "\n"); }
+        if (lista.isEmpty()) {
+            System.out.println("  (sem departamentos registados)");
+            Utils.pausar(scanner);
+            return;
+        }
+        for (Departamento d : lista) {
+            System.out.println("\n  " + d.getNome() + " (" + d.getSigla() + ")");
+            mostrarCursosDoDepartamento(d);
+        }
+        System.out.println();
         Utils.pausar(scanner);
     }
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.println("\n--- Procurar Departamento ---");
+        Utils.tituloPagina("Procurar Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
-        System.out.println("\n" + d);
+        System.out.println("\n  " + d.getNome() + " (" + d.getSigla() + ")");
+        mostrarCursosDoDepartamento(d);
         Utils.pausar(scanner);
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Departamento ---");
+        Utils.tituloPagina("Atualizar Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         System.out.println("  Dados atuais: " + d.getNome() + " (" + d.getSigla() + ")");
@@ -87,7 +102,7 @@ public class DepartamentoView {
     }
 
     private void remover() {
-        System.out.println("\n--- Remover Departamento ---");
+        Utils.tituloPagina("Remover Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover '" + d.getNome() + "'? (S/N): ", scanner);
@@ -101,6 +116,18 @@ public class DepartamentoView {
         Utils.pausar(scanner);
     }
 
+    private void mostrarCursosDoDepartamento(Departamento d) {
+        ArrayList<Curso> cursos = cursoController.listarCursosPorDepartamento(d);
+        if (cursos.isEmpty()) {
+            System.out.println("  Cursos: (sem cursos associados)");
+        } else {
+            System.out.println("  Cursos:");
+            for (Curso c : cursos) {
+                System.out.println("    - " + c.getNomeCurso() + " [" + c.getEstado() + "]");
+            }
+        }
+    }
+
     private Departamento selecionarDepartamento() {
         ArrayList<Departamento> lista = departamentoController.listarDepartamentos();
         if (lista.isEmpty()) {
@@ -110,8 +137,10 @@ public class DepartamentoView {
         }
         System.out.println("\n  Departamentos disponíveis:");
         for (int i = 0; i < lista.size(); i++) {
+            ArrayList<Curso> cursos = cursoController.listarCursosPorDepartamento(lista.get(i));
             System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
-                    + " (" + lista.get(i).getSigla() + ")");
+                    + " (" + lista.get(i).getSigla() + ")"
+                    + " — " + cursos.size() + " curso(s)");
         }
         int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
         if (escolha == 0) return null;

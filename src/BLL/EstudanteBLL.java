@@ -120,14 +120,7 @@ public class EstudanteBLL {
 
     public Estudante procurarPorNif(String nif) {
         Utils.validarNif(nif);
-
-        Estudante estudante = estudanteDAL.procurarPorNif(nif);
-
-        if (estudante == null) {
-            throw new IllegalArgumentException("Estudante não encontrado com o nif: " + nif);
-        }
-
-        return estudante;
+        return estudanteDAL.procurarPorNif(nif);
     }
 
     public Estudante autenticarEmail(String email, String password) {
@@ -335,9 +328,7 @@ public class EstudanteBLL {
             throw new IllegalArgumentException("O estudante não pode ser nulo.");
         }
 
-        if (indiceMomento < 0) {
-            Utils.validarIndiceMomento(indiceMomento, uc != null ? uc.getNome() : "desconhecida");
-        }
+        Utils.validarIndiceMomento(indiceMomento, uc != null ? uc.getNome() : "desconhecida");
 
         if (uc != null) {
             if (!uc.isAtiva()) {
