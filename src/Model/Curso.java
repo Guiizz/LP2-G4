@@ -100,12 +100,33 @@ public class Curso {
      */
     @Override
     public String toString() {
-        return "=== Curso ===\n" +
-                "Nome do Curso: " + nomeCurso + "\n" +
-                "Departamento: " + (departamento != null ? departamento.getNome() : "Sem departamento") + "\n" +
-                "Duracao:" + duracao + " anos\n" +
-                "Propina anual: " + String.format("%.2f €", valorPropina) + "\n" +
-                "Unidades:" + unidades.size() + "\n" +
-                "=============";
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== Curso ===\n");
+        sb.append("Nome       : ").append(nomeCurso).append("\n");
+        sb.append("Departamento: ").append(departamento != null ? departamento.getNome() : "Sem departamento").append("\n");
+        sb.append("Duração    : ").append(duracao).append(" anos\n");
+        sb.append("Propina    : ").append(String.format("%.2f €", valorPropina)).append("\n");
+        sb.append("Estado     : ").append(estado != null ? estado : "PENDENTE").append("\n");
+        sb.append("UCs (").append(unidades.size()).append("):\n");
+        if (unidades.isEmpty()) {
+            sb.append("  (sem UCs associadas)\n");
+        } else {
+            for (int ano = 1; ano <= duracao; ano++) {
+                sb.append("  Ano ").append(ano).append(": ");
+                boolean temUC = false;
+                for (UnidadeCurricular uc : unidades) {
+                    if (uc.getAnoCurricular() == ano) {
+                        if (temUC) sb.append(", ");
+                        sb.append(uc.getNome());
+                        if (uc.isAtiva()) sb.append(" [A]");
+                        temUC = true;
+                    }
+                }
+                if (!temUC) sb.append("(sem UCs)");
+                sb.append("\n");
+            }
+        }
+        sb.append("=============");
+        return sb.toString();
     }
 }

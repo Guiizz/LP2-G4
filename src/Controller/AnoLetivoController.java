@@ -5,6 +5,7 @@ import Model.AnoLetivo;
 import Model.Estudante;
 import Model.RelatorioFechoAnoLetivo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AnoLetivoController {
@@ -29,5 +30,13 @@ public class AnoLetivoController {
 
     public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes) {
         return anoLetivoBLL.fecharAnoAtual(estudantes);
+    }
+
+    public ArrayList<AnoLetivo> listarTodos() {
+        return anoLetivoBLL.listarTodos();
+    }
+
+    public void removerAnoLetivo(int ano) {
+        anoLetivoBLL.removerAnoLetivo(ano);
     }
 }

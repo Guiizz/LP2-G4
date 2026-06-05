@@ -37,6 +37,10 @@ public class UnidadeCurricularController {
         unidadeCurricularBLL.adicionarMomento(uc, nome, peso);
     }
 
+    public void removerMomento(UnidadeCurricular uc, int indice) {
+        unidadeCurricularBLL.removerMomento(uc, indice);
+    }
+
     public void iniciarUC(UnidadeCurricular uc) {
         unidadeCurricularBLL.iniciarUC(uc);
     }

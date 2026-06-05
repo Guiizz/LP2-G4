@@ -83,11 +83,17 @@ public class UnidadeCurricularDAL {
             if (!momentosStr.isBlank()) {
                 for (String parte : momentosStr.split("\\|")) {
                     String[] mv = parte.split(":");
-                    if (mv.length == 2) {
-                        try {
-                            uc.adicionarMomento(new MomentoAvaliacao(mv[0], Double.parseDouble(mv[1])));
-                        } catch (NumberFormatException ignored) {}
-                    }
+                    try {
+                        if (mv.length == 3) {
+                            // novo formato: nome:peso:anoLetivo
+                            uc.adicionarMomento(new MomentoAvaliacao(
+                                    mv[0], Double.parseDouble(mv[1]), Integer.parseInt(mv[2])));
+                        } else if (mv.length == 2) {
+                            // formato legado: nome:peso  →  anoLetivo = 0
+                            uc.adicionarMomento(new MomentoAvaliacao(
+                                    mv[0], Double.parseDouble(mv[1]), 0));
+                        }
+                    } catch (NumberFormatException ignored) {}
                 }
             }
 
@@ -107,7 +113,9 @@ public class UnidadeCurricularDAL {
                     List<MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
                     for (int i = 0; i < momentos.size(); i++) {
                         MomentoAvaliacao m = momentos.get(i);
-                        momentosSB.append(m.getNome().replace("|", "-").replace(":", "-")).append(":").append(m.getPeso());
+                        momentosSB.append(m.getNome().replace("|", "-").replace(":", "-"))
+                              .append(":").append(m.getPeso())
+                              .append(":").append(m.getAnoLetivo());
                         if (i < momentos.size() - 1) momentosSB.append("|");
                     }
                 }

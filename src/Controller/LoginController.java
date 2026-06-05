@@ -25,9 +25,9 @@ public class LoginController {
         GestorDAL gestorDAL = new GestorDAL();
         AnoLetivoDAL anoLetivoDAL = new AnoLetivoDAL();
 
-        UnidadeCurricularBLL ucBLL = new UnidadeCurricularBLL(ucDAL);
+        UnidadeCurricularBLL ucBLL = new UnidadeCurricularBLL(ucDAL, anoLetivoDAL);
         DepartamentoBLL depBLL = new DepartamentoBLL(depDAL);
-        CursoBLL cursoBLL = new CursoBLL(cursoDAL, estudanteDAL);
+        CursoBLL cursoBLL = new CursoBLL(cursoDAL, estudanteDAL, anoLetivoDAL, ucDAL);
         DocenteBLL docenteBLL = new DocenteBLL(docenteDAL, estudanteDAL);
         EstudanteBLL estBLL = new EstudanteBLL(estudanteDAL, docenteDAL, anoLetivoDAL);
         GestorBLL gestorBLL = new GestorBLL(gestorDAL);

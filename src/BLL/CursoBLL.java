@@ -1,7 +1,9 @@
 package BLL;
 
+import DAL.AnoLetivoDAL;
 import DAL.CursoDAL;
 import DAL.EstudanteDAL;
+import DAL.UnidadeCurricularDAL;
 import Model.*;
 import Utils.Utils;
 
@@ -14,16 +16,26 @@ import java.util.List;
  */
 public class CursoBLL {
 
-    private CursoDAL    cursoDAL;
-    private EstudanteDAL estudanteDAL;
+    private CursoDAL              cursoDAL;
+    private EstudanteDAL          estudanteDAL;
+    private AnoLetivoDAL          anoLetivoDAL;
+    private UnidadeCurricularDAL  unidadeCurricularDAL;
 
     private static final int QUORUM_MINIMO   = 5;
     private static final int MAX_UCS_POR_ANO = 5;
     private static final int DURACAO_CURSO   = 3;
 
+    public CursoBLL(CursoDAL cursoDAL, EstudanteDAL estudanteDAL,
+                    AnoLetivoDAL anoLetivoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+        this.cursoDAL             = cursoDAL;
+        this.estudanteDAL         = estudanteDAL;
+        this.anoLetivoDAL         = anoLetivoDAL;
+        this.unidadeCurricularDAL = unidadeCurricularDAL;
+    }
+
+    /** Construtor de compatibilidade — cria os DAL extra com configuração padrão. */
     public CursoBLL(CursoDAL cursoDAL, EstudanteDAL estudanteDAL) {
-        this.cursoDAL     = cursoDAL;
-        this.estudanteDAL = estudanteDAL;
+        this(cursoDAL, estudanteDAL, new AnoLetivoDAL(), new UnidadeCurricularDAL());
     }
 
     // -------------------------------------------------------------------------
@@ -60,7 +72,11 @@ public class CursoBLL {
         }
         Utils.validarNome(novoNome);
 
-        validarCursoNaoAlocado(curso, estudantes, "alterar");
+        if (temEstudantesAlocados(curso, estudantes) || temDocentesAlocados(curso)) {
+            throw new IllegalArgumentException(
+                    "Não é possível alterar o curso '" + curso.getNomeCurso() +
+                            "' porque tem estudantes ou docentes alocados.");
+        }
 
         Curso existente = procurarPorNome(novoNome);
         if (existente != null && existente != curso) {
@@ -82,7 +98,11 @@ public class CursoBLL {
             throw new IllegalArgumentException("O curso não pode ser nulo.");
         }
 
-        validarCursoNaoAlocado(curso, estudantes, "remover");
+        if (temEstudantesAlocados(curso, estudantes) || temDocentesAlocados(curso)) {
+            throw new IllegalArgumentException(
+                    "Não é possível remover o curso '" + curso.getNomeCurso() +
+                            "' porque tem estudantes ou docentes alocados.");
+        }
 
         cursoDAL.removerCurso(curso);
     }
@@ -142,9 +162,10 @@ public class CursoBLL {
                     "A unidade curricular '" + uc.getNome() + "' já está registada neste curso.");
         }
 
-        long ucsNesteAno = curso.getUnidades().stream()
-                .filter(u -> u.getAnoCurricular() == uc.getAnoCurricular())
-                .count();
+        int ucsNesteAno = 0;
+        for (UnidadeCurricular u : curso.getUnidades()) {
+            if (u.getAnoCurricular() == uc.getAnoCurricular()) ucsNesteAno++;
+        }
 
         if (ucsNesteAno >= MAX_UCS_POR_ANO) {
             throw new IllegalArgumentException(
@@ -183,7 +204,7 @@ public class CursoBLL {
             return false;
         }
         for (Estudante e : estudantes) {
-            for (var inscricao : e.getInscricoes()) {
+            for (Inscricao inscricao : e.getInscricoes()) {
                 if (inscricao.getCurso() != null && inscricao.getCurso().equals(curso)) {
                     return true;
                 }
@@ -193,24 +214,15 @@ public class CursoBLL {
     }
 
     public boolean temDocentesAlocados(Curso curso) {
-        if (curso == null || curso.getUnidades() == null) return false;
+        if (curso == null || curso.getUnidades() == null) {
+            return false;
+        }
         for (UnidadeCurricular uc : curso.getUnidades()) {
-            if (uc.temDocenteResponsavel()) return true;
+            if (uc.temDocenteResponsavel()) {
+                return true;
+            }
         }
         return false;
-    }
-
-    private void validarCursoNaoAlocado(Curso curso, List<Estudante> estudantes, String operacao) {
-        if (temEstudantesAlocados(curso, estudantes)) {
-            throw new IllegalArgumentException(
-                    "Não é possível " + operacao + " o curso '" + curso.getNomeCurso() +
-                            "' porque tem estudantes alocados.");
-        }
-        if (temDocentesAlocados(curso)) {
-            throw new IllegalArgumentException(
-                    "Não é possível " + operacao + " o curso '" + curso.getNomeCurso() +
-                            "' porque tem docentes alocados.");
-        }
     }
 
     public int vagasUCsDisponiveis(Curso curso, int anoCurricular) {
@@ -222,13 +234,23 @@ public class CursoBLL {
                     "O ano curricular deve estar entre 1 e " + DURACAO_CURSO + ".");
         }
 
-        long ucsNesteAno = curso.getUnidades().stream()
-                .filter(u -> u.getAnoCurricular() == anoCurricular)
-                .count();
-
-        return (int) (MAX_UCS_POR_ANO - ucsNesteAno);
+        int ucsNesteAno = 0;
+        for (UnidadeCurricular u : curso.getUnidades()) {
+            if (u.getAnoCurricular() == anoCurricular) ucsNesteAno++;
+        }
+        return MAX_UCS_POR_ANO - ucsNesteAno;
     }
 
+    /**
+     * Inicia um curso: valida todas as pré-condições, muda o estado para ATIVO,
+     * activa as UCs elegíveis e actualiza as propinas de todos os alunos inscritos.
+     *
+     * Pré-condições verificadas:
+     *  1. Curso existe e está em estado PENDENTE.
+     *  2. Existe um ano letivo aberto.
+     *  3. O curso tem pelo menos uma UC associada.
+     *  4. O quórum mínimo de alunos inscritos está cumprido.
+     */
     public void iniciarCurso(Curso curso, List<Estudante> estudantes) {
         if (curso == null) {
             throw new IllegalArgumentException("Curso não encontrado.");
@@ -236,6 +258,8 @@ public class CursoBLL {
         if (estudantes == null) {
             throw new IllegalArgumentException("Lista de estudantes inválida.");
         }
+
+        // 1 — Estado
         if (curso.getEstado() == null) {
             curso.setEstado("PENDENTE");
         }
@@ -243,39 +267,189 @@ public class CursoBLL {
             throw new IllegalArgumentException("Só é possível iniciar cursos no estado PENDENTE.");
         }
 
-        int numeroInscritos = contarEstudantesInscritosNoCurso(curso, estudantes);
+        // 2 — Ano letivo aberto
+        AnoLetivo anoAtual = anoLetivoDAL.procurarAnoAberto();
+        if (anoAtual == null) {
+            throw new IllegalArgumentException(
+                    "Não é possível iniciar o curso: não existe ano letivo aberto.\n"
+                    + "  Abra um ano letivo antes de iniciar o curso.");
+        }
 
-        boolean primeiroAnoLetivo = estudantes.stream()
-                .flatMap(e -> e.getInscricoes().stream())
-                .filter(i -> i.getCurso() != null
-                        && i.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso()))
-                .noneMatch(i -> i.getAnoDeCurso() > 1);
+        // 3 — Curso tem pelo menos 1 UC por cada ano curricular (1, 2 e 3)
+        validarUCsPorAno(curso);
 
-        int quorumNecessario = primeiroAnoLetivo ? QUORUM_MINIMO : 1;
+        // 4 — Quórum
+        int numeroInscritos  = contarEstudantesInscritosNoCurso(curso, estudantes);
+        boolean primeiroAno  = isPrimeiroAnoLetivoDoCurso(curso, estudantes);
+        int quorumNecessario = primeiroAno ? QUORUM_MINIMO : 1;
+
         if (numeroInscritos < quorumNecessario) {
             throw new IllegalArgumentException(
-                    "Número mínimo de " + quorumNecessario + " estudante(s) não atingido " +
-                            (primeiroAnoLetivo ? "(1.º ano letivo do curso)" : "(anos seguintes)") +
-                            ". Inscritos: " + numeroInscritos + ".");
+                    "Número mínimo de " + quorumNecessario + " estudante(s) não atingido "
+                    + (primeiroAno ? "(1.º ano letivo do curso)" : "(anos seguintes)")
+                    + ". Inscritos: " + numeroInscritos + ".");
         }
+
+        // — Mudar estado para ATIVO e persistir
+        curso.setEstado("ATIVO");
+        cursoDAL.atualizarCurso(curso);
+
+        // — Activar UCs do curso que já têm momentos configurados corretamente para este ano
+        ativarUCsElegiveis(curso, anoAtual.getAno());
+
+        // — Actualizar propinas e confirmar estado dos alunos inscritos
+        actualizarPropinasDosInscritos(curso, estudantes);
+        confirmarEstadoDosInscritos(curso, estudantes);
     }
 
-    public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {
-        if (curso == null || estudantes == null) {
-            return 0;
+    /**
+     * Valida que o curso tem pelo menos 1 UC por cada ano curricular (1, 2 e 3).
+     * O prof definiu este requisito explicitamente: "no mínimo uma UC por ano".
+     */
+    private void validarUCsPorAno(Curso curso) {
+        if (curso.getUnidades() == null || curso.getUnidades().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Não é possível iniciar o curso '" + curso.getNomeCurso()
+                    + "': não tem unidades curriculares associadas.");
         }
-        int contador = 0;
-        for (Estudante estudante : estudantes) {
-            if (estudante.getInscricoes() == null) continue;
-            for (Inscricao inscricao : estudante.getInscricoes()) {
-                if (inscricao.getCurso() != null &&
-                        inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) {
-                    contador++;
+        for (int ano = 1; ano <= DURACAO_CURSO; ano++) {
+            boolean temUC = false;
+            for (UnidadeCurricular uc : curso.getUnidades()) {
+                if (uc.getAnoCurricular() == ano) {
+                    temUC = true;
                     break;
                 }
             }
+            if (!temUC) {
+                throw new IllegalArgumentException(
+                        "Não é possível iniciar o curso '" + curso.getNomeCurso()
+                        + "': falta pelo menos uma UC no " + ano + ".º ano curricular.");
+            }
         }
-        return contador;
+    }
+
+    /**
+     * Confirma o estado de todos os alunos inscritos no curso:
+     * garante que estão ATIVO e com o ano actualizado a partir da sua inscrição.
+     * Persiste o estudante se houve alguma alteração.
+     */
+    private void confirmarEstadoDosInscritos(Curso curso, List<Estudante> estudantes) {
+        for (Estudante estudante : estudantes) {
+            if (estudante.getInscricoes() == null) continue;
+
+            boolean inscritoNesteCurso = false;
+            for (Inscricao inscricao : estudante.getInscricoes()) {
+                if (inscricao.getCurso() != null
+                        && inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) {
+                    inscritoNesteCurso = true;
+                    break;
+                }
+            }
+            if (!inscritoNesteCurso) continue;
+
+            boolean alterado = false;
+
+            if (!"ATIVO".equalsIgnoreCase(estudante.getEstado())
+                    && !"CONCLUIDO".equalsIgnoreCase(estudante.getEstado())) {
+                estudante.setEstado("ATIVO");
+                alterado = true;
+            }
+
+            // Garantir que o anoAtual corresponde ao ano da última inscrição neste curso
+            Inscricao ultimaInscricao = estudante.getInscricoes()
+                    .get(estudante.getInscricoes().size() - 1);
+            if (ultimaInscricao.getCurso() != null
+                    && ultimaInscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())
+                    && estudante.getAnoAtual() != ultimaInscricao.getAnoDeCurso()) {
+                estudante.setAnoAtual(ultimaInscricao.getAnoDeCurso());
+                alterado = true;
+            }
+
+            if (alterado) {
+                estudanteDAL.atualizarEstudante(estudante);
+            }
+        }
+    }
+
+    /**
+     * Activa todas as UCs do curso que ainda estão inactivas
+     * e já têm momentos válidos para o ano letivo actual.
+     */
+    private void ativarUCsElegiveis(Curso curso, int anoLetivo) {
+        for (UnidadeCurricular uc : curso.getUnidades()) {
+            if (!uc.isAtiva() && uc.momentosValidosParaAno(anoLetivo)) {
+                uc.setAtiva(true);
+                unidadeCurricularDAL.atualizarUnidade(uc);
+            }
+        }
+    }
+
+    /**
+     * Para cada aluno inscrito neste curso, actualiza o valor total da propina
+     * com o valor corrente configurado no curso (caso ainda não tenha sido paga).
+     * Persiste o estudante depois da actualização.
+     */
+    private void actualizarPropinasDosInscritos(Curso curso, List<Estudante> estudantes) {
+        for (Estudante estudante : estudantes) {
+            if (estudante.getInscricoes() == null) continue;
+
+            boolean alterado = false;
+            for (Inscricao inscricao : estudante.getInscricoes()) {
+                if (inscricao.getCurso() == null) continue;
+                if (!inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) continue;
+                if (inscricao.isPropinaPaga()) continue;
+
+                inscricao.getPropina().setValorTotal(curso.getValorPropina());
+                alterado = true;
+            }
+
+            if (alterado) {
+                estudanteDAL.atualizarEstudante(estudante);
+            }
+        }
+    }
+
+    /**
+     * Devolve true se todos os alunos inscritos neste curso estão no 1.º ano —
+     * ou seja, é o primeiro ano letivo do curso.
+     */
+    private boolean isPrimeiroAnoLetivoDoCurso(Curso curso, List<Estudante> estudantes) {
+        for (Estudante estudante : estudantes) {
+            if (estudante.getInscricoes() == null) continue;
+            for (Inscricao inscricao : estudante.getInscricoes()) {
+                if (inscricao.getCurso() == null) continue;
+                if (!inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) continue;
+                if (inscricao.getAnoDeCurso() > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Devolve a lista de estudantes inscritos num curso.
+     * Um estudante conta como inscrito se tiver pelo menos uma inscrição com aquele curso.
+     */
+    public List<Estudante> listarEstudantesInscritos(Curso curso, List<Estudante> estudantes) {
+        List<Estudante> inscritos = new ArrayList<>();
+        if (curso == null || estudantes == null) return inscritos;
+
+        for (Estudante estudante : estudantes) {
+            if (estudante.getInscricoes() == null) continue;
+            for (Inscricao inscricao : estudante.getInscricoes()) {
+                if (inscricao.getCurso() != null
+                        && inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) {
+                    inscritos.add(estudante);
+                    break; // um estudante só conta uma vez
+                }
+            }
+        }
+        return inscritos;
+    }
+
+    public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {
+        return listarEstudantesInscritos(curso, estudantes).size();
     }
 
     public void atualizarValorPropina(Curso curso, double novoValor) {

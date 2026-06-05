@@ -40,6 +40,16 @@ public class AnoLetivoDAL {
         return new ArrayList<>(anosLetivos);
     }
 
+    public void removerAnoLetivo(int ano) {
+        for (int i = 0; i < anosLetivos.size(); i++) {
+            if (anosLetivos.get(i).getAno() == ano) {
+                anosLetivos.remove(i);
+                guardarNoCSV();
+                return;
+            }
+        }
+    }
+
     public AnoLetivo procurarPorAno(int ano) {
         for (AnoLetivo a : anosLetivos) {
             if (a.getAno() == ano) return a;
