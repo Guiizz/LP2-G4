@@ -150,11 +150,7 @@ public class CursoBLL {
         if (uc == null) {
             throw new IllegalArgumentException("A unidade curricular não pode ser nula.");
         }
-        if (temEstudantesAlocados(curso, estudanteDAL.listarEstudantes())) {
-            throw new IllegalArgumentException(
-                    "Não é possível alterar o curso '" + curso.getNomeCurso() +
-                            "' porque tem estudantes alocados.");
-        }
+        validarCursoNaoAlocado(curso, estudanteDAL.listarEstudantes(), "alterar");
 
         if (uc.getAnoCurricular() < 1 || uc.getAnoCurricular() > DURACAO_CURSO) {
             throw new IllegalArgumentException(
