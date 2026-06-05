@@ -68,7 +68,7 @@ public class LoginView {
                 if (docente.isPrimeiroLogin()) {
                     tratarPrimeiroLoginDocente(docente);
                 }
-                new DocenteView(loginController.getDocenteController(), loginController.getEstudanteController(), loginController.getAvaliacaoController(), loginController.getUnidadeCurricularController(), loginController.getAnoLetivoController(), scanner).iniciar(docente);
+                new DocenteView(loginController.getDocenteController(), loginController.getEstudanteController(), loginController.getAvaliacaoController(), loginController.getUnidadeCurricularController(), loginController.getAnoLetivoController(), loginController.getCursoController(), scanner).iniciar(docente);
 
             } else if (prefixo.matches("\\d+")) {
                 Estudante estudante = loginController.getEstudanteController().autenticarEstudante(email, password);

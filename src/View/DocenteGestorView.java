@@ -1,8 +1,10 @@
 package View;
 
+import Controller.CursoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
+import Model.Curso;
 import Model.Docente;
 import Model.UnidadeCurricular;
 import Utils.Utils;
@@ -14,16 +16,20 @@ import java.util.Scanner;
 
 public class DocenteGestorView {
 
-    private final DocenteController docenteController;
-    private final EstudanteController estudanteController;
+    private final DocenteController           docenteController;
+    private final EstudanteController         estudanteController;
     private final UnidadeCurricularController unidadeCurricularController;
-    private final Scanner scanner;
+    private final CursoController             cursoController;
+    private final Scanner                     scanner;
 
-    public DocenteGestorView(DocenteController docenteController, EstudanteController estudanteController, UnidadeCurricularController unidadeCurricularController, Scanner scanner) {
-        this.docenteController = docenteController;
-        this.estudanteController = estudanteController;
+    public DocenteGestorView(DocenteController docenteController, EstudanteController estudanteController,
+                             UnidadeCurricularController unidadeCurricularController,
+                             CursoController cursoController, Scanner scanner) {
+        this.docenteController           = docenteController;
+        this.estudanteController         = estudanteController;
         this.unidadeCurricularController = unidadeCurricularController;
-        this.scanner = scanner;
+        this.cursoController             = cursoController;
+        this.scanner                     = scanner;
     }
 
     public void iniciar() {
@@ -58,7 +64,7 @@ public class DocenteGestorView {
     }
 
     private void registar() {
-        System.out.println("\n--- Registar Docente --- (0 para cancelar)");
+        Utils.tituloPagina("Registar Docente");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
 
@@ -91,7 +97,7 @@ public class DocenteGestorView {
 
     private void listar() {
         Utils.limparEcra();
-        System.out.println("\n--- Lista de Docentes ---");
+        Utils.tituloPagina("Lista de Docentes");
         ArrayList<Docente> lista = docenteController.listarDocentes();
         if (lista.isEmpty()) { System.out.println("  (sem docentes registados)"); Utils.pausar(scanner); return; }
         for (Docente d : lista) { System.out.println(d + "\n"); }
@@ -100,7 +106,7 @@ public class DocenteGestorView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.println("\n--- Procurar Docente ---");
+        Utils.tituloPagina("Procurar Docente");
         Docente d = selecionarDocente();
         if (d == null) return;
         System.out.println("\n" + d.toStringDetalhado());
@@ -108,7 +114,7 @@ public class DocenteGestorView {
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Docente ---");
+        Utils.tituloPagina("Atualizar Docente");
         Docente d = selecionarDocente();
         if (d == null) return;
 
@@ -125,7 +131,7 @@ public class DocenteGestorView {
     }
 
     private void remover() {
-        System.out.println("\n--- Remover Docente ---");
+        Utils.tituloPagina("Remover Docente");
         Docente d = selecionarDocente();
         if (d == null) return;
 
@@ -149,8 +155,10 @@ public class DocenteGestorView {
         }
         System.out.println("\n  Docentes registados:");
         for (int i = 0; i < lista.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
-                    + " (" + lista.get(i).getSigla() + ")");
+            Docente d = lista.get(i);
+            int numUCs = d.getUnidadesLecionadas() != null ? d.getUnidadesLecionadas().size() : 0;
+            System.out.println("  " + (i + 1) + ". " + d.getNome()
+                    + " (" + d.getSigla() + ") — " + numUCs + " UC(s)");
         }
         int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
         if (escolha == 0) return null;
@@ -163,7 +171,7 @@ public class DocenteGestorView {
     }
 
     private void atribuirDocente() {
-        System.out.println("\n--- Atribuir Docente Responsável ---");
+        Utils.tituloPagina("Atribuir Docente Responsável");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
@@ -201,7 +209,8 @@ public class DocenteGestorView {
             System.out.println("  " + (i + 1) + ". " + docentes.get(i).getNome()
                     + " (" + docentes.get(i).getSigla() + ")");
         }
-        int escolha = Utils.lerInteiro("Selecione o docente (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione o docente (0 para voltar): ", scanner);
+        if (escolha == 0) return;
         if (escolha < 1 || escolha > docentes.size()) {
             System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
         }
@@ -220,15 +229,29 @@ public class DocenteGestorView {
 
     private UnidadeCurricular selecionarUC(ArrayList<UnidadeCurricular> lista) {
         for (int i = 0; i < lista.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
-                    + " (Ano " + lista.get(i).getAnoCurricular() + ")");
+            UnidadeCurricular uc = lista.get(i);
+            System.out.println("  " + (i + 1) + ". " + uc.getNome()
+                    + " (Ano " + uc.getAnoCurricular() + ")"
+                    + " — " + cursosComUC(uc));
         }
-        int escolha = Utils.lerInteiro("Selecione a UC (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
         if (escolha < 1 || escolha > lista.size()) {
             System.out.println("  [!] Opção inválida.");
             Utils.pausar(scanner);
             return null;
         }
         return lista.get(escolha - 1);
+    }
+
+    private String cursosComUC(UnidadeCurricular uc) {
+        StringBuilder sb = new StringBuilder();
+        for (Curso c : cursoController.listarCursos()) {
+            if (c.getUnidades().contains(uc)) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(c.getNomeCurso());
+            }
+        }
+        return sb.length() > 0 ? sb.toString() : "(sem curso)";
     }
 }

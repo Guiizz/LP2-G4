@@ -2,6 +2,7 @@ package View;
 
 import Controller.AnoLetivoController;
 import Controller.AvaliacaoController;
+import Controller.CursoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
@@ -15,24 +16,27 @@ import java.util.Scanner;
 
 public class DocenteView {
 
-    private final DocenteController          docenteController;
-    private final EstudanteController        estudanteController;
-    private final AvaliacaoController        avaliacaoController;
+    private final DocenteController           docenteController;
+    private final EstudanteController         estudanteController;
+    private final AvaliacaoController         avaliacaoController;
     private final UnidadeCurricularController unidadeCurricularController;
-    private final AnoLetivoController        anoLetivoController;
-    private final Scanner                    scanner;
+    private final AnoLetivoController         anoLetivoController;
+    private final CursoController             cursoController;
+    private final Scanner                     scanner;
 
     public DocenteView(DocenteController docenteController,
                        EstudanteController estudanteController,
                        AvaliacaoController avaliacaoController,
                        UnidadeCurricularController unidadeCurricularController,
                        AnoLetivoController anoLetivoController,
+                       CursoController cursoController,
                        Scanner scanner) {
         this.docenteController            = docenteController;
         this.estudanteController          = estudanteController;
         this.avaliacaoController          = avaliacaoController;
         this.unidadeCurricularController  = unidadeCurricularController;
         this.anoLetivoController          = anoLetivoController;
+        this.cursoController              = cursoController;
         this.scanner                      = scanner;
     }
 
@@ -71,19 +75,30 @@ public class DocenteView {
 
     private void verFicha(Docente docente) {
         Utils.limparEcra();
-        System.out.println("\n--- A minha Ficha ---");
+        Utils.tituloPagina("A minha Ficha");
         System.out.println(docente.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void verUCs(Docente docente) {
         Utils.limparEcra();
-        System.out.println("\n--- As minhas Unidades Curriculares ---");
+        Utils.tituloPagina("As minhas Unidades Curriculares");
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         boolean encontrou = false;
         for (UnidadeCurricular uc : todasUCs) {
             if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
-                System.out.println("  - " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
+                StringBuilder cursos = new StringBuilder();
+                for (Model.Curso c : cursoController.listarCursos()) {
+                    if (c.getUnidades().contains(uc)) {
+                        if (cursos.length() > 0) cursos.append(", ");
+                        cursos.append(c.getNomeCurso());
+                    }
+                }
+                String cursosStr = cursos.length() > 0 ? cursos.toString() : "sem curso";
+                System.out.println("  - " + uc.getNome()
+                        + " (Ano " + uc.getAnoCurricular() + ")"
+                        + " | " + (uc.isAtiva() ? "Ativa" : "Inativa")
+                        + " | " + cursosStr);
                 encontrou = true;
             }
         }
@@ -93,7 +108,7 @@ public class DocenteView {
 
     private void verAlunos(Docente docente) {
         Utils.limparEcra();
-        System.out.println("\n--- Os meus Alunos ---");
+        Utils.tituloPagina("Os meus Alunos");
         ArrayList<UnidadeCurricular> todasUCs        = unidadeCurricularController.listarUnidades();
         ArrayList<Estudante>         todosEstudantes = estudanteController.listarEstudante();
 
@@ -118,7 +133,7 @@ public class DocenteView {
 
     private void lancarAvaliacao(Docente docente) {
         Utils.limparEcra();
-        System.out.println("\n--- Lançar Nota por Aluno num Momento de Avaliação ---");
+        Utils.tituloPagina("Lançar Nota por Aluno");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
@@ -277,7 +292,7 @@ public class DocenteView {
 
     private void verResultados(Docente docente) {
         Utils.limparEcra();
-        System.out.println("\n--- Ver Resultados da UC ---");
+        Utils.tituloPagina("Resultados da UC");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
@@ -364,7 +379,7 @@ public class DocenteView {
     }
 
     private void alterarPassword(Docente docente) {
-        System.out.println("\n--- Alterar Password ---");
+        Utils.tituloPagina("Alterar Password");
         System.out.print("  Password atual: ");
         String atual = lerPasswordMascarada();
         System.out.print("  Nova password : ");
@@ -396,7 +411,7 @@ public class DocenteView {
     }
 
     private void atualizar(Docente docente) {
-        System.out.println("\n--- Atualizar os meus Dados --- (0 para cancelar)");
+        Utils.tituloPagina("Atualizar os meus Dados");
         System.out.println("  Dados atuais: " + docente.getNome() + " | " + docente.getMorada());
 
         String novoNome   = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);

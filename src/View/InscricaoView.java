@@ -45,7 +45,7 @@ public class InscricaoView {
 
     private void verInscricaoAtual(Estudante estudante) {
         Utils.limparEcra();
-        System.out.println("\n--- Inscrição Atual ---");
+        Utils.tituloPagina("Inscrição Atual");
         Inscricao atual = inscricaoController.obterInscricaoAtual(estudante);
         if (atual == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -57,7 +57,7 @@ public class InscricaoView {
 
     private void verHistorico(Estudante estudante) {
         Utils.limparEcra();
-        System.out.println("\n--- Histórico de Inscrições ---");
+        Utils.tituloPagina("Histórico de Inscrições");
         ArrayList<Inscricao> inscricoes = inscricaoController.listarInscricoes(estudante);
         if (inscricoes.isEmpty()) {
             System.out.println("  (sem inscrições registadas)");
@@ -72,7 +72,7 @@ public class InscricaoView {
 
     private void verificarProgressao(Estudante estudante) {
         Utils.limparEcra();
-        System.out.println("\n--- Verificar Progressão de Ano ---");
+        Utils.tituloPagina("Verificar Progressão de Ano");
         try {
             inscricaoController.verificarProgressaoAno(estudante);
             System.out.println("  [✓] Cumpre os requisitos para progredir para o ano seguinte.");

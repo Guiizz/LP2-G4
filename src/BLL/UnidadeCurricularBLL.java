@@ -25,18 +25,23 @@ public class UnidadeCurricularBLL {
     }
 
     public void adicionarUnidade(UnidadeCurricular unidade){
-            if (unidade == null) {
-                throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
-            }
-            Utils.validarNome(unidade.getNome());
-            if (unidade.getAnoCurricular() < 1 || unidade.getAnoCurricular() > 3) {
-                throw new IllegalArgumentException("Ano curricular inválido, deve ser entre 1 e 3.");
-            }
+        if (unidade == null) {
+            throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
+        }
+        Utils.validarNome(unidade.getNome());
+        if (unidade.getAnoCurricular() < 1 || unidade.getAnoCurricular() > 3) {
+            throw new IllegalArgumentException("Ano curricular inválido, deve ser entre 1 e 3.");
+        }
 
-            // Todos os ECTS são iguais no sistema — forçar valor fixo
-            unidade.setEts(Utils.ECTS_POR_UC);
+        String nomeTrimmed = unidade.getNome().trim();
+        for (UnidadeCurricular u : unidadeCurricularDAL.listarUnidades()) {
+            if (u.getNome().equalsIgnoreCase(nomeTrimmed)) {
+                throw new IllegalArgumentException("Já existe uma UC com o nome: " + unidade.getNome());
+            }
+        }
 
-            unidadeCurricularDAL.adicionarUnidade(unidade);
+        unidade.setEts(Utils.ECTS_POR_UC);
+        unidadeCurricularDAL.adicionarUnidade(unidade);
     }
 
     public ArrayList<UnidadeCurricular> listarUnidades(){
@@ -79,6 +84,7 @@ public class UnidadeCurricularBLL {
         if (siglaDocente == null || siglaDocente.isBlank()) {
             throw new IllegalArgumentException("A sigla do docente não pode ser vazia.");
         }
+        Utils.validarSigla(siglaDocente);
         boolean sucesso = unidadeCurricularDAL.atribuirDocenteResponsavel(nomeUC, siglaDocente);
         if (!sucesso) {
             throw new IllegalArgumentException("Unidade Curricular '" + nomeUC + "' não encontrada.");

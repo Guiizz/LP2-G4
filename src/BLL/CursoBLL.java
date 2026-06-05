@@ -283,8 +283,8 @@ public class CursoBLL {
                     + "  Abra um ano letivo antes de iniciar o curso.");
         }
 
-        // 3 — Curso tem pelo menos 1 UC por cada ano curricular (1, 2 e 3)
-        validarUCsPorAno(curso);
+        // 3 — Curso tem pelo menos 1 UC por cada ano curricular (1, 2 e 3) com momentos válidos
+        validarUCsPorAno(curso, anoAtual.getAno());
 
         // 4 — Quórum
         int numeroInscritos  = contarEstudantesInscritosNoCurso(curso, estudantes);
@@ -314,7 +314,7 @@ public class CursoBLL {
      * Valida que o curso tem pelo menos 1 UC por cada ano curricular (1, 2 e 3).
      * O prof definiu este requisito explicitamente: "no mínimo uma UC por ano".
      */
-    private void validarUCsPorAno(Curso curso) {
+    private void validarUCsPorAno(Curso curso, int anoLetivo) {
         if (curso.getUnidades() == null || curso.getUnidades().isEmpty()) {
             throw new IllegalArgumentException(
                     "Não é possível iniciar o curso '" + curso.getNomeCurso()
@@ -322,16 +322,26 @@ public class CursoBLL {
         }
         for (int ano = 1; ano <= DURACAO_CURSO; ano++) {
             boolean temUC = false;
+            boolean temUCComMomentos = false;
             for (UnidadeCurricular uc : curso.getUnidades()) {
                 if (uc.getAnoCurricular() == ano) {
                     temUC = true;
-                    break;
+                    if (uc.momentosValidosParaAno(anoLetivo)) {
+                        temUCComMomentos = true;
+                    }
                 }
             }
             if (!temUC) {
                 throw new IllegalArgumentException(
                         "Não é possível iniciar o curso '" + curso.getNomeCurso()
                         + "': falta pelo menos uma UC no " + ano + ".º ano curricular.");
+            }
+            if (!temUCComMomentos) {
+                throw new IllegalArgumentException(
+                        "Não é possível iniciar o curso '" + curso.getNomeCurso()
+                        + "': nenhuma UC do " + ano + ".º ano tem momentos de avaliação válidos"
+                        + " (soma de pesos = 100%) para o ano letivo "
+                        + anoLetivo + "/" + (anoLetivo + 1) + ".");
             }
         }
     }

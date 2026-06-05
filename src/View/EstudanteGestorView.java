@@ -68,7 +68,7 @@ public class EstudanteGestorView {
     }
 
     private void registar() {
-        System.out.println("\n--- Registar Estudante --- (0 para cancelar)");
+        Utils.tituloPagina("Registar Estudante");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
         String nif;
@@ -90,7 +90,7 @@ public class EstudanteGestorView {
 
     private void listar() {
         Utils.limparEcra();
-        System.out.println("\n--- Lista de Estudantes ---");
+        Utils.tituloPagina("Lista de Estudantes");
         ArrayList<Estudante> lista = estudanteController.listarEstudante();
         if (lista.isEmpty()) { System.out.println("  (sem estudantes registados)"); Utils.pausar(scanner); return; }
         for (Estudante e : lista) { System.out.println(e + "\n"); }
@@ -99,7 +99,7 @@ public class EstudanteGestorView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.println("\n--- Procurar Estudante ---");
+        Utils.tituloPagina("Procurar Estudante");
         Estudante e = selecionarEstudante();
         if (e == null) return;
         System.out.println("\n" + e.toStringDetalhado());
@@ -107,7 +107,7 @@ public class EstudanteGestorView {
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Estudante ---");
+        Utils.tituloPagina("Atualizar Estudante");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -125,7 +125,7 @@ public class EstudanteGestorView {
     }
 
     private void remover() {
-        System.out.println("\n--- Remover Estudante ---");
+        Utils.tituloPagina("Remover Estudante");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -165,9 +165,9 @@ public class EstudanteGestorView {
     }
 
     private void inscrever() {
-        System.out.println("\n--- Inscrever Estudante em Curso ---");
-        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
-        Estudante e = estudanteController.procurarPorNumMecanografico(num);
+        Utils.tituloPagina("Inscrever Estudante em Curso");
+        Estudante e = selecionarEstudante();
+        if (e == null) return;
 
         ArrayList<Curso> cursos = cursoController.listarCursos();
         if (cursos.isEmpty()) { System.out.println("  [!] Não existem cursos registados."); Utils.pausar(scanner); return; }
@@ -195,9 +195,9 @@ public class EstudanteGestorView {
 
     private void verificarProgressao() {
         Utils.limparEcra();
-        System.out.println("\n--- Verificar Progressão de Aluno ---");
-        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
-        Estudante e = estudanteController.procurarPorNumMecanografico(num);
+        Utils.tituloPagina("Verificar Progressão de Aluno");
+        Estudante e = selecionarEstudante();
+        if (e == null) return;
 
         System.out.println("\n  " + e.getNome() + " | Ano " + e.getAnoAtual() + " | " + e.getEstado());
         System.out.println("  Curso: " + (e.getCursoAtual() != null ? e.getCursoAtual().getNomeCurso() : "(sem curso)"));
@@ -212,10 +212,11 @@ public class EstudanteGestorView {
     }
 
     private void marcarPropinaPaga() {
-        System.out.println("\n--- Marcar Propina Atual como Paga ---");
-        String num = Utils.lerCampo("Nº Mecanográfico: ", scanner);
+        Utils.tituloPagina("Marcar Propina como Paga");
+        Estudante e = selecionarEstudante();
+        if (e == null) return;
 
-        estudanteController.marcarPropinaAtualComoPaga(num);
+        estudanteController.marcarPropinaAtualComoPaga(e.getNumMecanografico());
 
         System.out.println("  [✓] Propina atual marcada como paga.");
         Utils.pausar(scanner);
@@ -223,7 +224,7 @@ public class EstudanteGestorView {
 
     private void listarTodasAsPropinas() {
         Utils.limparEcra();
-        System.out.println("\n--- Propinas de Todos os Estudantes ---");
+        Utils.tituloPagina("Propinas de Todos os Estudantes");
 
         ArrayList<Estudante> todos = estudanteController.listarEstudante();
         if (todos.isEmpty()) {
@@ -268,7 +269,7 @@ public class EstudanteGestorView {
 
     private void listarPropinasEmDivida() {
         Utils.limparEcra();
-        System.out.println("\n--- Estudantes com Propina em Dívida ---");
+        Utils.tituloPagina("Estudantes com Propina em Dívida");
 
         ArrayList<Estudante> estudantes = estudanteController.listarComPropinaEmDivida();
 
