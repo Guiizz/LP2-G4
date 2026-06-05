@@ -60,11 +60,7 @@ public class CursoBLL {
         }
         Utils.validarNome(novoNome);
 
-        if (temEstudantesAlocados(curso, estudantes)) {
-            throw new IllegalArgumentException(
-                    "Não é possível alterar o curso '" + curso.getNomeCurso() +
-                            "' porque tem estudantes alocados.");
-        }
+        validarCursoNaoAlocado(curso, estudantes, "alterar");
 
         Curso existente = procurarPorNome(novoNome);
         if (existente != null && existente != curso) {
@@ -86,11 +82,7 @@ public class CursoBLL {
             throw new IllegalArgumentException("O curso não pode ser nulo.");
         }
 
-        if (temEstudantesAlocados(curso, estudantes)) {
-            throw new IllegalArgumentException(
-                    "Não é possível remover o curso '" + curso.getNomeCurso() +
-                            "' porque tem estudantes alocados.");
-        }
+        validarCursoNaoAlocado(curso, estudantes, "remover");
 
         cursoDAL.removerCurso(curso);
     }
@@ -138,11 +130,7 @@ public class CursoBLL {
         if (uc == null) {
             throw new IllegalArgumentException("A unidade curricular não pode ser nula.");
         }
-        if (temEstudantesAlocados(curso, estudanteDAL.listarEstudantes())) {
-            throw new IllegalArgumentException(
-                    "Não é possível alterar o curso '" + curso.getNomeCurso() +
-                            "' porque tem estudantes alocados.");
-        }
+        validarCursoNaoAlocado(curso, estudanteDAL.listarEstudantes(), "alterar");
 
         if (uc.getAnoCurricular() < 1 || uc.getAnoCurricular() > DURACAO_CURSO) {
             throw new IllegalArgumentException(
@@ -202,6 +190,27 @@ public class CursoBLL {
             }
         }
         return false;
+    }
+
+    public boolean temDocentesAlocados(Curso curso) {
+        if (curso == null || curso.getUnidades() == null) return false;
+        for (UnidadeCurricular uc : curso.getUnidades()) {
+            if (uc.temDocenteResponsavel()) return true;
+        }
+        return false;
+    }
+
+    private void validarCursoNaoAlocado(Curso curso, List<Estudante> estudantes, String operacao) {
+        if (temEstudantesAlocados(curso, estudantes)) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + operacao + " o curso '" + curso.getNomeCurso() +
+                            "' porque tem estudantes alocados.");
+        }
+        if (temDocentesAlocados(curso)) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + operacao + " o curso '" + curso.getNomeCurso() +
+                            "' porque tem docentes alocados.");
+        }
     }
 
     public int vagasUCsDisponiveis(Curso curso, int anoCurricular) {
