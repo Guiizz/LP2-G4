@@ -19,6 +19,19 @@ public class Propina {
     public double getValorPago()   { return valorPago; }
     public List<Pagamento> getHistoricoPagamentos() { return historicoPagamentos; }
 
+    /**
+     * Atualiza o valor total da propina.
+     * Usado quando o curso é iniciado para garantir que o valor reflecte
+     * o configurado no curso no momento da iniciação.
+     * Só é permitido se a propina ainda não tiver pagamentos registados.
+     */
+    public void setValorTotal(double novoValor) {
+        if (novoValor < 0) {
+            throw new IllegalArgumentException("O valor da propina não pode ser negativo.");
+        }
+        this.valorTotal = novoValor;
+    }
+
     public double getSaldoEmDebito() { return valorTotal - valorPago; }
 
     public boolean isTotalmentePaga() { return getSaldoEmDebito() <= 0.0; }
@@ -35,8 +48,15 @@ public class Propina {
 
     @Override
     public String toString() {
+        String estado;
+        if (isTotalmentePaga()) {
+            estado = "PAGA";
+        } else if (valorPago > 0) {
+            estado = "PARCIALMENTE PAGA";
+        } else {
+            estado = "POR PAGAR";
+        }
         return String.format("Propina: %.2f € | Pago: %.2f € | Em dívida: %.2f € | Estado: %s",
-                valorTotal, valorPago, getSaldoEmDebito(),
-                isTotalmentePaga() ? "PAGA" : "EM DÍVIDA");
+                valorTotal, valorPago, getSaldoEmDebito(), estado);
     }
 }

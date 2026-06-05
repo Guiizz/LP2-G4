@@ -25,6 +25,33 @@ public class AnoLetivoBLL {
         return anoLetivoDAL.procurarMaisRecente();
     }
 
+    public java.util.ArrayList<AnoLetivo> listarTodos() {
+        return anoLetivoDAL.listarAnosLetivos();
+    }
+
+    /**
+     * Remove um ano letivo fechado. Só é permitido remover o mais recente
+     * (para não deixar buracos no histórico) e apenas se estiver FECHADO.
+     */
+    public void removerAnoLetivo(int ano) {
+        AnoLetivo alvo = anoLetivoDAL.procurarPorAno(ano);
+        if (alvo == null) {
+            throw new IllegalArgumentException("Ano letivo " + ano + "/" + (ano + 1) + " não encontrado.");
+        }
+        if (alvo.isAberto()) {
+            throw new IllegalArgumentException(
+                    "Não é possível remover o ano letivo " + alvo.getDesignacao()
+                    + " porque está aberto. Feche-o primeiro.");
+        }
+        AnoLetivo maisRecente = anoLetivoDAL.procurarMaisRecente();
+        if (maisRecente != null && maisRecente.getAno() != ano) {
+            throw new IllegalArgumentException(
+                    "Só é possível remover o ano letivo mais recente ("
+                    + maisRecente.getDesignacao() + ") para preservar o histórico.");
+        }
+        anoLetivoDAL.removerAnoLetivo(ano);
+    }
+
     public AnoLetivo abrirAnoLetivo(int ano) {
         if (ano < 2000) {
             throw new IllegalArgumentException("Ano letivo inválido.");

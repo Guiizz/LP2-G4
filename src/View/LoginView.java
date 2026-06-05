@@ -68,14 +68,14 @@ public class LoginView {
                 if (docente.isPrimeiroLogin()) {
                     tratarPrimeiroLoginDocente(docente);
                 }
-                new DocenteView(loginController.getDocenteController(), loginController.getEstudanteController(), loginController.getAvaliacaoController(), loginController.getUnidadeCurricularController(), scanner).iniciar(docente);
+                new DocenteView(loginController.getDocenteController(), loginController.getEstudanteController(), loginController.getAvaliacaoController(), loginController.getUnidadeCurricularController(), loginController.getAnoLetivoController(), scanner).iniciar(docente);
 
             } else if (prefixo.matches("\\d+")) {
                 Estudante estudante = loginController.getEstudanteController().autenticarEstudante(email, password);
                 if (estudante.isPrimeiroLogin()) {
                     tratarPrimeiroLoginEstudante(estudante);
                 }
-                new EstudanteView(loginController.getEstudanteController(), scanner).iniciar(estudante);
+                new EstudanteView(loginController.getEstudanteController(), loginController.getInscricaoController(), scanner).iniciar(estudante);
 
             } else {
                 System.out.println("[!] Tipo de utilizador não reconhecido.");

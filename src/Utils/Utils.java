@@ -276,7 +276,7 @@ public class Utils {
             try {
                 System.out.print(mensagem);
                 String input = scanner.nextLine().trim();
-                if (input.equals("0")) throw new IllegalArgumentException("Operação cancelada.");
+                if (input.isEmpty()) throw new IllegalArgumentException("Operação cancelada.");
                 return Double.parseDouble(input.replace(",", "."));
             } catch (NumberFormatException e) {
                 System.out.println("  [!] Valor inválido. Introduza um número (ex: 9.5).");
