@@ -67,25 +67,20 @@ public class DepartamentoView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.print("\nSigla do departamento: ");
-        String sigla = scanner.nextLine().trim();
-        Departamento d = departamentoController.procurarDepartamento(sigla);
-        if (d == null) { System.out.println("  [!] Departamento não encontrado."); Utils.pausar(scanner); return; }
+        System.out.println("\n--- Procurar Departamento ---");
+        Departamento d = selecionarDepartamento();
+        if (d == null) return;
         System.out.println("\n" + d);
         Utils.pausar(scanner);
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Departamento --- (0 para cancelar)");
-        String sigla = Utils.lerCampo("Sigla do departamento a atualizar: ", scanner);
-        Departamento d = departamentoController.procurarDepartamento(sigla);
-        if (d == null) {
-            System.out.println("  [!] Departamento não encontrado.");
-            Utils.pausar(scanner);
-            return;
-        }
+        System.out.println("\n--- Atualizar Departamento ---");
+        Departamento d = selecionarDepartamento();
+        if (d == null) return;
         System.out.println("  Dados atuais: " + d.getNome() + " (" + d.getSigla() + ")");
-        String novoNome = Utils.lerCampo("Novo nome: ", scanner);
+        String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
+        if (novoNome.isEmpty()) { System.out.println("  Operação cancelada."); Utils.pausar(scanner); return; }
         departamentoController.atualizarDepartamento(d, novoNome);
         System.out.println("  [✓] Departamento atualizado com sucesso.");
         Utils.pausar(scanner);
@@ -93,14 +88,9 @@ public class DepartamentoView {
 
     private void remover() {
         System.out.println("\n--- Remover Departamento ---");
-        String sigla = Utils.lerCampo("Sigla do departamento a remover: ", scanner);
-        Departamento d = departamentoController.procurarDepartamento(sigla);
-        if (d == null) {
-            System.out.println("  [!] Departamento não encontrado.");
-            Utils.pausar(scanner);
-            return;
-        }
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o departamento '" + d.getNome() + "'? (S/N): ", scanner);
+        Departamento d = selecionarDepartamento();
+        if (d == null) return;
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover '" + d.getNome() + "'? (S/N): ", scanner);
         if (!confirmar.equalsIgnoreCase("S")) {
             System.out.println("  Operação cancelada.");
             Utils.pausar(scanner);
@@ -109,5 +99,27 @@ public class DepartamentoView {
         departamentoController.removerDepartamento(d);
         System.out.println("  [✓] Departamento removido com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private Departamento selecionarDepartamento() {
+        ArrayList<Departamento> lista = departamentoController.listarDepartamentos();
+        if (lista.isEmpty()) {
+            System.out.println("  [!] Não existem departamentos registados.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("\n  Departamentos disponíveis:");
+        for (int i = 0; i < lista.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
+                    + " (" + lista.get(i).getSigla() + ")");
+        }
+        int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
+        if (escolha < 1 || escolha > lista.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return lista.get(escolha - 1);
     }
 }

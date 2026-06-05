@@ -100,26 +100,23 @@ public class DocenteGestorView {
 
     private void procurar() {
         Utils.limparEcra();
-        System.out.print("\nSigla do docente: ");
-        String sigla = scanner.nextLine().trim();
-        Docente d = docenteController.procurarPorSigla(sigla);
-        if (d == null) { System.out.println("  [!] Docente não encontrado."); Utils.pausar(scanner); return; }
+        System.out.println("\n--- Procurar Docente ---");
+        Docente d = selecionarDocente();
+        if (d == null) return;
         System.out.println("\n" + d.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void atualizar() {
-        System.out.println("\n--- Atualizar Docente --- (0 para cancelar)");
-        System.out.print("Sigla do docente a atualizar: ");
-        String sigla = scanner.nextLine().trim();
-        Docente d = docenteController.procurarPorSigla(sigla);
-        if (d == null) { System.out.println("  [!] Docente não encontrado."); Utils.pausar(scanner); return; }
+        System.out.println("\n--- Atualizar Docente ---");
+        Docente d = selecionarDocente();
+        if (d == null) return;
 
         System.out.println("  Dados atuais: " + d.getNome() + " | " + d.getMorada());
-        String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
+        String novoNome   = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
         String novaMorada = Utils.lerCampo("Nova morada (Enter para manter): ", scanner);
 
-        if (!novoNome.isEmpty()) d.setNome(novoNome);
+        if (!novoNome.isEmpty())   d.setNome(novoNome);
         if (!novaMorada.isEmpty()) d.setMorada(novaMorada);
 
         docenteController.atualizarDocente(d);
@@ -128,30 +125,75 @@ public class DocenteGestorView {
     }
 
     private void remover() {
-        System.out.print("\nSigla do docente a remover: ");
-        String sigla = scanner.nextLine().trim();
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o docente '" + sigla + "'? (S/N): ", scanner);
+        System.out.println("\n--- Remover Docente ---");
+        Docente d = selecionarDocente();
+        if (d == null) return;
+
+        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover '" + d.getNome() + "' (" + d.getSigla() + ")? (S/N): ", scanner);
         if (!confirmar.equalsIgnoreCase("S")) {
             System.out.println("  Operação cancelada.");
             Utils.pausar(scanner);
             return;
         }
-        docenteController.removerDocente(sigla);
+        docenteController.removerDocente(d.getSigla());
         System.out.println("  [✓] Docente removido com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    private Docente selecionarDocente() {
+        ArrayList<Docente> lista = docenteController.listarDocentes();
+        if (lista.isEmpty()) {
+            System.out.println("  [!] Não existem docentes registados.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("\n  Docentes registados:");
+        for (int i = 0; i < lista.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
+                    + " (" + lista.get(i).getSigla() + ")");
+        }
+        int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
+        if (escolha < 1 || escolha > lista.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return lista.get(escolha - 1);
     }
 
     private void atribuirDocente() {
         System.out.println("\n--- Atribuir Docente Responsável ---");
 
-        ArrayList<UnidadeCurricular> ucs = unidadeCurricularController.listarUnidades();
-        if (ucs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
+        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
+        if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
+
+        // Mostrar apenas UCs SEM docente responsável — UCs já atribuídas não aparecem como opção
+        ArrayList<UnidadeCurricular> ucsSemDocente = new ArrayList<>();
+        for (UnidadeCurricular uc : todasUCs) {
+            if (!uc.temDocenteResponsavel()) {
+                ucsSemDocente.add(uc);
+            }
+        }
+
+        if (ucsSemDocente.isEmpty()) {
+            System.out.println("  Todas as UCs já têm docente responsável atribuído.");
+            // Mostrar as atribuições actuais para contexto
+            System.out.println("\n  Atribuições actuais:");
+            for (UnidadeCurricular uc : todasUCs) {
+                System.out.println("  - " + uc.getNome()
+                        + " (Ano " + uc.getAnoCurricular() + ")"
+                        + " → " + uc.getDocenteResponsavel());
+            }
+            Utils.pausar(scanner);
+            return;
+        }
 
         ArrayList<Docente> docentes = docenteController.listarDocentes();
         if (docentes.isEmpty()) { System.out.println("  [!] Não existem docentes registados."); Utils.pausar(scanner); return; }
 
-        System.out.println("  UCs disponíveis:");
-        UnidadeCurricular uc = selecionarUC(ucs);
+        System.out.println("  UCs sem docente responsável:");
+        UnidadeCurricular uc = selecionarUC(ucsSemDocente);
         if (uc == null) return;
 
         System.out.println("  Docentes disponíveis:");

@@ -58,6 +58,10 @@ public class CursoController {
         cursoBLL.iniciarCurso(curso, estudantes);
     }
 
+    public List<Estudante> listarEstudantesInscritos(Curso curso, List<Estudante> estudantes) {
+        return cursoBLL.listarEstudantesInscritos(curso, estudantes);
+    }
+
     public int contarEstudantesInscritosNoCurso(Curso curso, List<Estudante> estudantes) {
         return cursoBLL.contarEstudantesInscritosNoCurso(curso, estudantes);
     }

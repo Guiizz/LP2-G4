@@ -1,31 +1,39 @@
 package View;
 
+import Controller.AnoLetivoController;
 import Controller.AvaliacaoController;
 import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
 import Model.*;
+import Utils.PasswordUtils;
 import Utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
 public class DocenteView {
 
-    private final DocenteController docenteController;
-    private final EstudanteController estudanteController;
-    private final AvaliacaoController avaliacaoController;
+    private final DocenteController          docenteController;
+    private final EstudanteController        estudanteController;
+    private final AvaliacaoController        avaliacaoController;
     private final UnidadeCurricularController unidadeCurricularController;
-    private final Scanner scanner;
+    private final AnoLetivoController        anoLetivoController;
+    private final Scanner                    scanner;
 
-    public DocenteView(DocenteController docenteController, EstudanteController estudanteController, AvaliacaoController avaliacaoController, UnidadeCurricularController unidadeCurricularController, Scanner scanner) {
-        this.docenteController = docenteController;
-        this.estudanteController = estudanteController;
-        this.avaliacaoController = avaliacaoController;
-        this.unidadeCurricularController = unidadeCurricularController;
-        this.scanner = scanner;
+    public DocenteView(DocenteController docenteController,
+                       EstudanteController estudanteController,
+                       AvaliacaoController avaliacaoController,
+                       UnidadeCurricularController unidadeCurricularController,
+                       AnoLetivoController anoLetivoController,
+                       Scanner scanner) {
+        this.docenteController            = docenteController;
+        this.estudanteController          = estudanteController;
+        this.avaliacaoController          = avaliacaoController;
+        this.unidadeCurricularController  = unidadeCurricularController;
+        this.anoLetivoController          = anoLetivoController;
+        this.scanner                      = scanner;
     }
 
     public void iniciar(Docente docente) {
@@ -34,7 +42,9 @@ public class DocenteView {
                 "Ver as minhas Unidades Curriculares",
                 "Ver os meus Alunos",
                 "Lançar Avaliação",
-                "Atualizar os meus Dados"
+                "Ver Resultados da UC",
+                "Atualizar os meus Dados",
+                "Alterar Password"
         };
 
         int opcao;
@@ -43,11 +53,13 @@ public class DocenteView {
             opcao = Utils.mostrarMenu("ÁREA DO DOCENTE [" + docente.getEmail() + "]", opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1: verFicha(docente);   break;
-                    case 2: verUCs(docente);     break;
-                    case 3: verAlunos(docente);  break;
-                    case 4: lancarAvaliacao(docente);   break;
-                    case 5: atualizar(docente);  break;
+                    case 1: verFicha(docente);        break;
+                    case 2: verUCs(docente);           break;
+                    case 3: verAlunos(docente);        break;
+                    case 4: lancarAvaliacao(docente);  break;
+                    case 5: verResultados(docente);    break;
+                    case 6: atualizar(docente);        break;
+                    case 7: alterarPassword(docente);  break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -60,7 +72,7 @@ public class DocenteView {
     private void verFicha(Docente docente) {
         Utils.limparEcra();
         System.out.println("\n--- A minha Ficha ---");
-        System.out.println(docente);
+        System.out.println(docente.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
@@ -123,12 +135,15 @@ public class DocenteView {
             return;
         }
 
+        AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
+        int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : 0;
+
         System.out.println("\n  As suas Unidades Curriculares:");
         for (int i = 0; i < minhasUCs.size(); i++) {
             UnidadeCurricular uc = minhasUCs.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
                     + " (Ano " + uc.getAnoCurricular() + ")"
-                    + " | Momentos: " + uc.getMomentosAvaliacao().size() + "/3"
+                    + " | Momentos: " + uc.getMomentosParaAno(anoLetivo).size() + "/3"
                     + " | Estado: " + (uc.isAtiva() ? "Ativa" : "Inativa"));
         }
 
@@ -147,9 +162,12 @@ public class DocenteView {
             return;
         }
 
-        List<MomentoAvaliacao> momentos = ucEscolhida.getMomentosAvaliacao();
+        List<MomentoAvaliacao> momentos = ucEscolhida.getMomentosParaAno(anoLetivo);
+
         if (momentos == null || momentos.isEmpty()) {
-            System.out.println("  [!] A UC '" + ucEscolhida.getNome() + "' não tem momentos de avaliação definidos.");
+            System.out.println("  [!] A UC '" + ucEscolhida.getNome()
+                    + "' não tem momentos de avaliação definidos"
+                    + (anoLetivo > 0 ? " para o ano letivo " + anoLetivo + "/" + (anoLetivo + 1) : "") + ".");
             Utils.pausar(scanner);
             return;
         }
@@ -255,6 +273,126 @@ public class DocenteView {
                 + " no momento '" + momentoEscolhido.getNome() + "'.");
 
         Utils.pausar(scanner);
+    }
+
+    private void verResultados(Docente docente) {
+        Utils.limparEcra();
+        System.out.println("\n--- Ver Resultados da UC ---");
+
+        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
+        ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
+        for (UnidadeCurricular uc : todasUCs) {
+            if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
+                minhasUCs.add(uc);
+            }
+        }
+
+        if (minhasUCs.isEmpty()) {
+            System.out.println("  [!] Não tem nenhuma Unidade Curricular atribuída.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("\n  As suas UCs:");
+        for (int i = 0; i < minhasUCs.size(); i++) {
+            UnidadeCurricular uc = minhasUCs.get(i);
+            System.out.println("  " + (i + 1) + ". " + uc.getNome()
+                    + " (Ano " + uc.getAnoCurricular() + ")"
+                    + " | " + (uc.isAtiva() ? "Ativa" : "Inativa"));
+        }
+
+        int escolhaUC = Utils.lerInteiro("\nSelecione a UC (número): ", scanner);
+        if (escolhaUC < 1 || escolhaUC > minhasUCs.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        UnidadeCurricular ucEscolhida = minhasUCs.get(escolhaUC - 1);
+        AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
+        int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : 0;
+        List<MomentoAvaliacao> momentos = ucEscolhida.getMomentosParaAno(anoLetivo);
+
+        System.out.println("\n  UC: " + ucEscolhida.getNome()
+                + " | Ano curricular: " + ucEscolhida.getAnoCurricular()
+                + " | Ano letivo: " + (anoLetivo > 0 ? anoLetivo + "/" + (anoLetivo + 1) : "(sem ano aberto)"));
+
+        if (momentos.isEmpty()) {
+            System.out.println("  (sem momentos configurados para este ano letivo)");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        // Cabeçalho dinâmico com os momentos
+        System.out.println("\n  " + "-".repeat(72));
+        System.out.printf("  %-12s %-22s", "Nº Mecano.", "Nome");
+        for (MomentoAvaliacao m : momentos) {
+            System.out.printf("  %-12s", m.getNome());
+        }
+        System.out.println();
+        System.out.println("  " + "-".repeat(72));
+
+        ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
+        boolean temAlunos = false;
+
+        for (Estudante e : todosEstudantes) {
+            Inscricao inscricao = estudanteController.obterInscricaoAtual(e);
+            if (inscricao == null || inscricao.getCurso() == null) continue;
+            if (!inscricao.getCurso().getUnidades().contains(ucEscolhida)) continue;
+            if (inscricao.getAnoDeCurso() != ucEscolhida.getAnoCurricular()) continue;
+
+            System.out.printf("  %-12s %-22s", e.getNumMecanografico(), e.getNome());
+            for (int i = 0; i < momentos.size(); i++) {
+                String nota = "Pendente";
+                if (inscricao.getAvaliacoes() != null && i < inscricao.getAvaliacoes().size()) {
+                    Avaliacao av = inscricao.getAvaliacoes().get(i);
+                    if (av != null && av.isLancada()) {
+                        nota = String.format("%.1f", av.getNota());
+                    }
+                }
+                System.out.printf("  %-12s", nota);
+            }
+            System.out.println();
+            temAlunos = true;
+        }
+
+        if (!temAlunos) {
+            System.out.println("  (sem alunos inscritos neste ano curricular)");
+        }
+        System.out.println("  " + "-".repeat(72));
+        Utils.pausar(scanner);
+    }
+
+    private void alterarPassword(Docente docente) {
+        System.out.println("\n--- Alterar Password ---");
+        System.out.print("  Password atual: ");
+        String atual = lerPasswordMascarada();
+        System.out.print("  Nova password : ");
+        String nova = lerPasswordMascarada();
+        System.out.print("  Confirmar     : ");
+        String confirmar = lerPasswordMascarada();
+
+        if (!PasswordUtils.verificarPassword(atual, docente.getPassword())) {
+            System.out.println("  [!] A password atual está incorreta.");
+            Utils.pausar(scanner);
+            return;
+        }
+        if (!nova.equals(confirmar)) {
+            System.out.println("  [!] As passwords não coincidem.");
+            Utils.pausar(scanner);
+            return;
+        }
+        docenteController.alterarPassword(docente, nova);
+        System.out.println("  [✓] Password alterada com sucesso.");
+        Utils.pausar(scanner);
+    }
+
+    private String lerPasswordMascarada() {
+        if (System.console() != null) {
+            char[] chars = System.console().readPassword();
+            return chars != null ? new String(chars) : "";
+        }
+        return scanner.nextLine().trim();
     }
 
     private void atualizar(Docente docente) {

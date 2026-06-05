@@ -6,6 +6,7 @@ import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
 import Model.Curso;
 import Model.Departamento;
+import Model.Estudante;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
@@ -34,12 +35,10 @@ public class CursoView {
                 "Registar Curso",
                 "Listar Cursos",
                 "Procurar Curso por Nome",
+                "Configurar Curso",
+                "Iniciar Curso",
                 "Atualizar Nome de Curso",
-                "Remover Curso",
-                "Adicionar UC a Curso",
-                "Listar UCs de um Curso por Ano",
-                "Atualizar Valor de Propina",
-                "Iniciar Curso"
+                "Remover Curso"
         };
 
         int opcao;
@@ -49,14 +48,12 @@ public class CursoView {
             try {
                 switch (opcao) {
                     case 1: registar(); break;
-                    case 2: listar();  break;
+                    case 2: listar();   break;
                     case 3: procurar(); break;
-                    case 4: atualizar(); break;
-                    case 5: remover(); break;
-                    case 6: adicionarUC(); break;
-                    case 7: listarUCsPorAno(); break;
-                    case 8: atualizarPropina(); break;
-                    case 9: iniciarCurso(); break;
+                    case 4: menuConfigurarCurso(); break;
+                    case 5: iniciarCurso(); break;
+                    case 6: atualizar(); break;
+                    case 7: remover(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -136,10 +133,8 @@ public class CursoView {
         Utils.pausar(scanner);
     }
 
-    private void adicionarUC() {
-        System.out.println("\n--- Adicionar UC a Curso ---");
-        Curso c = selecionarCurso("Cursos disponíveis");
-        if (c == null) return;
+    private void adicionarUC(Curso c) {
+        System.out.println("\n--- Adicionar UC ao Curso '" + c.getNomeCurso() + "' ---");
 
         System.out.println("\n  Vagas por ano no curso '" + c.getNomeCurso() + "':");
         for (int ano = 1; ano <= 3; ano++) {
@@ -156,11 +151,9 @@ public class CursoView {
         Utils.pausar(scanner);
     }
 
-    private void listarUCsPorAno() {
+    private void listarUCsPorAno(Curso c) {
         Utils.limparEcra();
-        System.out.println("\n--- Listar UCs de um Curso por Ano ---");
-        Curso c = selecionarCurso("Cursos disponíveis");
-        if (c == null) return;
+        System.out.println("\n--- UCs do Curso '" + c.getNomeCurso() + "' por Ano ---");
         int ano = Utils.lerInteiro("Ano curricular (1, 2 ou 3): ", scanner);
         List<UnidadeCurricular> ucs = cursoController.listarUCsPorAno(c, ano);
         if (ucs.isEmpty()) { System.out.println("  (sem UCs para o ano " + ano + ")"); Utils.pausar(scanner); return; }
@@ -168,11 +161,10 @@ public class CursoView {
         Utils.pausar(scanner);
     }
 
-    private void atualizarPropina() {
-        System.out.println("\n--- Atualizar Valor de Propina ---");
-        Curso c = selecionarCurso("Cursos disponíveis");
-        if (c == null) return;
+    private void atualizarPropina(Curso c) {
+        System.out.println("\n--- Atualizar Valor de Propina: " + c.getNomeCurso() + " ---");
         System.out.printf("  Propina atual: %.2f €%n", c.getValorPropina());
+        System.out.println("  (Enter para cancelar)");
         double novoValor = Utils.lerDouble("Novo valor da propina (€): ", scanner);
         cursoController.atualizarValorPropina(c, novoValor);
         System.out.printf("  [✓] Propina de '%s' atualizada para %.2f €.%n", c.getNomeCurso(), c.getValorPropina());
@@ -181,17 +173,95 @@ public class CursoView {
 
     private void iniciarCurso() {
         System.out.println("\n--- Iniciar Curso ---");
-        Curso c = selecionarCurso("Cursos disponíveis");
+        Curso c = selecionarCurso("Cursos disponíveis (apenas PENDENTE)");
         if (c == null) return;
 
-        int inscritos = cursoController.contarEstudantesInscritosNoCurso(
-                c, estudanteController.listarEstudante());
-        System.out.println("  Curso: " + c.getNomeCurso()
-                + " [" + c.getEstado() + " | " + inscritos + " inscritos]");
+        List<Estudante> todosEstudantes = estudanteController.listarEstudante();
+        int inscritos = cursoController.contarEstudantesInscritosNoCurso(c, todosEstudantes);
 
-        cursoController.iniciarCurso(c, estudanteController.listarEstudante());
-        System.out.println("  [✓] Curso '" + c.getNomeCurso() + "' iniciado com sucesso.");
+        System.out.println("\n  Curso    : " + c.getNomeCurso());
+        System.out.println("  Estado   : " + c.getEstado());
+        System.out.println("  UCs      : " + c.getUnidades().size());
+        System.out.println("  Inscritos: " + inscritos);
+        System.out.printf("  Propina  : %.2f €%n", c.getValorPropina());
+
+        String confirmar = Utils.lerCampo("\n  Confirmar inicio do curso? (S/N): ", scanner);
+        if (!confirmar.equalsIgnoreCase("S")) {
+            System.out.println("  Operação cancelada.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        cursoController.iniciarCurso(c, todosEstudantes);
+
+        // Contar UCs activas após a iniciação
+        int ucsAtivas = 0;
+        for (UnidadeCurricular uc : c.getUnidades()) {
+            if (uc.isAtiva()) ucsAtivas++;
+        }
+
+        System.out.println("\n  [✓] Curso '" + c.getNomeCurso() + "' iniciado com sucesso.");
+        System.out.println("  Estado actualizado para: ATIVO");
+        System.out.println("  UCs activadas automaticamente: " + ucsAtivas + "/" + c.getUnidades().size());
+        System.out.println("  Propinas actualizadas para " + inscritos + " aluno(s) inscrito(s).");
         Utils.pausar(scanner);
+    }
+
+    private void listarAlunosInscritos(Curso c) {
+        Utils.limparEcra();
+        System.out.println("\n--- Alunos Inscritos: " + c.getNomeCurso() + " ---");
+
+        List<Estudante> todosEstudantes = estudanteController.listarEstudante();
+        List<Estudante> inscritos = cursoController.listarEstudantesInscritos(c, todosEstudantes);
+
+        System.out.println("\n  Curso: " + c.getNomeCurso() + " [" + c.getEstado() + "]");
+        System.out.println("  " + "-".repeat(55));
+
+        if (inscritos.isEmpty()) {
+            System.out.println("  (sem alunos inscritos)");
+        } else {
+            System.out.printf("  %-12s %-25s %-6s%n", "Nº Mecano.", "Nome", "Ano");
+            System.out.println("  " + "-".repeat(55));
+            for (Estudante e : inscritos) {
+                System.out.printf("  %-12s %-25s %-6d%n",
+                        e.getNumMecanografico(), e.getNome(), e.getAnoAtual());
+            }
+            System.out.println("  " + "-".repeat(55));
+            System.out.println("  Total: " + inscritos.size() + " aluno(s)");
+        }
+
+        Utils.pausar(scanner);
+    }
+
+    private void menuConfigurarCurso() {
+        Curso c = selecionarCurso("Selecione o curso a configurar");
+        if (c == null) return;
+
+        String[] opcoesConfig = {
+                "Adicionar UC ao Curso",
+                "Listar UCs por Ano",
+                "Atualizar Valor de Propina",
+                "Listar Alunos Inscritos"
+        };
+
+        int opcao;
+        do {
+            Utils.limparEcra();
+            System.out.println("\n  Curso: " + c.getNomeCurso() + " [" + c.getEstado() + "]");
+            opcao = Utils.mostrarMenu("CONFIGURAR CURSO", opcoesConfig, scanner);
+            try {
+                switch (opcao) {
+                    case 1: adicionarUC(c); break;
+                    case 2: listarUCsPorAno(c); break;
+                    case 3: atualizarPropina(c); break;
+                    case 4: listarAlunosInscritos(c); break;
+                    case 0: System.out.println("  A voltar..."); break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
     }
 
     private Curso selecionarCurso(String titulo) {

@@ -134,18 +134,33 @@ public class Estudante extends Utilizador {
         if (totalGlobal == 0) return 0;
         return (double) aprovadas / totalGlobal;
     }
+    /**
+     * Devolve o curso da inscrição mais recente, ou null se não existir nenhuma.
+     */
+    public Curso getCursoAtual() {
+        if (inscricoes == null || inscricoes.isEmpty()) {
+            return null;
+        }
+        return inscricoes.get(inscricoes.size() - 1).getCurso();
+    }
+
     @Override
     public String toString() {
+        Curso cursoAtual = getCursoAtual();
+        String nomeCurso = (cursoAtual != null) ? cursoAtual.getNomeCurso() : "(sem curso)";
         return "=== Ficha de Estudante ===\n" +
                 "Nº Mecanográfico: " + numMecanografico + "\n" +
                 "Nome: " + getNome() + "\n" +
                 "E-mail: " + getEmail() + "\n" +
+                "Curso: " + nomeCurso + "\n" +
                 "Ano: " + anoAtual + "\n" +
                 "Estado: " + estado + "\n" +
                 "=========================";
     }
 
     public String toStringDetalhado() {
+        Curso cursoAtual = getCursoAtual();
+        String nomeCurso = (cursoAtual != null) ? cursoAtual.getNomeCurso() : "(sem curso)";
         return "=== Ficha de Estudante ===\n" +
                 "Nº Mecanográfico: " + numMecanografico + "\n" +
                 "Nome: " + getNome() + "\n" +
@@ -153,6 +168,7 @@ public class Estudante extends Utilizador {
                 "Data de Nascimento: " + getDataNascimento() + "\n" +
                 "NIF: " + getNif() + "\n" +
                 "Morada: " + getMorada() + "\n" +
+                "Curso: " + nomeCurso + "\n" +
                 "Ano: " + anoAtual + "\n" +
                 "Estado: " + estado + "\n" +
                 "=========================";

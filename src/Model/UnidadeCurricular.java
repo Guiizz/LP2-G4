@@ -88,27 +88,60 @@ public class UnidadeCurricular {
     }
 
     /**
-     * Verifica se a UC tem exatamente 3 momentos com soma de pesos = 100%.
-     * Condição obrigatória para poder iniciar a UC.
+     * Devolve os momentos do ano letivo pedido.
+     * Se existirem momentos específicos para esse ano, devolve-os.
+     * Caso contrário, devolve os momentos legados (anoLetivo == 0).
+     */
+    public List<MomentoAvaliacao> getMomentosParaAno(int anoLetivo) {
+        List<MomentoAvaliacao> especificos = new ArrayList<>();
+        List<MomentoAvaliacao> legados     = new ArrayList<>();
+        for (MomentoAvaliacao m : momentosAvaliacao) {
+            if (m.getAnoLetivo() == anoLetivo) {
+                especificos.add(m);
+            } else if (m.getAnoLetivo() == 0) {
+                legados.add(m);
+            }
+        }
+        return especificos.isEmpty() ? legados : especificos;
+    }
+
+    /** Soma dos pesos dos momentos de um ano letivo específico. */
+    public double somaPesosParaAno(int anoLetivo) {
+        double soma = 0;
+        for (MomentoAvaliacao m : getMomentosParaAno(anoLetivo)) {
+            soma += m.getPeso();
+        }
+        return soma;
+    }
+
+    /**
+     * Verifica se os momentos de um ano letivo são válidos para iniciar/activar a UC:
+     * pelo menos 1 momento, no máximo 3, soma de pesos = 100%.
+     */
+    public boolean momentosValidosParaAno(int anoLetivo) {
+        List<MomentoAvaliacao> lista = getMomentosParaAno(anoLetivo);
+        if (lista.isEmpty() || lista.size() > 3) return false;
+        double soma = 0;
+        for (MomentoAvaliacao m : lista) soma += m.getPeso();
+        return Math.abs(soma - 100.0) < 0.01;
+    }
+
+    /**
+     * Verifica momentos independentemente de ano (legado — usa todos os momentos).
+     * Mantido por compatibilidade com código que ainda não passa o ano.
      */
     public boolean momentosValidos() {
         if (momentosAvaliacao == null || momentosAvaliacao.isEmpty()) return false;
         if (momentosAvaliacao.size() > 3) return false;
-
         double soma = 0;
-        for (MomentoAvaliacao m : momentosAvaliacao) {
-            soma += m.getPeso();
-        }
-
+        for (MomentoAvaliacao m : momentosAvaliacao) soma += m.getPeso();
         return Math.abs(soma - 100.0) < 0.01;
     }
 
-    /** Soma atual dos pesos dos momentos definidos. */
+    /** Soma dos pesos de TODOS os momentos (legado). */
     public double somaPesos() {
         double soma = 0;
-        for (MomentoAvaliacao m : momentosAvaliacao) {
-            soma += m.getPeso();
-        }
+        for (MomentoAvaliacao m : momentosAvaliacao) soma += m.getPeso();
         return soma;
     }
 

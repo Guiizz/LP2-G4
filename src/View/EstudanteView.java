@@ -1,7 +1,9 @@
 package View;
 
 import Controller.EstudanteController;
+import Controller.InscricaoController;
 import Model.*;
+import Utils.PasswordUtils;
 import Utils.Utils;
 
 import java.util.ArrayList;
@@ -9,12 +11,16 @@ import java.util.Scanner;
 
 public class EstudanteView {
 
-    private final EstudanteController estudanteController;
-    private final Scanner scanner;
+    private final EstudanteController  estudanteController;
+    private final InscricaoController  inscricaoController;
+    private final Scanner              scanner;
 
-    public EstudanteView(EstudanteController estudanteController, Scanner scanner) {
+    public EstudanteView(EstudanteController estudanteController,
+                         InscricaoController inscricaoController,
+                         Scanner scanner) {
         this.estudanteController = estudanteController;
-        this.scanner = scanner;
+        this.inscricaoController = inscricaoController;
+        this.scanner             = scanner;
     }
 
     public void iniciar(Estudante estudante) {
@@ -23,7 +29,8 @@ public class EstudanteView {
                 "Ver as minhas Inscrições",
                 "Ver as minhas Avaliações",
                 "Atualizar a minha Morada",
-                "Propinas"
+                "Propinas",
+                "Alterar Password"
         };
 
         int opcao;
@@ -33,10 +40,11 @@ public class EstudanteView {
             try {
                 switch (opcao) {
                     case 1: verFicha(estudante);      break;
-                    case 2: verInscricoes(estudante); break;
+                    case 2: new InscricaoView(inscricaoController, scanner).iniciar(estudante); break;
                     case 3: verAvaliacoes(estudante); break;
-                    case 4: atualizar(estudante);     break;
-                    case 5: verPropinas(estudante); break;
+                    case 4: atualizar(estudante);        break;
+                    case 5: verPropinas(estudante);      break;
+                    case 6: alterarPassword(estudante);  break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -49,20 +57,7 @@ public class EstudanteView {
     private void verFicha(Estudante estudante) {
         Utils.limparEcra();
         System.out.println("\n--- A minha Ficha ---");
-        System.out.println(estudante);
-        Utils.pausar(scanner);
-    }
-
-    private void verInscricoes(Estudante estudante) {
-        Utils.limparEcra();
-        System.out.println("\n--- As minhas Inscrições ---");
-        ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
-        if (inscricoes.isEmpty()) {
-            System.out.println("  (sem inscrições registadas)");
-            Utils.pausar(scanner);
-            return;
-        }
-        for (Inscricao i : inscricoes) { System.out.println(i + "\n"); }
+        System.out.println(estudante.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
@@ -111,6 +106,39 @@ public class EstudanteView {
         Utils.pausar(scanner);
     }
 
+    private void alterarPassword(Estudante estudante) {
+        System.out.println("\n--- Alterar Password ---");
+        System.out.print("  Password atual: ");
+        String atual = lerPasswordMascarada();
+        System.out.print("  Nova password : ");
+        String nova = lerPasswordMascarada();
+        System.out.print("  Confirmar     : ");
+        String confirmar = lerPasswordMascarada();
+
+        if (!PasswordUtils.verificarPassword(atual, estudante.getPassword())) {
+            System.out.println("  [!] A password atual está incorreta.");
+            Utils.pausar(scanner);
+            return;
+        }
+        if (!nova.equals(confirmar)) {
+            System.out.println("  [!] As passwords não coincidem.");
+            Utils.pausar(scanner);
+            return;
+        }
+        estudanteController.alterarPassword(estudante, nova);
+        System.out.println("  [✓] Password alterada com sucesso.");
+        Utils.pausar(scanner);
+    }
+
+    /** Lê uma password ocultando os caracteres (usa System.console se disponível). */
+    private String lerPasswordMascarada() {
+        if (System.console() != null) {
+            char[] chars = System.console().readPassword();
+            return chars != null ? new String(chars) : "";
+        }
+        return scanner.nextLine().trim();
+    }
+
     private void verPropinas(Estudante estudante) {
         Utils.limparEcra();
         System.out.println("\n--- As minhas Propinas ---");
@@ -145,17 +173,26 @@ public class EstudanteView {
         if (!propina.isTotalmentePaga()) {
             System.out.println("\n  Saldo em dívida: "
                     + String.format("%.2f €", propina.getSaldoEmDebito()));
-            System.out.print("\n  Deseja efetuar um pagamento? (s/n): ");
-            String resposta = scanner.nextLine().trim();
 
-            if (resposta.equalsIgnoreCase("s")) {
-                double valor = Utils.lerDouble("Valor a pagar (€): ", scanner);
-                estudanteController.pagarPropina(estudante, valor);
-                System.out.printf("  [✓] Pagamento de %.2f € registado.%n", valor);
-                if (propina.isTotalmentePaga())
-                    System.out.println("  [✓] Propina totalmente liquidada!");
-                else
-                    System.out.printf("  Saldo restante: %.2f €%n", propina.getSaldoEmDebito());
+            // O pagamento só é permitido depois de o curso estar iniciado (ATIVO)
+            boolean cursoAtivo = inscricaoAtual.getCurso() != null
+                    && "ATIVO".equalsIgnoreCase(inscricaoAtual.getCurso().getEstado());
+
+            if (!cursoAtivo) {
+                System.out.println("  [!] O pagamento ficará disponível após o curso ser iniciado.");
+            } else {
+                System.out.print("\n  Deseja efetuar um pagamento? (s/n): ");
+                String resposta = scanner.nextLine().trim();
+
+                if (resposta.equalsIgnoreCase("s")) {
+                    double valor = Utils.lerDouble("Valor a pagar (€): ", scanner);
+                    estudanteController.pagarPropina(estudante, valor);
+                    System.out.printf("  [✓] Pagamento de %.2f € registado.%n", valor);
+                    if (propina.isTotalmentePaga())
+                        System.out.println("  [✓] Propina totalmente liquidada!");
+                    else
+                        System.out.printf("  Saldo restante: %.2f €%n", propina.getSaldoEmDebito());
+                }
             }
         } else {
             System.out.println("\n  [✓] Propina totalmente paga.");

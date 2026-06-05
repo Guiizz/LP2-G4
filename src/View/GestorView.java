@@ -33,16 +33,17 @@ public class GestorView {
     }
 
     public void iniciar(Gestor gestor) {
+        // Ordem segue o fluxo natural de configuração do sistema
         String[] opcoes = {
-                "Ver a minha Ficha",
-                "Gerir Gestores",
-                "Gerir Estudantes",
-                "Gerir Docentes",
+                "Ano Letivo",
                 "Gerir Departamentos",
                 "Gerir Cursos",
                 "Gerir Unidades Curriculares",
+                "Gerir Docentes",
+                "Gerir Estudantes",
                 "Gerir Avaliações",
-                "Ano Letivo"
+                "Ver a minha Ficha",
+                "Gerir Gestores"
         };
 
         int opcao;
@@ -51,19 +52,19 @@ public class GestorView {
             opcao = Utils.mostrarMenu("ÁREA DO GESTOR [" + gestor.getEmail() + "]", opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1:
+                    case 1: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
+                    case 2: new DepartamentoView(departamentoController, scanner).iniciar(); break;
+                    case 3: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
+                    case 4: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, scanner).iniciar(); break;
+                    case 5: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, scanner).iniciar(); break;
+                    case 6: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar(); break;
+                    case 7: new AvaliacaoView(avaliacaoController, unidadeCurricularController, scanner).iniciar(); break;
+                    case 8:
                         Utils.limparEcra();
                         System.out.println("\n" + gestor);
                         Utils.pausar(scanner);
                         break;
-                    case 2: new GestorMenuView(gestorController, scanner).iniciar(); break;
-                    case 3: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar(); break;
-                    case 4: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, scanner).iniciar(); break;
-                    case 5: new DepartamentoView(departamentoController, scanner).iniciar(); break;
-                    case 6: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
-                    case 7: new UnidadeCurricularView(unidadeCurricularController, docenteController, scanner).iniciar(); break;
-                    case 8: new AvaliacaoView(avaliacaoController, unidadeCurricularController, scanner).iniciar(); break;
-                    case 9: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
+                    case 9: new GestorMenuView(gestorController, scanner).iniciar(); break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
