@@ -199,6 +199,14 @@ public class CursoBLL {
     // Regras de negócio auxiliares
     // -------------------------------------------------------------------------
 
+    private void validarCursoNaoAlocado(Curso curso, List<Estudante> estudantes, String operacao) {
+        if (temEstudantesAlocados(curso, estudantes) || temDocentesAlocados(curso)) {
+            throw new IllegalArgumentException(
+                    "Não é possível " + operacao + " o curso '" + curso.getNomeCurso() +
+                            "' porque tem estudantes ou docentes alocados.");
+        }
+    }
+
     public boolean temEstudantesAlocados(Curso curso, List<Estudante> estudantes) {
         if (estudantes == null || estudantes.isEmpty()) {
             return false;
