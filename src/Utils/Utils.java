@@ -336,6 +336,16 @@ public class Utils {
         scanner.nextLine();
     }
 
+    public static boolean confirmar(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print("  " + mensagem + " (s/n): ");
+            String r = scanner.nextLine().trim().toLowerCase();
+            if (r.equals("s")) return true;
+            if (r.equals("n")) return false;
+            System.out.println("  [!] Responda com 's' ou 'n'.");
+        }
+    }
+
     /**
      * Limpa o ecrã da consola imprimindo linhas em branco.
      */
@@ -386,6 +396,12 @@ public class Utils {
         int largura = Math.max(36, titulo.length() + 4);
         System.out.println("\n  ┌" + "─".repeat(largura) + "┐");
         System.out.println("  │" + centrar(titulo, largura) + "│");
+        System.out.println("  └" + "─".repeat(largura) + "┘");
+    }
+
+    public static void tituloPagina(String secao, String titulo) {
+        System.out.println("\n  " + secao + " › " + titulo);
+        int largura = Math.max(36, titulo.length() + 4);
         System.out.println("  └" + "─".repeat(largura) + "┘");
     }
 

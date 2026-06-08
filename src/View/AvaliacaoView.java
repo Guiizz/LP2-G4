@@ -65,15 +65,35 @@ public class AvaliacaoView {
         UnidadeCurricular uc = selecionarUC();
         if (uc == null) return;
 
-        double peso = Utils.lerDouble("Peso (%): ", scanner);
-        Date data = Utils.lerDataAvaliacao("Data (DD/MM/AAAA): ", scanner);
-        double nota = Utils.lerDouble("Nota (0-20): ", scanner);
+        List<Model.MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
+        double peso;
+        if (momentos == null || momentos.isEmpty()) {
+            System.out.println("  [!] A UC não tem momentos de avaliação definidos. Introduza o peso manualmente.");
+            peso = Utils.lerDouble("  Peso (%): ", scanner);
+        } else {
+            System.out.println("\n  Momentos de avaliação:");
+            for (int i = 0; i < momentos.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + momentos.get(i).getNome()
+                        + " (" + momentos.get(i).getPeso() + "%)");
+            }
+            int escolha = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
+            if (escolha == 0) return;
+            if (escolha < 1 || escolha > momentos.size()) {
+                System.out.println("  [!] Opção inválida. Selecione entre 1 e " + momentos.size() + ".");
+                Utils.pausar(scanner);
+                return;
+            }
+            peso = momentos.get(escolha - 1).getPeso();
+            System.out.println("  Peso: " + peso + "%");
+        }
+
+        Date data = Utils.lerDataAvaliacao("  Data (DD/MM/AAAA): ", scanner);
 
         List<UnidadeCurricular> ucs = new ArrayList<>();
         ucs.add(uc);
 
-        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, nota);
-        System.out.println("  [✓] Avaliação registada com sucesso.");
+        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, 0);
+        System.out.println("  [✓] Momento de avaliação registado com sucesso.");
         System.out.println("  " + a);
         Utils.pausar(scanner);
     }
@@ -119,11 +139,8 @@ public class AvaliacaoView {
         }
         Avaliacao alvo = lista.get(escolha - 1);
 
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover esta avaliação? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Remover a avaliação de " + alvo.getDataFormatada() + "?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
         avaliacaoController.removerAvaliacao(alvo);
         System.out.println("  [✓] Avaliação removida com sucesso.");

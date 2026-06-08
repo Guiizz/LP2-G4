@@ -135,11 +135,8 @@ public class DocenteGestorView {
         Docente d = selecionarDocente();
         if (d == null) return;
 
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover '" + d.getNome() + "' (" + d.getSigla() + ")? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Remover o docente '" + d.getNome() + "' (" + d.getSigla() + ")?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
         docenteController.removerDocente(d.getSigla());
         System.out.println("  [✓] Docente removido com sucesso.");

@@ -76,7 +76,8 @@ public class CursoView {
             System.out.println("  " + (i + 1) + ". " + deptos.get(i).getNome()
                     + " (" + deptos.get(i).getSigla() + ")");
         }
-        int escolha = Utils.lerInteiro("Selecione o departamento (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione o departamento (0 para voltar): ", scanner);
+        if (escolha == 0) { Utils.pausar(scanner); return; }
         if (escolha < 1 || escolha > deptos.size()) {
             System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
         }
@@ -122,11 +123,8 @@ public class CursoView {
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
 
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o curso '" + c.getNomeCurso() + "'? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Remover o curso '" + c.getNomeCurso() + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
         cursoController.removerCurso(c);
         System.out.println("  [✓] Curso removido com sucesso.");
@@ -143,7 +141,7 @@ public class CursoView {
             System.out.println("    Ano " + ano + ": " + ucsAno.size() + "/5 UCs  (" + vagas + " vaga(s))");
         }
 
-        UnidadeCurricular uc = selecionarUC("UCs disponíveis");
+        UnidadeCurricular uc = selecionarUC("UCs disponíveis (excluindo já associadas)", c);
         if (uc == null) return;
 
         cursoController.adicionarUnidadeCurricular(c, uc);
@@ -162,7 +160,14 @@ public class CursoView {
         if (ano < 1 || ano > 3) { System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return; }
         List<UnidadeCurricular> ucs = cursoController.listarUCsPorAno(c, ano);
         if (ucs.isEmpty()) { System.out.println("  (sem UCs para o ano " + ano + ")"); Utils.pausar(scanner); return; }
-        for (UnidadeCurricular uc : ucs) { System.out.println("  - " + uc.getNome()); }
+        System.out.printf("  %-30s %-12s %s%n", "UC", "Estado", "Docente");
+        System.out.println("  " + "─".repeat(60));
+        for (UnidadeCurricular uc : ucs) {
+            System.out.printf("  %-30s %-12s %s%n",
+                    uc.getNome(),
+                    uc.isAtiva() ? "ATIVA" : "INATIVA",
+                    uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "—");
+        }
         Utils.pausar(scanner);
     }
 
@@ -178,7 +183,7 @@ public class CursoView {
 
     private void iniciarCurso() {
         Utils.tituloPagina("Iniciar Curso");
-        Curso c = selecionarCurso("Cursos disponíveis (apenas PENDENTE)");
+        Curso c = selecionarCurso("Cursos disponíveis", "PENDENTE");
         if (c == null) return;
 
         List<Estudante> todosEstudantes = estudanteController.listarEstudante();
@@ -190,11 +195,8 @@ public class CursoView {
         System.out.println("  Inscritos: " + inscritos);
         System.out.printf("  Propina  : %.2f €%n", c.getValorPropina());
 
-        String confirmar = Utils.lerCampo("\n  Confirmar inicio do curso? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Confirmar início do curso '" + c.getNomeCurso() + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
 
         cursoController.iniciarCurso(c, todosEstudantes);
@@ -220,18 +222,18 @@ public class CursoView {
         List<Estudante> inscritos = cursoController.listarEstudantesInscritos(c, todosEstudantes);
 
         System.out.println("\n  Curso: " + c.getNomeCurso() + " [" + c.getEstado() + "]");
-        System.out.println("  " + "-".repeat(55));
+        System.out.println("  " + "─".repeat(55));
 
         if (inscritos.isEmpty()) {
             System.out.println("  (sem alunos inscritos)");
         } else {
             System.out.printf("  %-12s %-25s %-6s%n", "Nº Mecano.", "Nome", "Ano");
-            System.out.println("  " + "-".repeat(55));
+            System.out.println("  " + "─".repeat(55));
             for (Estudante e : inscritos) {
                 System.out.printf("  %-12s %-25s %-6d%n",
                         e.getNumMecanografico(), e.getNome(), e.getAnoAtual());
             }
-            System.out.println("  " + "-".repeat(55));
+            System.out.println("  " + "─".repeat(55));
             System.out.println("  Total: " + inscritos.size() + " aluno(s)");
         }
 
@@ -269,10 +271,17 @@ public class CursoView {
         } while (opcao != 0);
     }
 
-    private Curso selecionarCurso(String titulo) {
-        ArrayList<Curso> cursos = cursoController.listarCursos();
+    // filtroEstado: se não null, só mostra cursos com esse estado (ex: "PENDENTE")
+    private Curso selecionarCurso(String titulo, String filtroEstado) {
+        ArrayList<Curso> todos = cursoController.listarCursos();
+        List<Curso> cursos = new ArrayList<>();
+        for (Curso c : todos) {
+            if (filtroEstado == null || filtroEstado.equalsIgnoreCase(c.getEstado())) cursos.add(c);
+        }
         if (cursos.isEmpty()) {
-            System.out.println("  [!] Não existem cursos registados.");
+            System.out.println("  [!] " + (filtroEstado != null
+                    ? "Não existem cursos no estado " + filtroEstado + "."
+                    : "Não existem cursos registados."));
             Utils.pausar(scanner);
             return null;
         }
@@ -280,23 +289,30 @@ public class CursoView {
         for (int i = 0; i < cursos.size(); i++) {
             Curso c = cursos.get(i);
             String dept = c.getDepartamento() != null ? c.getDepartamento().getNome() : "sem dept.";
-            System.out.println("  " + (i + 1) + ". " + c.getNomeCurso()
-                    + " [" + c.getEstado() + "] — " + dept);
+            System.out.println("  " + (i + 1) + ". " + c.getNomeCurso() + " [" + c.getEstado() + "] — " + dept);
         }
         int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
         if (escolha == 0) return null;
         if (escolha < 1 || escolha > cursos.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
+            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return null;
         }
         return cursos.get(escolha - 1);
     }
 
-    private UnidadeCurricular selecionarUC(String titulo) {
-        ArrayList<UnidadeCurricular> ucs = unidadeCurricularController.listarUnidades();
+    private Curso selecionarCurso(String titulo) {
+        return selecionarCurso(titulo, null);
+    }
+
+    // Mostra UCs excluindo as já presentes no curso c
+    private UnidadeCurricular selecionarUC(String titulo, Curso excluirDoC) {
+        ArrayList<UnidadeCurricular> todas = unidadeCurricularController.listarUnidades();
+        List<UnidadeCurricular> ucs = new ArrayList<>();
+        for (UnidadeCurricular u : todas) {
+            if (excluirDoC != null && excluirDoC.getUnidades().contains(u)) continue;
+            ucs.add(u);
+        }
         if (ucs.isEmpty()) {
-            System.out.println("  [!] Não existem UCs registadas.");
+            System.out.println("  [!] Não existem UCs disponíveis para adicionar.");
             Utils.pausar(scanner);
             return null;
         }
@@ -305,12 +321,15 @@ public class CursoView {
             System.out.println("  " + (i + 1) + ". " + ucs.get(i).getNome()
                     + " (Ano " + ucs.get(i).getAnoCurricular() + ")");
         }
-        int escolha = Utils.lerInteiro("Selecione a UC (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
         if (escolha < 1 || escolha > ucs.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
+            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return null;
         }
         return ucs.get(escolha - 1);
+    }
+
+    private UnidadeCurricular selecionarUC(String titulo) {
+        return selecionarUC(titulo, null);
     }
 }
