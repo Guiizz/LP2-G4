@@ -1,6 +1,8 @@
 package Controller;
 
+import Config.ModoPersistencia;
 import DAL.*;
+import DAL.BD.DepartamentoDAL_BD;
 import BLL.*;
 
 public class LoginController {
@@ -21,7 +23,9 @@ public class LoginController {
     public LoginController() {
 
         UnidadeCurricularDAL ucDAL = new UnidadeCurricularDAL();
-        DepartamentoDAL depDAL = new DepartamentoDAL();
+        IDepartamentoDAL depDAL = ModoPersistencia.isBaseDados()
+                ? new DepartamentoDAL_BD()
+                : new DepartamentoDAL();
         CursoDAL cursoDAL = new CursoDAL(depDAL, ucDAL);
         DocenteDAL docenteDAL = new DocenteDAL(ucDAL);
         EstudanteDAL estudanteDAL = new EstudanteDAL(cursoDAL);

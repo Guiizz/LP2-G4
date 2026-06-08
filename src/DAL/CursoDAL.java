@@ -16,14 +16,14 @@ public class CursoDAL {
     private static final String CABECALHO = "nomeCurso;siglaDepartamento;nomesUCs;estado;valorPropina";
 
     private ArrayList<Curso> cursos;
-    private DepartamentoDAL departamentoDAL;
+    private IDepartamentoDAL departamentoDAL;
     private UnidadeCurricularDAL unidadeCurricularDAL;
 
     public CursoDAL() {
         this(new DepartamentoDAL(), new UnidadeCurricularDAL());
     }
 
-    public CursoDAL(DepartamentoDAL departamentoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+    public CursoDAL(IDepartamentoDAL departamentoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
         this.departamentoDAL = departamentoDAL;
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.cursos = new ArrayList<>();
