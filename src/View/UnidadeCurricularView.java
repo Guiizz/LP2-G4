@@ -119,10 +119,10 @@ public class UnidadeCurricularView {
         UnidadeCurricular uc = selecionarUC(lista);
         if (uc == null) return;
 
-        String novoNome = Utils.lerCampo("Novo nome (Enter para manter): ", scanner);
+        String novoNome = Utils.lerCampo("  Novo nome (Enter para manter): ", scanner);
         if (!novoNome.isEmpty()) uc.setNome(novoNome);
 
-        System.out.print("Novo ano curricular (Enter para manter): ");
+        System.out.print("  Novo ano curricular (Enter para manter): ");
         String anoStr = scanner.nextLine().trim();
         if (!anoStr.isEmpty()) {
             try { uc.setAnoCurricular(Integer.parseInt(anoStr)); }
@@ -131,9 +131,7 @@ public class UnidadeCurricularView {
 
         String docenteAtual = uc.temDocenteResponsavel() ? uc.getDocenteResponsavel() : "(por atribuir)";
         System.out.println("  Docente responsável atual: " + docenteAtual);
-        System.out.print("  Alterar docente responsável? (S/N): ");
-        String resposta = scanner.nextLine().trim();
-        if (resposta.equalsIgnoreCase("S")) {
+        if (Utils.confirmar("Alterar docente responsável?", scanner)) {
             String sigla = selecionarDocente();
             if (sigla != null) {
                 uc.setDocenteResponsavel(sigla);
@@ -153,11 +151,8 @@ public class UnidadeCurricularView {
         UnidadeCurricular uc = selecionarUC(lista);
         if (uc == null) return;
 
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover a UC '" + uc.getNome() + "'? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Remover a UC '" + uc.getNome() + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
         unidadeCurricularController.removerUnidade(uc);
         System.out.println("  [✓] UC '" + uc.getNome() + "' removida com sucesso.");
@@ -234,16 +229,15 @@ public class UnidadeCurricularView {
             Utils.pausar(scanner);
             return;
         }
-        double disponivel = 100.0 - uc.somaPesosParaAno(anoLetivo);
-        System.out.printf("  Peso disponível para %d/%d: %.1f%%%n", anoLetivo, anoLetivo + 1, disponivel);
 
-        String nomeMomento = Utils.lerCampo("Nome do momento (ex: Frequência, Exame, Projeto): ", scanner);
-        double peso = Utils.lerDouble("Peso (%): ", scanner);
+        String nomeMomento = Utils.lerCampo("  Nome do momento (ex: Frequência, Exame, Projeto): ", scanner);
+        unidadeCurricularController.adicionarMomento(uc, nomeMomento);
 
-        unidadeCurricularController.adicionarMomento(uc, nomeMomento, peso);
-        System.out.println("  [✓] Momento '" + nomeMomento + "' (" + String.format("%.1f", peso)
-                + "%) adicionado para " + anoLetivo + "/" + (anoLetivo + 1)
-                + ". Soma: " + String.format("%.1f", uc.somaPesosParaAno(anoLetivo)) + "%");
+        List<MomentoAvaliacao> atualizados = uc.getMomentosParaAno(anoLetivo);
+        System.out.println("  [✓] Momento '" + nomeMomento + "' adicionado. Distribuição atual:");
+        for (MomentoAvaliacao m : atualizados) {
+            System.out.printf("      %-30s %.0f%%%n", m.getNome(), m.getPeso());
+        }
         Utils.pausar(scanner);
     }
 
@@ -262,7 +256,8 @@ public class UnidadeCurricularView {
                     momentosDoAno.get(i).getPeso());
         }
 
-        int escolha = Utils.lerInteiro("Selecione o momento a remover (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione o momento a remover (0 para voltar): ", scanner);
+        if (escolha == 0) { Utils.pausar(scanner); return; }
         if (escolha < 1 || escolha > momentosDoAno.size()) {
             System.out.println("  [!] Opção inválida.");
             Utils.pausar(scanner);
@@ -279,6 +274,9 @@ public class UnidadeCurricularView {
         }
 
         String nomeRemovido = momentoRemover.getNome();
+        if (!Utils.confirmar("Remover o momento '" + nomeRemovido + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
+        }
         unidadeCurricularController.removerMomento(uc, indiceReal);
         System.out.println("  [✓] Momento '" + nomeRemovido + "' removido.");
         Utils.pausar(scanner);

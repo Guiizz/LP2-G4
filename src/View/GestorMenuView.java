@@ -58,7 +58,7 @@ public class GestorMenuView {
         String nif = Utils.lerNif("NIF: ", scanner);
         String morada = Utils.lerMorada("Morada: ", scanner);
         String email = Utils.lerEmail("Email (@issmf.pt): ", scanner);
-        System.out.print("Password: ");
+        System.out.print("  Password: ");
         String password = lerPassword();
 
         gestorController.registarGestor(nome, data, nif, morada, email, password);
@@ -106,11 +106,8 @@ public class GestorMenuView {
         Gestor g = selecionarGestor();
         if (g == null) return;
 
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover o gestor '" + g.getNome() + "'? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Remover o gestor '" + g.getNome() + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
         gestorController.removerGestor(g.getNif());
         System.out.println("  [✓] Gestor removido com sucesso.");

@@ -129,11 +129,8 @@ public class EstudanteGestorView {
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
-        String confirmar = Utils.lerCampo("  Tem a certeza que deseja remover '" + e.getNome() + "'? (S/N): ", scanner);
-        if (!confirmar.equalsIgnoreCase("S")) {
-            System.out.println("  Operação cancelada.");
-            Utils.pausar(scanner);
-            return;
+        if (!Utils.confirmar("Remover o estudante '" + e.getNome() + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
         estudanteController.removerEstudante(e.getNumMecanografico());
         System.out.println("  [✓] Estudante removido com sucesso.");
@@ -178,7 +175,8 @@ public class EstudanteGestorView {
             System.out.println("  " + (i + 1) + ". " + c.getNomeCurso() + " | " + c.getDepartamento().getNome() + " [" + c.getEstado() + "]");
         }
 
-        int escolha = Utils.lerInteiro("Selecione o curso (número): ", scanner);
+        int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
+        if (escolha == 0) return;
         if (escolha < 1 || escolha > cursos.size()) {
             System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
         }
@@ -235,15 +233,19 @@ public class EstudanteGestorView {
 
         String cabecalho = String.format("  %-12s %-22s %-8s %-10s %-10s %s",
                 "Nº Mecano.", "Nome", "Ano", "Total", "Pago", "Estado");
-        System.out.println("  " + "-".repeat(72));
+        System.out.println("  " + "─".repeat(72));
         System.out.println(cabecalho);
-        System.out.println("  " + "-".repeat(72));
+        System.out.println("  " + "─".repeat(72));
 
+        double totalGlobal = 0;
+        double totalPago = 0;
+        int semInscricao = 0;
         for (Estudante e : todos) {
             Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(e);
             if (inscricaoAtual == null || inscricaoAtual.getPropina() == null) {
                 System.out.printf("  %-12s %-22s %-8s %-10s %-10s %s%n",
                         e.getNumMecanografico(), e.getNome(), "-", "-", "-", "Sem inscrição");
+                semInscricao++;
                 continue;
             }
             Propina p = inscricaoAtual.getPropina();
@@ -262,8 +264,15 @@ public class EstudanteGestorView {
                     p.getValorTotal(),
                     p.getValorPago(),
                     estado);
+            totalGlobal += p.getValorTotal();
+            totalPago   += p.getValorPago();
         }
-        System.out.println("  " + "-".repeat(72));
+        double totalEmDivida = totalGlobal - totalPago;
+        System.out.println("  " + "─".repeat(72));
+        System.out.printf("  %-44s %8.2f€ %8.2f€ %s%n",
+                "TOTAL (" + (todos.size() - semInscricao) + " aluno(s) com inscrição)",
+                totalGlobal, totalPago,
+                String.format("%.2f€ em dívida", totalEmDivida));
         Utils.pausar(scanner);
     }
 
@@ -281,9 +290,9 @@ public class EstudanteGestorView {
 
         String cabecalho = String.format("  %-12s %-22s %-20s %-10s %-10s %s",
                 "Nº Mecano.", "Nome", "Curso", "Total", "Pago", "Em Dívida");
-        System.out.println("  " + "-".repeat(82));
+        System.out.println("  " + "─".repeat(82));
         System.out.println(cabecalho);
-        System.out.println("  " + "-".repeat(82));
+        System.out.println("  " + "─".repeat(82));
 
         for (Estudante e : estudantes) {
             Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(e);
@@ -304,7 +313,7 @@ public class EstudanteGestorView {
                         e.getNumMecanografico(), e.getNome(), nomeCurso);
             }
         }
-        System.out.println("  " + "-".repeat(82));
+        System.out.println("  " + "─".repeat(82));
         Utils.pausar(scanner);
     }
 

@@ -93,22 +93,14 @@ public class UnidadeCurricularBLL {
 
     /**
      * Adiciona um momento de avaliação a uma UC, associado ao ano letivo actual.
-     * Se não existir ano letivo aberto, lança excepção.
-     * Regras:
-     *  - A UC não pode já ter 3 momentos para esse ano letivo.
-     *  - O nome não pode ser vazio.
-     *  - O peso deve ser > 0 e <= 100.
-     *  - A soma dos pesos desse ano não pode ultrapassar 100%.
+     * O peso é calculado automaticamente: 1→100%, 2→50/50%, 3→33/33/34%.
      */
-    public void adicionarMomento(UnidadeCurricular uc, String nome, double peso) {
+    public void adicionarMomento(UnidadeCurricular uc, String nome) {
         if (uc == null) {
             throw new IllegalArgumentException("A UC não pode ser nula.");
         }
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("O nome do momento não pode ser vazio.");
-        }
-        if (peso <= 0 || peso > 100) {
-            throw new IllegalArgumentException("O peso deve ser um valor entre 0 e 100.");
         }
 
         AnoLetivo anoAberto = anoLetivoDAL.procurarAnoAberto();
@@ -125,22 +117,14 @@ public class UnidadeCurricularBLL {
                     + anoLetivo + "/" + (anoLetivo + 1) + ".");
         }
 
-        double somaAtual = uc.somaPesosParaAno(anoLetivo);
-        if (somaAtual + peso > 100.0 + 0.01) {
-            throw new IllegalArgumentException(
-                    "Peso inválido. A soma actual para " + anoLetivo + "/" + (anoLetivo + 1)
-                    + " é " + String.format("%.1f", somaAtual)
-                    + "% e ao adicionar " + String.format("%.1f", peso)
-                    + "% ultrapassaria 100%.");
-        }
-
-        uc.adicionarMomento(new MomentoAvaliacao(nome, peso, anoLetivo));
+        uc.adicionarMomento(new MomentoAvaliacao(nome, 0, anoLetivo));
+        redistribuirPesos(uc.getMomentosParaAno(anoLetivo));
         unidadeCurricularDAL.atualizarUnidade(uc);
     }
 
     /**
-     * Remove um momento de avaliação de uma UC pelo seu índice (0-based).
-     * Não é permitido remover momentos de uma UC já activa.
+     * Remove um momento de avaliação de uma UC pelo seu índice (0-based)
+     * e redistribui os pesos automaticamente.
      */
     public void removerMomento(UnidadeCurricular uc, int indice) {
         if (uc == null) {
@@ -156,8 +140,26 @@ public class UnidadeCurricularBLL {
         if (indice < 0 || indice >= uc.getMomentosAvaliacao().size()) {
             throw new IllegalArgumentException("Índice de momento inválido.");
         }
+        MomentoAvaliacao removido = uc.getMomentosAvaliacao().get(indice);
+        int anoLetivo = removido.getAnoLetivo();
         uc.getMomentosAvaliacao().remove(indice);
+        redistribuirPesos(uc.getMomentosParaAno(anoLetivo));
         unidadeCurricularDAL.atualizarUnidade(uc);
+    }
+
+    private void redistribuirPesos(List<MomentoAvaliacao> momentos) {
+        int n = momentos.size();
+        if (n == 0) return;
+        if (n == 1) {
+            momentos.get(0).setPeso(100.0);
+        } else if (n == 2) {
+            momentos.get(0).setPeso(50.0);
+            momentos.get(1).setPeso(50.0);
+        } else {
+            momentos.get(0).setPeso(33.0);
+            momentos.get(1).setPeso(33.0);
+            momentos.get(2).setPeso(34.0);
+        }
     }
 
     /**
