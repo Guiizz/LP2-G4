@@ -2,6 +2,7 @@ package DAL.BD;
 
 import DAL.ICursoDAL;
 import DAL.IDepartamentoDAL;
+import DAL.IUnidadeCurricularDAL;
 import DAL.UnidadeCurricularDAL;
 import Model.Curso;
 import Model.Departamento;
@@ -29,9 +30,9 @@ public class CursoDAL_BD implements ICursoDAL {
 
     private final ConexaoBD conexao;
     private final IDepartamentoDAL departamentoDAL;
-    private final UnidadeCurricularDAL unidadeCurricularDAL;
+    private final IUnidadeCurricularDAL unidadeCurricularDAL;
 
-    public CursoDAL_BD(IDepartamentoDAL departamentoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+    public CursoDAL_BD(IDepartamentoDAL departamentoDAL, IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.conexao               = new ConexaoBD();
         this.departamentoDAL       = departamentoDAL;
         this.unidadeCurricularDAL  = unidadeCurricularDAL;

@@ -6,6 +6,7 @@ import DAL.CursoDAL;
 import DAL.ICursoDAL;
 import DAL.EstudanteDAL;
 import DAL.UnidadeCurricularDAL;
+import DAL.IUnidadeCurricularDAL;
 import Model.*;
 import Utils.Utils;
 
@@ -21,14 +22,14 @@ public class CursoBLL {
     private ICursoDAL              cursoDAL;
     private EstudanteDAL          estudanteDAL;
     private IAnoLetivoDAL          anoLetivoDAL;
-    private UnidadeCurricularDAL  unidadeCurricularDAL;
+    private IUnidadeCurricularDAL  unidadeCurricularDAL;
 
     private static final int QUORUM_MINIMO   = 5;
     private static final int MAX_UCS_POR_ANO = 5;
     private static final int DURACAO_CURSO   = 3;
 
     public CursoBLL(ICursoDAL cursoDAL, EstudanteDAL estudanteDAL,
-                    IAnoLetivoDAL anoLetivoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+                    IAnoLetivoDAL anoLetivoDAL, IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.cursoDAL             = cursoDAL;
         this.estudanteDAL         = estudanteDAL;
         this.anoLetivoDAL         = anoLetivoDAL;

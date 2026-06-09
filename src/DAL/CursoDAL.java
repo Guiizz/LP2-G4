@@ -17,13 +17,13 @@ public class CursoDAL implements ICursoDAL {
 
     private ArrayList<Curso> cursos;
     private IDepartamentoDAL departamentoDAL;
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
 
     public CursoDAL() {
         this(new DepartamentoDAL(), new UnidadeCurricularDAL());
     }
 
-    public CursoDAL(IDepartamentoDAL departamentoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+    public CursoDAL(IDepartamentoDAL departamentoDAL, IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.departamentoDAL = departamentoDAL;
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.cursos = new ArrayList<>();

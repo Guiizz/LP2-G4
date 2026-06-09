@@ -19,13 +19,13 @@ public class AvaliacaoDAL {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
 
     private ArrayList<Avaliacao> avaliacoes;
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
 
     public AvaliacaoDAL() {
         this(new UnidadeCurricularDAL());
     }
 
-    public AvaliacaoDAL(UnidadeCurricularDAL unidadeCurricularDAL) {
+    public AvaliacaoDAL(IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.avaliacoes = new ArrayList<>();
         SDF.setLenient(false);

@@ -3,6 +3,7 @@ package BLL;
 import DAL.AnoLetivoDAL;
 import DAL.IAnoLetivoDAL;
 import DAL.UnidadeCurricularDAL;
+import DAL.IUnidadeCurricularDAL;
 import Model.AnoLetivo;
 import Model.MomentoAvaliacao;
 import Model.UnidadeCurricular;
@@ -12,16 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnidadeCurricularBLL {
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
     private IAnoLetivoDAL         anoLetivoDAL;
 
-    public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL, IAnoLetivoDAL anoLetivoDAL) {
+    public UnidadeCurricularBLL(IUnidadeCurricularDAL unidadeCurricularDAL, IAnoLetivoDAL anoLetivoDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.anoLetivoDAL         = anoLetivoDAL;
     }
 
     /** Construtor de compatibilidade. */
-    public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL) {
+    public UnidadeCurricularBLL(IUnidadeCurricularDAL unidadeCurricularDAL) {
         this(unidadeCurricularDAL, new AnoLetivoDAL());
     }
 

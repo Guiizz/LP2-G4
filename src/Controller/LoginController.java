@@ -6,6 +6,7 @@ import DAL.BD.AnoLetivoDAL_BD;
 import DAL.BD.CursoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
 import DAL.BD.InscricaoDAL_BD;
+import DAL.BD.UnidadeCurricularDAL_BD;
 import BLL.*;
 
 public class LoginController {
@@ -25,7 +26,9 @@ public class LoginController {
 
     public LoginController() {
 
-        UnidadeCurricularDAL ucDAL = new UnidadeCurricularDAL();
+        IUnidadeCurricularDAL ucDAL = ModoPersistencia.isBaseDados()
+                ? new UnidadeCurricularDAL_BD()
+                : new UnidadeCurricularDAL();
         IDepartamentoDAL depDAL = ModoPersistencia.isBaseDados()
                 ? new DepartamentoDAL_BD()
                 : new DepartamentoDAL();

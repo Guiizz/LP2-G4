@@ -16,13 +16,13 @@ public class DocenteDAL {
     private static final String CABECALHO = "nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin";
 
     private ArrayList<Docente> docentes;
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
 
     public DocenteDAL() {
         this(new UnidadeCurricularDAL());
     }
 
-    public DocenteDAL(UnidadeCurricularDAL unidadeCurricularDAL) {
+    public DocenteDAL(IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.docentes = new ArrayList<>();
         Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
