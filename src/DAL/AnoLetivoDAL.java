@@ -7,7 +7,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class AnoLetivoDAL {
+public class AnoLetivoDAL implements IAnoLetivoDAL {
     private static final String FICHEIRO_CSV = "csv/anos_letivos.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "ano;estado;dataAbertura;dataFecho";

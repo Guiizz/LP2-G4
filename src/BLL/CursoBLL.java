@@ -1,6 +1,7 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
+import DAL.IAnoLetivoDAL;
 import DAL.CursoDAL;
 import DAL.EstudanteDAL;
 import DAL.UnidadeCurricularDAL;
@@ -18,7 +19,7 @@ public class CursoBLL {
 
     private CursoDAL              cursoDAL;
     private EstudanteDAL          estudanteDAL;
-    private AnoLetivoDAL          anoLetivoDAL;
+    private IAnoLetivoDAL          anoLetivoDAL;
     private UnidadeCurricularDAL  unidadeCurricularDAL;
 
     private static final int QUORUM_MINIMO   = 5;
@@ -26,7 +27,7 @@ public class CursoBLL {
     private static final int DURACAO_CURSO   = 3;
 
     public CursoBLL(CursoDAL cursoDAL, EstudanteDAL estudanteDAL,
-                    AnoLetivoDAL anoLetivoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+                    IAnoLetivoDAL anoLetivoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
         this.cursoDAL             = cursoDAL;
         this.estudanteDAL         = estudanteDAL;
         this.anoLetivoDAL         = anoLetivoDAL;

@@ -1,6 +1,6 @@
 package BLL;
 
-import DAL.AnoLetivoDAL;
+import DAL.IAnoLetivoDAL;
 import Model.*;
 import DAL.HistoricoAnoLetivoDAL;
 
@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnoLetivoBLL {
-    private final AnoLetivoDAL anoLetivoDAL;
+    private final IAnoLetivoDAL anoLetivoDAL;
     private final HistoricoAnoLetivoDAL historicoAnoLetivoDAL;
 
-    public AnoLetivoBLL(AnoLetivoDAL anoLetivoDAL) {
+    public AnoLetivoBLL(IAnoLetivoDAL anoLetivoDAL) {
         this.anoLetivoDAL = anoLetivoDAL;
         this.historicoAnoLetivoDAL = new HistoricoAnoLetivoDAL();
     }

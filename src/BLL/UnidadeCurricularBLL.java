@@ -1,6 +1,7 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
+import DAL.IAnoLetivoDAL;
 import DAL.UnidadeCurricularDAL;
 import Model.AnoLetivo;
 import Model.MomentoAvaliacao;
@@ -12,9 +13,9 @@ import java.util.List;
 
 public class UnidadeCurricularBLL {
     private UnidadeCurricularDAL unidadeCurricularDAL;
-    private AnoLetivoDAL         anoLetivoDAL;
+    private IAnoLetivoDAL         anoLetivoDAL;
 
-    public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL, AnoLetivoDAL anoLetivoDAL) {
+    public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL, IAnoLetivoDAL anoLetivoDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.anoLetivoDAL         = anoLetivoDAL;
     }

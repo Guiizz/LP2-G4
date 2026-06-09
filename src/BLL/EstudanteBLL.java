@@ -1,6 +1,7 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
+import DAL.IAnoLetivoDAL;
 import DAL.DocenteDAL;
 import DAL.EstudanteDAL;
 import Model.*;
@@ -14,13 +15,13 @@ import Utils.PasswordUtils;
 public class EstudanteBLL {
     private EstudanteDAL estudanteDAL;
     private DocenteDAL docenteDAL;
-    private AnoLetivoDAL anoLetivoDAL;
+    private IAnoLetivoDAL anoLetivoDAL;
 
     public EstudanteBLL(EstudanteDAL estudanteDAL,DocenteDAL docenteDAL) {
         this(estudanteDAL, docenteDAL, new AnoLetivoDAL());
     }
 
-    public EstudanteBLL(EstudanteDAL estudanteDAL, DocenteDAL docenteDAL, AnoLetivoDAL anoLetivoDAL) {
+    public EstudanteBLL(EstudanteDAL estudanteDAL, DocenteDAL docenteDAL, IAnoLetivoDAL anoLetivoDAL) {
         this.estudanteDAL = estudanteDAL;
         this.docenteDAL = docenteDAL;
         this.anoLetivoDAL = anoLetivoDAL;

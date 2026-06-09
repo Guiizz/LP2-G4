@@ -2,7 +2,9 @@ package Controller;
 
 import Config.ModoPersistencia;
 import DAL.*;
+import DAL.BD.AnoLetivoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
+import DAL.BD.InscricaoDAL_BD;
 import BLL.*;
 
 public class LoginController {
@@ -28,9 +30,14 @@ public class LoginController {
                 : new DepartamentoDAL();
         CursoDAL cursoDAL = new CursoDAL(depDAL, ucDAL);
         DocenteDAL docenteDAL = new DocenteDAL(ucDAL);
-        EstudanteDAL estudanteDAL = new EstudanteDAL(cursoDAL);
+        IInscricaoDAL inscricaoDAL = ModoPersistencia.isBaseDados()
+                ? new InscricaoDAL_BD()
+                : new InscricaoDAL();
+        EstudanteDAL estudanteDAL = new EstudanteDAL(cursoDAL, inscricaoDAL);
         GestorDAL gestorDAL = new GestorDAL();
-        AnoLetivoDAL anoLetivoDAL = new AnoLetivoDAL();
+        IAnoLetivoDAL anoLetivoDAL = ModoPersistencia.isBaseDados()
+                ? new AnoLetivoDAL_BD()
+                : new AnoLetivoDAL();
         DAL.HorarioDAL horarioDAL = new DAL.HorarioDAL();
         DAL.RegistoAulaDAL registoAulaDAL = new DAL.RegistoAulaDAL();
         DAL.PresencaDAL presencaDAL = new DAL.PresencaDAL();
