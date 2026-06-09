@@ -97,16 +97,11 @@ public class Utils {
             throw new IllegalArgumentException("A palavra-passe deve ter no mínimo 8 caracteres.");
         }
         boolean temLetra = false;
-        boolean temNumero = false;
         for (char c : password.toCharArray()) {
             if (Character.isLetter(c)) temLetra = true;
-            if (Character.isDigit(c)) temNumero = true;
         }
         if (!temLetra) {
             throw new IllegalArgumentException("A palavra-passe deve conter pelo menos uma letra.");
-        }
-        if (!temNumero) {
-            throw new IllegalArgumentException("A palavra-passe deve conter pelo menos um número.");
         }
     }
 
