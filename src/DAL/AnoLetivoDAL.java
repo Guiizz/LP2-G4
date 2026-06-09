@@ -1,11 +1,13 @@
 package DAL;
 
 import Model.AnoLetivo;
+import Model.DadosEstudanteFecho;
 import Utils.Utils;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AnoLetivoDAL implements IAnoLetivoDAL {
     private static final String FICHEIRO_CSV = "csv/anos_letivos.csv";
@@ -72,6 +74,27 @@ public class AnoLetivoDAL implements IAnoLetivoDAL {
             }
         }
         return maisRecente;
+    }
+
+    // ── Fecho de Ano Letivo ── no-ops em modo CSV ─────────────────────────────
+
+    /**
+     * Em modo CSV a BLL usa o path de objetos (fecharAnoAtual(List<Estudante>)).
+     * Devolve lista vazia para que a BLL saiba que deve usar esse path.
+     */
+    @Override
+    public ArrayList<DadosEstudanteFecho> carregarDadosParaFecho(int anoLetivo) {
+        return new ArrayList<>(); // sinal para BLL usar path CSV
+    }
+
+    /**
+     * Em modo CSV a persistência é feita via os objetos Estudante pela View/Controller.
+     */
+    @Override
+    public void persistirResultadoFecho(int anoLetivo,
+                                         List<String> numMecsAvancar,
+                                         List<String> numMecsConcluir) {
+        // no-op em modo CSV
     }
 
     private void carregarDoCSV() {
