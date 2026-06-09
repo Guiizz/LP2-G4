@@ -1,6 +1,19 @@
 package Controller;
 
+import Config.ModoPersistencia;
 import DAL.*;
+import DAL.BD.AnoLetivoDAL_BD;
+import DAL.BD.AvaliacaoDAL_BD;
+import DAL.BD.CursoDAL_BD;
+import DAL.BD.DepartamentoDAL_BD;
+import DAL.BD.DocenteDAL_BD;
+import DAL.BD.EstudanteDAL_BD;
+import DAL.BD.GestorDAL_BD;
+import DAL.BD.InscricaoDAL_BD;
+import DAL.BD.MomentoAvaliacaoDAL_BD;
+import DAL.BD.PagamentoDAL_BD;
+import DAL.BD.PropinaDAL_BD;
+import DAL.BD.UnidadeCurricularDAL_BD;
 import BLL.*;
 
 public class LoginController {
@@ -20,13 +33,39 @@ public class LoginController {
 
     public LoginController() {
 
-        UnidadeCurricularDAL ucDAL = new UnidadeCurricularDAL();
-        DepartamentoDAL depDAL = new DepartamentoDAL();
-        CursoDAL cursoDAL = new CursoDAL(depDAL, ucDAL);
-        DocenteDAL docenteDAL = new DocenteDAL(ucDAL);
-        EstudanteDAL estudanteDAL = new EstudanteDAL(cursoDAL);
-        GestorDAL gestorDAL = new GestorDAL();
-        AnoLetivoDAL anoLetivoDAL = new AnoLetivoDAL();
+        IMomentoAvaliacaoDAL momentoDAL = ModoPersistencia.isBaseDados()
+                ? new MomentoAvaliacaoDAL_BD()
+                : new MomentoAvaliacaoDAL();
+        IUnidadeCurricularDAL ucDAL = ModoPersistencia.isBaseDados()
+                ? new UnidadeCurricularDAL_BD(momentoDAL)
+                : new UnidadeCurricularDAL();
+        IDepartamentoDAL depDAL = ModoPersistencia.isBaseDados()
+                ? new DepartamentoDAL_BD()
+                : new DepartamentoDAL();
+        ICursoDAL cursoDAL = ModoPersistencia.isBaseDados()
+                ? new CursoDAL_BD(depDAL, ucDAL)
+                : new CursoDAL(depDAL, ucDAL);
+        IDocenteDAL docenteDAL = ModoPersistencia.isBaseDados()
+                ? new DocenteDAL_BD(ucDAL)
+                : new DocenteDAL(ucDAL);
+        IPagamentoDAL pagamentoDAL = ModoPersistencia.isBaseDados()
+                ? new PagamentoDAL_BD()
+                : new PagamentoDAL();
+        IPropinaDAL propinaDAL = ModoPersistencia.isBaseDados()
+                ? new PropinaDAL_BD(pagamentoDAL)
+                : new PropinaDAL();
+        IInscricaoDAL inscricaoDAL = ModoPersistencia.isBaseDados()
+                ? new InscricaoDAL_BD(propinaDAL)
+                : new InscricaoDAL();
+        IEstudanteDAL estudanteDAL = ModoPersistencia.isBaseDados()
+                ? new EstudanteDAL_BD(cursoDAL, inscricaoDAL)
+                : new EstudanteDAL(cursoDAL, inscricaoDAL);
+        IGestorDAL gestorDAL = ModoPersistencia.isBaseDados()
+                ? new GestorDAL_BD()
+                : new GestorDAL();
+        IAnoLetivoDAL anoLetivoDAL = ModoPersistencia.isBaseDados()
+                ? new AnoLetivoDAL_BD()
+                : new AnoLetivoDAL();
         DAL.HorarioDAL horarioDAL = new DAL.HorarioDAL();
         DAL.RegistoAulaDAL registoAulaDAL = new DAL.RegistoAulaDAL();
         DAL.PresencaDAL presencaDAL = new DAL.PresencaDAL();
@@ -39,8 +78,11 @@ public class LoginController {
         DocenteBLL docenteBLL = new DocenteBLL(docenteDAL, estudanteDAL);
         EstudanteBLL estBLL = new EstudanteBLL(estudanteDAL, docenteDAL, anoLetivoDAL);
         GestorBLL gestorBLL = new GestorBLL(gestorDAL);
-        AnoLetivoBLL anoLetBLL = new AnoLetivoBLL(anoLetivoDAL, estudanteDAL);
-        AvaliacaoBLL avalBLL = new AvaliacaoBLL(new AvaliacaoDAL(ucDAL));
+        AnoLetivoBLL anoLetBLL = new AnoLetivoBLL(anoLetivoDAL);
+        IAvaliacaoDAL avaliacaoDAL = ModoPersistencia.isBaseDados()
+                ? new AvaliacaoDAL_BD(ucDAL)
+                : new AvaliacaoDAL(ucDAL);
+        AvaliacaoBLL avalBLL = new AvaliacaoBLL(avaliacaoDAL);
         BLL.HorarioBLL horarioBLL = new BLL.HorarioBLL(horarioDAL, ucDAL);
         BLL.PresencaBLL presencaBLL = new BLL.PresencaBLL(registoAulaDAL, presencaDAL);
         BLL.JustificacaoBLL justificacaoBLL = new BLL.JustificacaoBLL(justificacaoDAL, tipoJustDAL);

@@ -1,8 +1,11 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
+import DAL.IAnoLetivoDAL;
 import DAL.DocenteDAL;
+import DAL.IDocenteDAL;
 import DAL.EstudanteDAL;
+import DAL.IEstudanteDAL;
 import Model.*;
 import Utils.Utils;
 import Utils.ServicoEmail;
@@ -12,15 +15,15 @@ import java.util.Date;
 import Utils.PasswordUtils;
 
 public class EstudanteBLL {
-    private EstudanteDAL estudanteDAL;
-    private DocenteDAL docenteDAL;
-    private AnoLetivoDAL anoLetivoDAL;
+    private IEstudanteDAL estudanteDAL;
+    private IDocenteDAL docenteDAL;
+    private IAnoLetivoDAL anoLetivoDAL;
 
-    public EstudanteBLL(EstudanteDAL estudanteDAL,DocenteDAL docenteDAL) {
+    public EstudanteBLL(IEstudanteDAL estudanteDAL, IDocenteDAL docenteDAL) {
         this(estudanteDAL, docenteDAL, new AnoLetivoDAL());
     }
 
-    public EstudanteBLL(EstudanteDAL estudanteDAL, DocenteDAL docenteDAL, AnoLetivoDAL anoLetivoDAL) {
+    public EstudanteBLL(IEstudanteDAL estudanteDAL, IDocenteDAL docenteDAL, IAnoLetivoDAL anoLetivoDAL) {
         this.estudanteDAL = estudanteDAL;
         this.docenteDAL = docenteDAL;
         this.anoLetivoDAL = anoLetivoDAL;

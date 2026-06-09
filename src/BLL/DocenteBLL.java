@@ -1,22 +1,24 @@
 package BLL;
 
 import DAL.EstudanteDAL;
+import DAL.IEstudanteDAL;
 import Utils.Utils;
 import Utils.ServicoEmail;
 import DAL.DocenteDAL;
+import DAL.IDocenteDAL;
 import Model.Docente;
 import Utils.PasswordUtils;
 import java.util.ArrayList;
 
 public class DocenteBLL {
-    private DocenteDAL docenteDAL;
-    private EstudanteDAL estudanteDAL;
+    private IDocenteDAL docenteDAL;
+    private IEstudanteDAL estudanteDAL;
 
     /**
      * Construtor da classe DocenteBLL.
      * Inicializa a camada de acesso a dados.
      */
-    public DocenteBLL(DocenteDAL docenteDAL, EstudanteDAL estudanteDAL) {
+    public DocenteBLL(IDocenteDAL docenteDAL, IEstudanteDAL estudanteDAL) {
         this.docenteDAL = docenteDAL;
         this.estudanteDAL = estudanteDAL;
     }

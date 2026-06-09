@@ -1,6 +1,6 @@
 package BLL;
 
-import DAL.DepartamentoDAL;
+import DAL.IDepartamentoDAL;
 import Model.Departamento;
 
 import java.util.ArrayList;
@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import static Utils.Utils.*;
 
 public class DepartamentoBLL {
-    private DepartamentoDAL departamentoDAL;
+    private IDepartamentoDAL departamentoDAL;
 
-    public DepartamentoBLL(DepartamentoDAL departamentoDAL) {
+    public DepartamentoBLL(IDepartamentoDAL departamentoDAL) {
         this.departamentoDAL = departamentoDAL;
     }
 

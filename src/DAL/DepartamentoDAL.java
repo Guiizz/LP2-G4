@@ -6,7 +6,7 @@ import Utils.Utils;
 import java.io.*;
 import java.util.ArrayList;
 
-public class DepartamentoDAL {
+public class DepartamentoDAL implements IDepartamentoDAL {
 
     private static final String FICHEIRO_CSV = "csv/departamentos.csv";
     private static final String SEPARADOR = ";";

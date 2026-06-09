@@ -1,7 +1,6 @@
 package BLL;
 
-import DAL.AnoLetivoDAL;
-import DAL.EstudanteDAL;
+import DAL.IAnoLetivoDAL;
 import Model.*;
 import DAL.HistoricoAnoLetivoDAL;
 
@@ -10,164 +9,175 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnoLetivoBLL {
-    private final AnoLetivoDAL anoLetivoDAL;
+    private final IAnoLetivoDAL anoLetivoDAL;
     private final HistoricoAnoLetivoDAL historicoAnoLetivoDAL;
-    private final EstudanteDAL estudanteDAL;
 
-    public AnoLetivoBLL(AnoLetivoDAL anoLetivoDAL, EstudanteDAL estudanteDAL) {
+    public AnoLetivoBLL(IAnoLetivoDAL anoLetivoDAL) {
         this.anoLetivoDAL = anoLetivoDAL;
         this.historicoAnoLetivoDAL = new HistoricoAnoLetivoDAL();
-        this.estudanteDAL = estudanteDAL;
     }
 
-    public AnoLetivo consultarAnoAtual() {
-        return anoLetivoDAL.procurarAnoAberto();
-    }
+    public AnoLetivo consultarAnoAtual()    { return anoLetivoDAL.procurarAnoAberto(); }
+    public AnoLetivo consultarMaisRecente() { return anoLetivoDAL.procurarMaisRecente(); }
+    public java.util.ArrayList<AnoLetivo> listarTodos() { return anoLetivoDAL.listarAnosLetivos(); }
 
-    public AnoLetivo consultarMaisRecente() {
-        return anoLetivoDAL.procurarMaisRecente();
-    }
-
-    public java.util.ArrayList<AnoLetivo> listarTodos() {
-        return anoLetivoDAL.listarAnosLetivos();
-    }
-
-    /**
-     * Remove um ano letivo fechado. Só é permitido remover o mais recente
-     * (para não deixar buracos no histórico) e apenas se estiver FECHADO.
-     */
     public void removerAnoLetivo(int ano) {
         AnoLetivo alvo = anoLetivoDAL.procurarPorAno(ano);
-        if (alvo == null) {
-            throw new IllegalArgumentException("Ano letivo " + ano + "/" + (ano + 1) + " não encontrado.");
-        }
-        if (alvo.isAberto()) {
-            throw new IllegalArgumentException(
-                    "Não é possível remover o ano letivo " + alvo.getDesignacao()
-                    + " porque está aberto. Feche-o primeiro.");
-        }
-        AnoLetivo maisRecente = anoLetivoDAL.procurarMaisRecente();
-        if (maisRecente != null && maisRecente.getAno() != ano) {
-            throw new IllegalArgumentException(
-                    "Só é possível remover o ano letivo mais recente ("
-                    + maisRecente.getDesignacao() + ") para preservar o histórico.");
-        }
+        if (alvo == null)
+            throw new IllegalArgumentException("Ano letivo " + ano + "/" + (ano+1) + " nao encontrado.");
+        if (alvo.isAberto())
+            throw new IllegalArgumentException("Nao e possivel remover o ano letivo " + alvo.getDesignacao() + " porque esta aberto. Feche-o primeiro.");
+        AnoLetivo mr = anoLetivoDAL.procurarMaisRecente();
+        if (mr != null && mr.getAno() != ano)
+            throw new IllegalArgumentException("So e possivel remover o ano letivo mais recente (" + mr.getDesignacao() + ") para preservar o historico.");
         anoLetivoDAL.removerAnoLetivo(ano);
     }
 
     public AnoLetivo abrirAnoLetivo(int ano) {
-        if (ano < 2000) {
-            throw new IllegalArgumentException("Ano letivo inválido.");
-        }
-
-        if (anoLetivoDAL.procurarAnoAberto() != null) {
-            throw new IllegalArgumentException("Já existe um ano letivo aberto.");
-        }
-
-        if (anoLetivoDAL.procurarPorAno(ano) != null) {
-            throw new IllegalArgumentException("Já existe um registo para o ano letivo " + ano + "/" + (ano + 1) + ".");
-        }
-
-        AnoLetivo anoLetivo = new AnoLetivo(ano, LocalDate.now());
-        anoLetivoDAL.adicionarAnoLetivo(anoLetivo);
-        return anoLetivo;
+        if (ano < 2000) throw new IllegalArgumentException("Ano letivo invalido.");
+        if (anoLetivoDAL.procurarAnoAberto() != null) throw new IllegalArgumentException("Ja existe um ano letivo aberto.");
+        if (anoLetivoDAL.procurarPorAno(ano) != null) throw new IllegalArgumentException("Ja existe um registo para o ano letivo " + ano + "/" + (ano+1) + ".");
+        AnoLetivo al = new AnoLetivo(ano, LocalDate.now());
+        anoLetivoDAL.adicionarAnoLetivo(al);
+        return al;
     }
+
+    // =========================================================================
+    // Fecho de Ano Letivo - path BD (leitura SQL estruturada)
+    // =========================================================================
+
+    public RelatorioFechoAnoLetivo fecharAnoAtual() {
+        AnoLetivo anoAberto = anoLetivoDAL.procurarAnoAberto();
+        if (anoAberto == null)
+            throw new IllegalArgumentException("Nao existe ano letivo aberto para fechar.");
+
+        ArrayList<DadosEstudanteFecho> dados = anoLetivoDAL.carregarDadosParaFecho(anoAberto.getAno());
+
+        RelatorioFechoAnoLetivo relatorio = new RelatorioFechoAnoLetivo();
+        List<String> numMecsAvancar  = new ArrayList<>();
+        List<String> numMecsConcluir = new ArrayList<>();
+
+        for (DadosEstudanteFecho d : dados) {
+            TipoResultadoFecho r = processarDadosEstudante(d, relatorio);
+            if      (r == TipoResultadoFecho.AVANCAR)  numMecsAvancar.add(d.getNumMecanografico());
+            else if (r == TipoResultadoFecho.CONCLUIR) numMecsConcluir.add(d.getNumMecanografico());
+        }
+
+        anoLetivoDAL.persistirResultadoFecho(anoAberto.getAno(), numMecsAvancar, numMecsConcluir);
+
+        anoAberto.fechar(LocalDate.now());
+        anoLetivoDAL.atualizarAnoLetivo(anoAberto);
+
+        String caminho = historicoAnoLetivoDAL.exportarFecho(anoAberto, relatorio);
+        relatorio.setCaminhoFicheiroHistorico(caminho);
+        return relatorio;
+    }
+
+    // =========================================================================
+    // Fecho de Ano Letivo - path CSV (objetos em memoria)
+    // =========================================================================
 
     public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes) {
         AnoLetivo anoAtual = anoLetivoDAL.procurarAnoAberto();
-
-        if (anoAtual == null) {
-            throw new IllegalArgumentException("Não existe ano letivo aberto para fechar.");
-        }
-
-        if (estudantes == null) {
-            throw new IllegalArgumentException("Lista de estudantes inválida.");
-        }
+        if (anoAtual == null)   throw new IllegalArgumentException("Nao existe ano letivo aberto para fechar.");
+        if (estudantes == null) throw new IllegalArgumentException("Lista de estudantes invalida.");
 
         RelatorioFechoAnoLetivo relatorio = new RelatorioFechoAnoLetivo();
-
-        for (Estudante estudante : estudantes) {
-            processarEstudanteNoFecho(estudante, anoAtual, relatorio);
-            estudanteDAL.atualizarEstudante(estudante);
-        }
+        for (Estudante e : estudantes) processarEstudanteNoFecho(e, anoAtual, relatorio);
 
         anoAtual.fechar(LocalDate.now());
         anoLetivoDAL.atualizarAnoLetivo(anoAtual);
 
-        String caminhoHistorico = historicoAnoLetivoDAL.exportarFecho(anoAtual, relatorio);
-        relatorio.setCaminhoFicheiroHistorico(caminhoHistorico);
-
+        String caminho = historicoAnoLetivoDAL.exportarFecho(anoAtual, relatorio);
+        relatorio.setCaminhoFicheiroHistorico(caminho);
         return relatorio;
     }
 
-    private void processarEstudanteNoFecho(Estudante estudante, AnoLetivo anoAtual, RelatorioFechoAnoLetivo relatorio) {
-        if (estudante == null || estudante.isConcluido()) {
-            return;
+    // =========================================================================
+    // Auxiliares - path BD
+    // =========================================================================
+
+    private enum TipoResultadoFecho { MANTER, AVANCAR, CONCLUIR }
+
+    private TipoResultadoFecho processarDadosEstudante(DadosEstudanteFecho d, RelatorioFechoAnoLetivo relatorio) {
+        if (!d.isPropinaPaga()) {
+            relatorio.incrementarMantidos();
+            relatorio.adicionarMensagem(d.getNome() + " mantido: propina do ano atual nao esta paga.");
+            return TipoResultadoFecho.MANTER;
         }
+        if (d.temNotasPorLancar()) {
+            relatorio.incrementarMantidos();
+            relatorio.adicionarMensagem(d.getNome() + " mantido: existem notas por lancar ou sem avaliacoes.");
+            return TipoResultadoFecho.MANTER;
+        }
+        if (d.calcularAproveitamento() < 0.60) {
+            relatorio.incrementarMantidos();
+            relatorio.adicionarMensagem(d.getNome() + " mantido: aproveitamento inferior a 60%.");
+            return TipoResultadoFecho.MANTER;
+        }
+        if (d.getAnoAtual() >= 3) {
+            relatorio.incrementarConcluidos();
+            relatorio.adicionarMensagem(d.getNome() + " concluiu o curso.");
+            return TipoResultadoFecho.CONCLUIR;
+        }
+        relatorio.incrementarAvancados();
+        relatorio.adicionarMensagem(d.getNome() + " avancou para o " + (d.getAnoAtual()+1) + ".o ano.");
+        return TipoResultadoFecho.AVANCAR;
+    }
+
+    // =========================================================================
+    // Auxiliares - path CSV
+    // =========================================================================
+
+    private void processarEstudanteNoFecho(Estudante estudante, AnoLetivo anoAtual, RelatorioFechoAnoLetivo relatorio) {
+        if (estudante == null || estudante.isConcluido()) return;
 
         Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
-
         if (inscricaoAtual == null) {
             relatorio.incrementarMantidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " mantido: sem inscrição ativa.");
+            relatorio.adicionarMensagem(estudante.getNome() + " mantido: sem inscricao ativa.");
             return;
         }
-
         if (!inscricaoAtual.isPropinaPaga()) {
             relatorio.incrementarMantidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " mantido: propina do ano atual não está paga.");
+            relatorio.adicionarMensagem(estudante.getNome() + " mantido: propina do ano atual nao esta paga.");
             return;
         }
-
         if (inscricaoAtual.temNotasPorLancar()) {
             relatorio.incrementarMantidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " mantido: existem notas por lançar ou sem avaliações.");
+            relatorio.adicionarMensagem(estudante.getNome() + " mantido: existem notas por lancar ou sem avaliacoes.");
             return;
         }
-
         double aproveitamento = estudante.calcularAproveitamentoGlobal();
-
         if (aproveitamento < 0.60) {
             relatorio.incrementarMantidos();
             relatorio.adicionarMensagem(estudante.getNome() + " mantido: aproveitamento inferior a 60%.");
             return;
         }
-
         if (estudante.getAnoAtual() >= 3) {
             estudante.setEstado("CONCLUIDO");
             relatorio.incrementarConcluidos();
             relatorio.adicionarMensagem(estudante.getNome() + " concluiu o curso.");
             return;
         }
-
         int proximoAnoCurso = estudante.getAnoAtual() + 1;
-
         List<String> nomesUCsEmAtraso = new ArrayList<>();
         for (Avaliacao av : estudante.getUCsEmAtraso()) {
             if (av.getUc() != null) {
                 for (UnidadeCurricular uc : av.getUc()) {
-                    String nome = uc.getNome();
-                    if (!nomesUCsEmAtraso.contains(nome)) {
-                        nomesUCsEmAtraso.add(nome);
-                    }
+                    if (!nomesUCsEmAtraso.contains(uc.getNome())) nomesUCsEmAtraso.add(uc.getNome());
                 }
             }
         }
-
         relatorio.registarUcsEmAtraso(estudante.getNome(), nomesUCsEmAtraso);
-
         estudante.setAnoAtual(proximoAnoCurso);
-        estudante.adicionarInscricao(new Inscricao(anoAtual.getAno() + 1, proximoAnoCurso, inscricaoAtual.getCurso()));
-
+        estudante.adicionarInscricao(new Inscricao(anoAtual.getAno()+1, proximoAnoCurso, inscricaoAtual.getCurso()));
         relatorio.incrementarAvancados();
-        relatorio.adicionarMensagem(estudante.getNome() + " avançou para o " + proximoAnoCurso + ".º ano.");
+        relatorio.adicionarMensagem(estudante.getNome() + " avancou para o " + proximoAnoCurso + ".o ano.");
     }
 
     private Inscricao obterInscricaoAtual(Estudante estudante) {
-        if (estudante.getInscricoes() == null || estudante.getInscricoes().isEmpty()) {
-            return null;
-        }
-
-        return estudante.getInscricoes().get(estudante.getInscricoes().size() - 1);
+        if (estudante.getInscricoes() == null || estudante.getInscricoes().isEmpty()) return null;
+        return estudante.getInscricoes().get(estudante.getInscricoes().size()-1);
     }
 }

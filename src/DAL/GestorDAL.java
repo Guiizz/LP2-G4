@@ -13,7 +13,7 @@ import Utils.Utils;
  * Camada DAL para a entidade Gestor.
  * Responsável por armazenar e recuperar gestores com persistência em ficheiro CSV.
  */
-public class GestorDAL {
+public class GestorDAL implements IGestorDAL {
 
     private static final String FICHEIRO_CSV = "csv/gestores.csv";
     private static final String SEPARADOR = ";";

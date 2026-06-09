@@ -9,6 +9,7 @@ public class Avaliacao {
     /**
      * Atributos
      */
+    private int id = 0;   // 0 em modo ficheiro; preenchido pelo BD ao carregar
     private List<UnidadeCurricular> uc;
     private double peso;
     private Date data;
@@ -49,6 +50,9 @@ public class Avaliacao {
      * Gets e Sets
      * @return
      */
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public List<UnidadeCurricular> getUc() {return uc;}
 
     public double getPeso() {return peso;}

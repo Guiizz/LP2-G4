@@ -28,6 +28,12 @@ public class AnoLetivoController {
         return anoLetivoBLL.abrirAnoLetivo(ano);
     }
 
+    /** Path BD: usa leitura SQL estruturada (JOIN + UPDATE/INSERT via SQL). */
+    public RelatorioFechoAnoLetivo fecharAnoAtual() {
+        return anoLetivoBLL.fecharAnoAtual();
+    }
+
+    /** Path CSV: usa objetos Estudante carregados em memória. */
     public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes) {
         return anoLetivoBLL.fecharAnoAtual(estudantes);
     }
