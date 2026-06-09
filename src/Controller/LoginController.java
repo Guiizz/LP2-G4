@@ -3,9 +3,11 @@ package Controller;
 import Config.ModoPersistencia;
 import DAL.*;
 import DAL.BD.AnoLetivoDAL_BD;
+import DAL.BD.AvaliacaoDAL_BD;
 import DAL.BD.CursoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
 import DAL.BD.InscricaoDAL_BD;
+import DAL.BD.MomentoAvaliacaoDAL_BD;
 import DAL.BD.UnidadeCurricularDAL_BD;
 import BLL.*;
 
@@ -26,8 +28,11 @@ public class LoginController {
 
     public LoginController() {
 
+        IMomentoAvaliacaoDAL momentoDAL = ModoPersistencia.isBaseDados()
+                ? new MomentoAvaliacaoDAL_BD()
+                : new MomentoAvaliacaoDAL();
         IUnidadeCurricularDAL ucDAL = ModoPersistencia.isBaseDados()
-                ? new UnidadeCurricularDAL_BD()
+                ? new UnidadeCurricularDAL_BD(momentoDAL)
                 : new UnidadeCurricularDAL();
         IDepartamentoDAL depDAL = ModoPersistencia.isBaseDados()
                 ? new DepartamentoDAL_BD()
@@ -57,7 +62,10 @@ public class LoginController {
         EstudanteBLL estBLL = new EstudanteBLL(estudanteDAL, docenteDAL, anoLetivoDAL);
         GestorBLL gestorBLL = new GestorBLL(gestorDAL);
         AnoLetivoBLL anoLetBLL = new AnoLetivoBLL(anoLetivoDAL);
-        AvaliacaoBLL avalBLL = new AvaliacaoBLL(new AvaliacaoDAL(ucDAL));
+        IAvaliacaoDAL avaliacaoDAL = ModoPersistencia.isBaseDados()
+                ? new AvaliacaoDAL_BD(ucDAL)
+                : new AvaliacaoDAL(ucDAL);
+        AvaliacaoBLL avalBLL = new AvaliacaoBLL(avaliacaoDAL);
         BLL.HorarioBLL horarioBLL = new BLL.HorarioBLL(horarioDAL, ucDAL);
         BLL.PresencaBLL presencaBLL = new BLL.PresencaBLL(registoAulaDAL, presencaDAL);
         BLL.JustificacaoBLL justificacaoBLL = new BLL.JustificacaoBLL(justificacaoDAL, tipoJustDAL);

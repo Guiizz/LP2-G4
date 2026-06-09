@@ -1,6 +1,7 @@
 package BLL;
 
 import DAL.AvaliacaoDAL;
+import DAL.IAvaliacaoDAL;
 import Model.Avaliacao;
 import Model.UnidadeCurricular;
 import Utils.Utils;
@@ -15,13 +16,13 @@ import java.util.List;
  */
 public class AvaliacaoBLL {
 
-    private AvaliacaoDAL avaliacaoDAL;
+    private IAvaliacaoDAL avaliacaoDAL;
 
     /**
      * Construtor da classe AvaliacaoBLL.
      */
     public AvaliacaoBLL() {
-        this.avaliacaoDAL = new AvaliacaoDAL();
+        this.avaliacaoDAL = new AvaliacaoDAL();  // modo ficheiro
     }
 
     /**
@@ -29,7 +30,7 @@ public class AvaliacaoBLL {
      *
      * @param avaliacaoDAL A camada DAL a utilizar.
      */
-    public AvaliacaoBLL(AvaliacaoDAL avaliacaoDAL) {
+    public AvaliacaoBLL(IAvaliacaoDAL avaliacaoDAL) {
         this.avaliacaoDAL = avaliacaoDAL;
     }
 

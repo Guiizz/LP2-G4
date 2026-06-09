@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class AvaliacaoDAL {
+public class AvaliacaoDAL implements IAvaliacaoDAL {
 
     private static final String FICHEIRO_CSV = "csv/avaliacoes.csv";
     private static final String SEPARADOR = ";";
