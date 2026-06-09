@@ -129,4 +129,26 @@ public class Inscricao {
                 "Avaliações lançadas: " + getTotalAvaliacoesLancadas() + "/" + (avaliacoes == null ? 0 : avaliacoes.size()) + "\n" +
                 "================";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Inscricao)) {
+            return false;
+        }
+        Inscricao that = (Inscricao) o;
+        return this.anoLetivo == that.anoLetivo
+                && this.anoDeCurso == that.anoDeCurso
+                && (this.curso != null ? this.curso.equals(that.curso) : that.curso == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = anoLetivo;
+        result = 31 * result + anoDeCurso;
+        result = 31 * result + (curso != null ? curso.hashCode() : 0);
+        return result;
+    }
 }

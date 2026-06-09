@@ -39,7 +39,7 @@ public class LoginController {
         DocenteBLL docenteBLL = new DocenteBLL(docenteDAL, estudanteDAL);
         EstudanteBLL estBLL = new EstudanteBLL(estudanteDAL, docenteDAL, anoLetivoDAL);
         GestorBLL gestorBLL = new GestorBLL(gestorDAL);
-        AnoLetivoBLL anoLetBLL = new AnoLetivoBLL(anoLetivoDAL);
+        AnoLetivoBLL anoLetBLL = new AnoLetivoBLL(anoLetivoDAL, estudanteDAL);
         AvaliacaoBLL avalBLL = new AvaliacaoBLL(new AvaliacaoDAL(ucDAL));
         BLL.HorarioBLL horarioBLL = new BLL.HorarioBLL(horarioDAL, ucDAL);
         BLL.PresencaBLL presencaBLL = new BLL.PresencaBLL(registoAulaDAL, presencaDAL);

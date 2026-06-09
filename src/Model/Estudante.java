@@ -125,15 +125,29 @@ public class Estudante extends Utilizador {
     public double calcularAproveitamentoGlobal() {
         if (inscricoes == null || inscricoes.isEmpty()) return 0;
 
-        Inscricao inscricaoAtual = inscricoes.get(inscricoes.size() - 1);
-        int aprovadas = inscricaoAtual.getTotalAvaliacoesAprovadas();
-        int totalAtual = inscricaoAtual.getAvaliacoes().size();
-        int totalEmAtraso = getUCsEmAtraso().size();
-        int totalGlobal = totalAtual + totalEmAtraso;
+        int totalAprovadas = 0;
+        int totalAvaliacoes = 0;
 
-        if (totalGlobal == 0) return 0;
-        return (double) aprovadas / totalGlobal;
+         for (Inscricao inscricao : inscricoes) {
+             for (Avaliacao av : inscricao.getAvaliacoes()) {
+                 if (av != null && av.isLancada()) {
+                     totalAvaliacoes++;
+                     if (av.getNota() >= 10) {
+                         totalAprovadas++;
+                     }
+                 }
+             }
+         }
+
+         int totalEmAtraso = getUCsEmAtraso().size();
+         int totalGlobal = totalAvaliacoes + totalEmAtraso;
+
+         if (totalGlobal == 0) {
+             return 0;
+         }
+         return (double) totalAprovadas / totalGlobal;
     }
+
     /**
      * Devolve o curso da inscrição mais recente, ou null se não existir nenhuma.
      */

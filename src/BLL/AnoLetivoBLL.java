@@ -1,6 +1,7 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
+import DAL.EstudanteDAL;
 import Model.*;
 import DAL.HistoricoAnoLetivoDAL;
 
@@ -11,10 +12,12 @@ import java.util.List;
 public class AnoLetivoBLL {
     private final AnoLetivoDAL anoLetivoDAL;
     private final HistoricoAnoLetivoDAL historicoAnoLetivoDAL;
+    private final EstudanteDAL estudanteDAL;
 
-    public AnoLetivoBLL(AnoLetivoDAL anoLetivoDAL) {
+    public AnoLetivoBLL(AnoLetivoDAL anoLetivoDAL, EstudanteDAL estudanteDAL) {
         this.anoLetivoDAL = anoLetivoDAL;
         this.historicoAnoLetivoDAL = new HistoricoAnoLetivoDAL();
+        this.estudanteDAL = estudanteDAL;
     }
 
     public AnoLetivo consultarAnoAtual() {
@@ -85,6 +88,7 @@ public class AnoLetivoBLL {
 
         for (Estudante estudante : estudantes) {
             processarEstudanteNoFecho(estudante, anoAtual, relatorio);
+            estudanteDAL.atualizarEstudante(estudante);
         }
 
         anoAtual.fechar(LocalDate.now());
