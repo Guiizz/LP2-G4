@@ -1,18 +1,19 @@
 package DAL.BD;
 
-import DAL.CursoDAL;
 import DAL.ICursoDAL;
 import DAL.IInscricaoDAL;
+import DAL.IPropinaDAL;
 import Model.Avaliacao;
 import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
+import Model.Propina;
 
-import java.sql.Date;
 import java.util.ArrayList;
 
 /**
  * Implementação da persistência de Inscricao em base de dados (SQL Server).
+ * Usa IPropinaDAL para carregar/guardar a propina completa (com histórico de pagamentos).
  *
  * Esquema esperado:
  *   CREATE TABLE Inscricao (
@@ -20,48 +21,47 @@ import java.util.ArrayList;
  *       anoLetivo        INT          NOT NULL,
  *       anoDeCurso       INT          NOT NULL,
  *       nomeCurso        VARCHAR(100) NOT NULL,
- *       valorPago        FLOAT        NOT NULL DEFAULT 0,
  *       notas            VARCHAR(MAX) NULL,
  *       CONSTRAINT PK_Inscricao PRIMARY KEY (numMecanografico, anoLetivo)
  *   );
  *
- * Nota: as avaliações são guardadas como string serializada (mesmo formato do CSV)
- * enquanto a entidade Avaliacao não for migrada para tabela própria.
+ * Nota: as avaliações são guardadas como string serializada enquanto a entidade
+ * Avaliacao não for completamente migrada para tabela própria.
  */
 public class InscricaoDAL_BD implements IInscricaoDAL {
 
     private final ConexaoBD conexao;
+    private final IPropinaDAL propinaDAL;
 
-    public InscricaoDAL_BD() {
-        this.conexao = new ConexaoBD();
+    public InscricaoDAL_BD(IPropinaDAL propinaDAL) {
+        this.conexao    = new ConexaoBD();
+        this.propinaDAL = propinaDAL;
     }
 
     @Override
     public void carregarInscricoes(ArrayList<Estudante> estudantes, ICursoDAL cursoDAL) {
         for (Estudante estudante : estudantes) {
             ArrayList<Inscricao> inscricoes = conexao.select(
-                    "SELECT anoLetivo, anoDeCurso, nomeCurso, valorPago, notas " +
+                    "SELECT anoLetivo, anoDeCurso, nomeCurso, notas " +
                     "FROM Inscricao WHERE numMecanografico = ? ORDER BY anoLetivo",
                     rs -> {
-                        int anoLetivo   = rs.getInt("anoLetivo");
-                        int anoDeCurso  = rs.getInt("anoDeCurso");
+                        int anoLetivo    = rs.getInt("anoLetivo");
+                        int anoDeCurso   = rs.getInt("anoDeCurso");
                         String nomeCurso = rs.getString("nomeCurso");
-                        double valorPago = rs.getDouble("valorPago");
-                        String notas    = rs.getString("notas");
+                        String notas     = rs.getString("notas");
 
                         Curso curso = cursoDAL.procurarPorNome(nomeCurso);
                         if (curso == null) return null;
 
                         Inscricao inscricao = new Inscricao(anoLetivo, anoDeCurso, curso);
-                        if (valorPago < 0) {
-                            inscricao.setPropinaPaga(true);
-                        } else if (valorPago > 0 && inscricao.getPropina() != null) {
-                            try {
-                                inscricao.getPropina().pagar(
-                                        Math.min(valorPago, inscricao.getPropina().getSaldoEmDebito())
-                                );
-                            } catch (IllegalArgumentException ignored) {}
+
+                        // Carregar propina completa (com histórico de pagamentos)
+                        Propina propina = propinaDAL.carregarPropina(
+                                estudante.getNumMecanografico(), anoLetivo);
+                        if (propina != null) {
+                            inscricao.setPropina(propina);
                         }
+
                         inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
                         return inscricao;
                     },
@@ -92,15 +92,17 @@ public class InscricaoDAL_BD implements IInscricaoDAL {
     @Override
     public void atualizarInscricao(String numMecanografico, Inscricao inscricao) {
         conexao.execute(
-                "UPDATE Inscricao SET anoDeCurso = ?, nomeCurso = ?, valorPago = ?, notas = ? " +
+                "UPDATE Inscricao SET anoDeCurso = ?, nomeCurso = ?, notas = ? " +
                 "WHERE numMecanografico = ? AND anoLetivo = ?",
                 inscricao.getAnoDeCurso(),
                 inscricao.getCurso().getNomeCurso(),
-                inscricao.getPropina() != null ? inscricao.getPropina().getValorPago() : 0.0,
                 serializarAvaliacoes(inscricao.getAvaliacoes()),
                 numMecanografico,
                 inscricao.getAnoLetivo()
         );
+        if (inscricao.getPropina() != null) {
+            propinaDAL.guardarPropina(numMecanografico, inscricao.getAnoLetivo(), inscricao.getPropina());
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -113,24 +115,20 @@ public class InscricaoDAL_BD implements IInscricaoDAL {
                 "USING (SELECT ? AS numMecanografico, ? AS anoLetivo) AS origem " +
                 "   ON alvo.numMecanografico = origem.numMecanografico AND alvo.anoLetivo = origem.anoLetivo " +
                 "WHEN MATCHED THEN " +
-                "   UPDATE SET anoDeCurso = ?, nomeCurso = ?, valorPago = ?, notas = ? " +
+                "   UPDATE SET anoDeCurso = ?, nomeCurso = ?, notas = ? " +
                 "WHEN NOT MATCHED THEN " +
-                "   INSERT (numMecanografico, anoLetivo, anoDeCurso, nomeCurso, valorPago, notas) " +
-                "   VALUES (?, ?, ?, ?, ?, ?);",
-                // USING params
+                "   INSERT (numMecanografico, anoLetivo, anoDeCurso, nomeCurso, notas) " +
+                "   VALUES (?, ?, ?, ?, ?);",
                 numMecanografico, inscricao.getAnoLetivo(),
-                // UPDATE params
-                inscricao.getAnoDeCurso(),
-                inscricao.getCurso().getNomeCurso(),
-                inscricao.getPropina() != null ? inscricao.getPropina().getValorPago() : 0.0,
+                inscricao.getAnoDeCurso(), inscricao.getCurso().getNomeCurso(),
                 serializarAvaliacoes(inscricao.getAvaliacoes()),
-                // INSERT params
                 numMecanografico, inscricao.getAnoLetivo(),
-                inscricao.getAnoDeCurso(),
-                inscricao.getCurso().getNomeCurso(),
-                inscricao.getPropina() != null ? inscricao.getPropina().getValorPago() : 0.0,
+                inscricao.getAnoDeCurso(), inscricao.getCurso().getNomeCurso(),
                 serializarAvaliacoes(inscricao.getAvaliacoes())
         );
+        if (inscricao.getPropina() != null) {
+            propinaDAL.guardarPropina(numMecanografico, inscricao.getAnoLetivo(), inscricao.getPropina());
+        }
     }
 
     private String serializarAvaliacoes(ArrayList<Avaliacao> avaliacoes) {

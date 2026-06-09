@@ -8,6 +8,8 @@ import DAL.BD.CursoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
 import DAL.BD.InscricaoDAL_BD;
 import DAL.BD.MomentoAvaliacaoDAL_BD;
+import DAL.BD.PagamentoDAL_BD;
+import DAL.BD.PropinaDAL_BD;
 import DAL.BD.UnidadeCurricularDAL_BD;
 import BLL.*;
 
@@ -41,8 +43,14 @@ public class LoginController {
                 ? new CursoDAL_BD(depDAL, ucDAL)
                 : new CursoDAL(depDAL, ucDAL);
         DocenteDAL docenteDAL = new DocenteDAL(ucDAL);
+        IPagamentoDAL pagamentoDAL = ModoPersistencia.isBaseDados()
+                ? new PagamentoDAL_BD()
+                : new PagamentoDAL();
+        IPropinaDAL propinaDAL = ModoPersistencia.isBaseDados()
+                ? new PropinaDAL_BD(pagamentoDAL)
+                : new PropinaDAL();
         IInscricaoDAL inscricaoDAL = ModoPersistencia.isBaseDados()
-                ? new InscricaoDAL_BD()
+                ? new InscricaoDAL_BD(propinaDAL)
                 : new InscricaoDAL();
         EstudanteDAL estudanteDAL = new EstudanteDAL(cursoDAL, inscricaoDAL);
         GestorDAL gestorDAL = new GestorDAL();
