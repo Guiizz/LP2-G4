@@ -5,6 +5,7 @@ import DAL.IAnoLetivoDAL;
 import DAL.CursoDAL;
 import DAL.ICursoDAL;
 import DAL.EstudanteDAL;
+import DAL.IEstudanteDAL;
 import DAL.UnidadeCurricularDAL;
 import DAL.IUnidadeCurricularDAL;
 import Model.*;
@@ -20,7 +21,7 @@ import java.util.List;
 public class CursoBLL {
 
     private ICursoDAL              cursoDAL;
-    private EstudanteDAL          estudanteDAL;
+    private IEstudanteDAL          estudanteDAL;
     private IAnoLetivoDAL          anoLetivoDAL;
     private IUnidadeCurricularDAL  unidadeCurricularDAL;
 
@@ -28,7 +29,7 @@ public class CursoBLL {
     private static final int MAX_UCS_POR_ANO = 5;
     private static final int DURACAO_CURSO   = 3;
 
-    public CursoBLL(ICursoDAL cursoDAL, EstudanteDAL estudanteDAL,
+    public CursoBLL(ICursoDAL cursoDAL, IEstudanteDAL estudanteDAL,
                     IAnoLetivoDAL anoLetivoDAL, IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.cursoDAL             = cursoDAL;
         this.estudanteDAL         = estudanteDAL;
@@ -37,7 +38,7 @@ public class CursoBLL {
     }
 
     /** Construtor de compatibilidade — cria os DAL extra com configuração padrão. */
-    public CursoBLL(ICursoDAL cursoDAL, EstudanteDAL estudanteDAL) {
+    public CursoBLL(ICursoDAL cursoDAL, IEstudanteDAL estudanteDAL) {
         this(cursoDAL, estudanteDAL, new AnoLetivoDAL(), new UnidadeCurricularDAL());
     }
 

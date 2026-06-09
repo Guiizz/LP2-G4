@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DocenteDAL {
+public class DocenteDAL implements IDocenteDAL {
 
     private static final String FICHEIRO_CSV = "csv/docentes.csv";
     private static final String SEPARADOR = ";";

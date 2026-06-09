@@ -6,6 +6,9 @@ import DAL.BD.AnoLetivoDAL_BD;
 import DAL.BD.AvaliacaoDAL_BD;
 import DAL.BD.CursoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
+import DAL.BD.DocenteDAL_BD;
+import DAL.BD.EstudanteDAL_BD;
+import DAL.BD.GestorDAL_BD;
 import DAL.BD.InscricaoDAL_BD;
 import DAL.BD.MomentoAvaliacaoDAL_BD;
 import DAL.BD.PagamentoDAL_BD;
@@ -42,7 +45,9 @@ public class LoginController {
         ICursoDAL cursoDAL = ModoPersistencia.isBaseDados()
                 ? new CursoDAL_BD(depDAL, ucDAL)
                 : new CursoDAL(depDAL, ucDAL);
-        DocenteDAL docenteDAL = new DocenteDAL(ucDAL);
+        IDocenteDAL docenteDAL = ModoPersistencia.isBaseDados()
+                ? new DocenteDAL_BD(ucDAL)
+                : new DocenteDAL(ucDAL);
         IPagamentoDAL pagamentoDAL = ModoPersistencia.isBaseDados()
                 ? new PagamentoDAL_BD()
                 : new PagamentoDAL();
@@ -52,8 +57,12 @@ public class LoginController {
         IInscricaoDAL inscricaoDAL = ModoPersistencia.isBaseDados()
                 ? new InscricaoDAL_BD(propinaDAL)
                 : new InscricaoDAL();
-        EstudanteDAL estudanteDAL = new EstudanteDAL(cursoDAL, inscricaoDAL);
-        GestorDAL gestorDAL = new GestorDAL();
+        IEstudanteDAL estudanteDAL = ModoPersistencia.isBaseDados()
+                ? new EstudanteDAL_BD(cursoDAL, inscricaoDAL)
+                : new EstudanteDAL(cursoDAL, inscricaoDAL);
+        IGestorDAL gestorDAL = ModoPersistencia.isBaseDados()
+                ? new GestorDAL_BD()
+                : new GestorDAL();
         IAnoLetivoDAL anoLetivoDAL = ModoPersistencia.isBaseDados()
                 ? new AnoLetivoDAL_BD()
                 : new AnoLetivoDAL();

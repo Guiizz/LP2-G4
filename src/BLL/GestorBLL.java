@@ -1,6 +1,7 @@
 package BLL;
 
 import DAL.GestorDAL;
+import DAL.IGestorDAL;
 import Model.Gestor;
 import Utils.Utils;
 import Utils.ServicoEmail;
@@ -13,12 +14,12 @@ import java.util.ArrayList;
  * Responsável pela lógica de negócio associada ao Gestor
  */
 public class GestorBLL {
-    private GestorDAL gestorDAL;
+    private IGestorDAL gestorDAL;
 
     /**
      * Construtor
      */
-    public GestorBLL(GestorDAL gestorDAL) {
+    public GestorBLL(IGestorDAL gestorDAL) {
         this.gestorDAL = gestorDAL;
     }
     /**
