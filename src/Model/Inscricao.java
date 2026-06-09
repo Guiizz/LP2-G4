@@ -94,7 +94,8 @@ public class Inscricao {
         if (avaliacoes == null || avaliacoes.isEmpty()) {
             return 0;
         }
-        return (double) getTotalAvaliacoesAprovadas() / avaliacoes.size();
+    return getTotalAvaliacoesLancadas() == 0 ? 0 : (double)
+        getTotalAvaliacoesAprovadas() / getTotalAvaliacoesLancadas();
     }
 
     /**
