@@ -1,5 +1,6 @@
 package View;
 
+import Config.ModoPersistencia;
 import Controller.AnoLetivoController;
 import Controller.EstudanteController;
 import Model.AnoLetivo;
@@ -159,11 +160,19 @@ public class AnoLetivoView {
             System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
 
-        ArrayList<Estudante> estudantes = estudanteController.listarEstudante();
-        RelatorioFechoAnoLetivo relatorio = anoLetivoController.fecharAnoAtual(estudantes);
+        RelatorioFechoAnoLetivo relatorio;
 
-        for (Estudante estudante : estudantes) {
-            estudanteController.guardarEstadoEstudante(estudante);
+        if (ModoPersistencia.isBaseDados()) {
+            // Path BD: um único JOIN lê Estudante+Inscricao+Propina;
+            // UPDATE/INSERT feitos directamente em SQL pelo DAL.
+            relatorio = anoLetivoController.fecharAnoAtual();
+        } else {
+            // Path CSV: carrega objetos Estudante e persiste manualmente.
+            ArrayList<Estudante> estudantes = estudanteController.listarEstudante();
+            relatorio = anoLetivoController.fecharAnoAtual(estudantes);
+            for (Estudante estudante : estudantes) {
+                estudanteController.guardarEstadoEstudante(estudante);
+            }
         }
 
         System.out.println("\n  [✓] Ano letivo fechado com sucesso.");

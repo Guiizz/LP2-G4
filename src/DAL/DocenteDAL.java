@@ -9,20 +9,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DocenteDAL {
+public class DocenteDAL implements IDocenteDAL {
 
     private static final String FICHEIRO_CSV = "csv/docentes.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin";
 
     private ArrayList<Docente> docentes;
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
 
     public DocenteDAL() {
         this(new UnidadeCurricularDAL());
     }
 
-    public DocenteDAL(UnidadeCurricularDAL unidadeCurricularDAL) {
+    public DocenteDAL(IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.docentes = new ArrayList<>();
         Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);

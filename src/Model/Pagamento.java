@@ -12,6 +12,12 @@ public class Pagamento {
         this.data  = LocalDate.now();
     }
 
+    /** Construtor usado ao carregar da base de dados (data já conhecida). */
+    public Pagamento(double valor, LocalDate data) {
+        this.valor = valor;
+        this.data  = data;
+    }
+
     public double getValor()    { return valor; }
     public LocalDate getData()  { return data; }
 

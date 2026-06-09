@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class AvaliacaoDAL {
+public class AvaliacaoDAL implements IAvaliacaoDAL {
 
     private static final String FICHEIRO_CSV = "csv/avaliacoes.csv";
     private static final String SEPARADOR = ";";
@@ -19,13 +19,13 @@ public class AvaliacaoDAL {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
 
     private ArrayList<Avaliacao> avaliacoes;
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
 
     public AvaliacaoDAL() {
         this(new UnidadeCurricularDAL());
     }
 
-    public AvaliacaoDAL(UnidadeCurricularDAL unidadeCurricularDAL) {
+    public AvaliacaoDAL(IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.avaliacoes = new ArrayList<>();
         SDF.setLenient(false);
