@@ -26,7 +26,7 @@ public class InscricaoDAL implements IInscricaoDAL {
     }
 
     @Override
-    public void carregarInscricoes(ArrayList<Estudante> estudantes, CursoDAL cursoDAL) {
+    public void carregarInscricoes(ArrayList<Estudante> estudantes, ICursoDAL cursoDAL) {
         for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
             if (campos.length < 5) continue;
             try {

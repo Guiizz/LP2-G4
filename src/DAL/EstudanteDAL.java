@@ -15,10 +15,10 @@ public class EstudanteDAL {
     private static final String CABECALHO_ESTUDANTES = "nome;dataNascimento;nif;morada;numMecanografico;anoAtual;email;password;primeiroLogin;estado";
 
     private ArrayList<Estudante> estudantes;
-    private final CursoDAL cursoDAL;
+    private final ICursoDAL cursoDAL;
     private final IInscricaoDAL inscricaoDAL;
 
-    public EstudanteDAL(CursoDAL cursoDAL, IInscricaoDAL inscricaoDAL) {
+    public EstudanteDAL(ICursoDAL cursoDAL, IInscricaoDAL inscricaoDAL) {
         this.estudantes   = new ArrayList<>();
         this.cursoDAL     = cursoDAL;
         this.inscricaoDAL = inscricaoDAL;
@@ -28,7 +28,7 @@ public class EstudanteDAL {
     }
 
     /** Construtor de conveniência para o modo ficheiro (sem injeção manual). */
-    public EstudanteDAL(CursoDAL cursoDAL) {
+    public EstudanteDAL(ICursoDAL cursoDAL) {
         this(cursoDAL, new InscricaoDAL());
     }
 

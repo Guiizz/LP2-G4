@@ -3,6 +3,7 @@ package Controller;
 import Config.ModoPersistencia;
 import DAL.*;
 import DAL.BD.AnoLetivoDAL_BD;
+import DAL.BD.CursoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
 import DAL.BD.InscricaoDAL_BD;
 import BLL.*;
@@ -28,7 +29,9 @@ public class LoginController {
         IDepartamentoDAL depDAL = ModoPersistencia.isBaseDados()
                 ? new DepartamentoDAL_BD()
                 : new DepartamentoDAL();
-        CursoDAL cursoDAL = new CursoDAL(depDAL, ucDAL);
+        ICursoDAL cursoDAL = ModoPersistencia.isBaseDados()
+                ? new CursoDAL_BD(depDAL, ucDAL)
+                : new CursoDAL(depDAL, ucDAL);
         DocenteDAL docenteDAL = new DocenteDAL(ucDAL);
         IInscricaoDAL inscricaoDAL = ModoPersistencia.isBaseDados()
                 ? new InscricaoDAL_BD()

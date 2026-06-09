@@ -1,6 +1,7 @@
 package DAL.BD;
 
 import DAL.CursoDAL;
+import DAL.ICursoDAL;
 import DAL.IInscricaoDAL;
 import Model.Avaliacao;
 import Model.Curso;
@@ -36,7 +37,7 @@ public class InscricaoDAL_BD implements IInscricaoDAL {
     }
 
     @Override
-    public void carregarInscricoes(ArrayList<Estudante> estudantes, CursoDAL cursoDAL) {
+    public void carregarInscricoes(ArrayList<Estudante> estudantes, ICursoDAL cursoDAL) {
         for (Estudante estudante : estudantes) {
             ArrayList<Inscricao> inscricoes = conexao.select(
                     "SELECT anoLetivo, anoDeCurso, nomeCurso, valorPago, notas " +

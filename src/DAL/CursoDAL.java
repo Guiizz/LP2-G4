@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CursoDAL {
+public class CursoDAL implements ICursoDAL {
 
     private static final String FICHEIRO_CSV = "csv/cursos.csv";
     private static final String SEPARADOR = ";";

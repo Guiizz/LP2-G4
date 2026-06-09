@@ -15,7 +15,7 @@ public interface IInscricaoDAL {
      * Carrega todas as inscrições e associa-as aos respetivos estudantes.
      * Usa cursoDAL para resolver o Curso a partir do nome.
      */
-    void carregarInscricoes(ArrayList<Estudante> estudantes, CursoDAL cursoDAL);
+    void carregarInscricoes(ArrayList<Estudante> estudantes, ICursoDAL cursoDAL);
 
     /**
      * Persiste todas as inscrições de todos os estudantes.
