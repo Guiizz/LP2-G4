@@ -77,7 +77,7 @@ public class LoginController {
         CursoBLL cursoBLL = new CursoBLL(cursoDAL, estudanteDAL, anoLetivoDAL, ucDAL);
         DocenteBLL docenteBLL = new DocenteBLL(docenteDAL, estudanteDAL);
         EstudanteBLL estBLL = new EstudanteBLL(estudanteDAL, docenteDAL, anoLetivoDAL);
-        GestorBLL gestorBLL = new GestorBLL(gestorDAL);
+        GestorBLL gestorBLL = new GestorBLL(gestorDAL, docenteDAL, estudanteDAL);
         AnoLetivoBLL anoLetBLL = new AnoLetivoBLL(anoLetivoDAL);
         IAvaliacaoDAL avaliacaoDAL = ModoPersistencia.isBaseDados()
                 ? new AvaliacaoDAL_BD(ucDAL)
