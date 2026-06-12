@@ -104,6 +104,9 @@ public class HorarioBLL {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     public static int parseMinutos(String hora) {
+        if (hora == null || !hora.matches("\\d{1,2}:\\d{2}")){
+            throw new IllegalArgumentException("Hora inválida: '" + hora + "'. Use um formato HH:mm.");
+        }
         String[] p = hora.split(":");
         return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
     }

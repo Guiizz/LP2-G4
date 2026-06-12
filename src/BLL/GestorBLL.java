@@ -1,5 +1,7 @@
 package BLL;
 
+import DAL.IDocenteDAL;
+import DAL.IEstudanteDAL;
 import DAL.GestorDAL;
 import DAL.IGestorDAL;
 import Model.Gestor;
@@ -9,30 +11,19 @@ import Utils.PasswordUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-/**
- * Camada (BLL) para a entidade Gestor
- * Responsável pela lógica de negócio associada ao Gestor
- */
+
 public class GestorBLL {
     private IGestorDAL gestorDAL;
+    private IDocenteDAL docenteDAL;
+    private IEstudanteDAL estudanteDAL;
 
-    /**
-     * Construtor
-     */
-    public GestorBLL(IGestorDAL gestorDAL) {
+
+    public GestorBLL(IGestorDAL gestorDAL, IDocenteDAL docenteDAL, IEstudanteDAL estudanteDAL) {
         this.gestorDAL = gestorDAL;
+        this.docenteDAL = docenteDAL;
+        this.estudanteDAL = estudanteDAL;
     }
-    /**
-     * Regista um novo Gestor no sistema.
-     * Valida todos os dados e garante unicidade de NIF e email.
-     * @param nome O nome do gestor.
-     * @param dataNascimento A data de nascimento do gestor.
-     * @param nif O NIF do gestor.
-     * @param morada A morada do gestor.
-     * @param email O email do gestor.
-     * @param password A palavra-chave do gestor.
-     * @throws IllegalArgumentException Se alguma validação falhar ou já existir duplicado.
-     */
+
     public void registarGestor(String nome, LocalDate dataNascimento, String nif, String morada, String email, String password) {
         Utils.validarNome(nome);
         Utils.validarDataNascimento(dataNascimento);
@@ -43,6 +34,14 @@ public class GestorBLL {
 
         if (gestorDAL.procurarPorNif(nif) != null) {
             throw new IllegalArgumentException("Já existe um gestor com o NIF: " + nif);
+        }
+
+        if (docenteDAL.procurarPorNif(nif) != null) {
+            throw new IllegalArgumentException("Este NIF já existe no sistema como docente.");
+        }
+
+        if (estudanteDAL.procurarPorNif(nif) != null ) {
+            throw new IllegalArgumentException("Este NIF já existe no sistema como estudante.");
         }
         if (gestorDAL.procurarPorEmail(email) != null) {
             throw new IllegalArgumentException("Já existe um gestor com o email: " + email);

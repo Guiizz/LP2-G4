@@ -104,6 +104,9 @@ public class UnidadeCurricularBLL {
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("O nome do momento não pode ser vazio.");
         }
+        if (uc.isAtiva()) {
+            throw new IllegalArgumentException("Não é possível adicionar momentos à UC '" + uc.getNome() + "' porque já está ativa.");
+        }
 
         AnoLetivo anoAberto = anoLetivoDAL.procurarAnoAberto();
         if (anoAberto == null) {
