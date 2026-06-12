@@ -57,7 +57,7 @@ public class AvaliacaoBLL {
 
         for (Avaliacao existente : avaliacaoDAL.listarAvaliacoes()) {
             if (existente.getData() != null && existente.getData().equals(data)
-                    && existente.getUc() != null && existente.getUc().equals(ucs)) {
+                    && existente.getUc() != null && existente.getUc().containsAll(ucs) && ucs.containsAll(existente.getUc())) {
                 throw new IllegalArgumentException("Já existe uma avaliação para as mesmas UCs nesta data.");
             }
         }
