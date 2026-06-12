@@ -84,8 +84,19 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
                 for (String parte : momentosStr.split("\\|")) {
                     String[] mv = parte.split(":");
                     try {
-                        if (mv.length == 3) {
-                            // novo formato: nome:peso:anoLetivo
+                        if (mv.length == 5) {
+                            // formato completo: nome:peso:anoLetivo:curso:data
+                            String curso = mv[3].isBlank() ? null : mv[3];
+                            java.util.Date data = null;
+                            if (!mv[4].isBlank()) {
+                                try {
+                                    data = new java.text.SimpleDateFormat("dd/MM/yyyy").parse(mv[4]);
+                                } catch (java.text.ParseException ignored) {}
+                            }
+                            uc.adicionarMomento(new MomentoAvaliacao(
+                                    mv[0], Double.parseDouble(mv[1]), Integer.parseInt(mv[2]), curso, data));
+                        } else if (mv.length == 3) {
+                            // formato anterior: nome:peso:anoLetivo
                             uc.adicionarMomento(new MomentoAvaliacao(
                                     mv[0], Double.parseDouble(mv[1]), Integer.parseInt(mv[2])));
                         } else if (mv.length == 2) {
@@ -115,7 +126,11 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
                         MomentoAvaliacao m = momentos.get(i);
                         momentosSB.append(m.getNome().replace("|", "-").replace(":", "-"))
                               .append(":").append(m.getPeso())
-                              .append(":").append(m.getAnoLetivo());
+                              .append(":").append(m.getAnoLetivo())
+                              .append(":").append(m.getNomeCurso() != null
+                                      ? m.getNomeCurso().replace("|", "-").replace(":", "-") : "")
+                              .append(":").append(m.getData() != null
+                                      ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(m.getData()) : "");
                         if (i < momentos.size() - 1) momentosSB.append("|");
                     }
                 }

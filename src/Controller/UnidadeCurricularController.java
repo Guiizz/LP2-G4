@@ -33,8 +33,8 @@ public class UnidadeCurricularController {
         unidadeCurricularBLL.atribuirDocenteResponsavel(nomeUC, siglaDocente);
     }
 
-    public void adicionarMomento(UnidadeCurricular uc, String nome) {
-        unidadeCurricularBLL.adicionarMomento(uc, nome);
+    public void adicionarMomento(UnidadeCurricular uc, String nome, String nomeCurso, java.util.Date data) {
+        unidadeCurricularBLL.adicionarMomento(uc, nome, nomeCurso, data);
     }
 
     public void removerMomento(UnidadeCurricular uc, int indice) {

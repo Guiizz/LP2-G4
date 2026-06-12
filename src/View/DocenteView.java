@@ -239,7 +239,9 @@ public class DocenteView {
         System.out.println("\n  Momentos de Avaliação da UC '" + ucEscolhida.getNome() + "':");
         for (int i = 0; i < momentos.size(); i++) {
             MomentoAvaliacao m = momentos.get(i);
-            System.out.println("  " + (i + 1) + ". " + m.getNome() + " (Peso: " + m.getPeso() + "%)");
+            System.out.println("  " + (i + 1) + ". " + m.getNome() + " (Peso: " + m.getPeso() + "%)"
+                    + (m.getNomeCurso() != null ? " — " + m.getNomeCurso() : "")
+                    + (m.getData() != null ? " — " + m.getDataFormatada() : ""));
         }
 
         int escolhaMomento = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
@@ -250,8 +252,11 @@ public class DocenteView {
             return;
         }
 
-        int indiceMomento = escolhaMomento - 1;
-        MomentoAvaliacao momentoEscolhido = momentos.get(indiceMomento);
+        MomentoAvaliacao momentoEscolhido = momentos.get(escolhaMomento - 1);
+        // O índice da nota na inscrição é a posição do momento dentro do grupo do curso
+        int indiceMomento = ucEscolhida
+                .getMomentosParaAno(anoLetivo, momentoEscolhido.getNomeCurso())
+                .indexOf(momentoEscolhido);
 
         ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
         ArrayList<Estudante> alunosDaUC = new ArrayList<>();
@@ -262,7 +267,8 @@ public class DocenteView {
             if (inscricao != null
                     && inscricao.getCurso() != null
                     && inscricao.getCurso().getUnidades().contains(ucEscolhida)
-                    && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
+                    && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()
+                    && momentoEscolhido.pertenceAoCurso(inscricao.getCurso().getNomeCurso())) {
                 alunosDaUC.add(e);
             }
         }
@@ -408,14 +414,17 @@ public class DocenteView {
             System.out.printf("  %-12s %-22s", e.getNumMecanografico(), e.getNome());
             double somaFinal = 0;
             double totalPeso = 0;
-            for (int i = 0; i < momentos.size(); i++) {
+            // Cada aluno é avaliado pelos momentos do SEU curso
+            List<MomentoAvaliacao> momentosAluno =
+                    ucEscolhida.getMomentosParaAno(anoLetivo, inscricao.getCurso().getNomeCurso());
+            for (int i = 0; i < momentosAluno.size(); i++) {
                 String nota = "Pendente";
                 if (inscricao.getAvaliacoes() != null && i < inscricao.getAvaliacoes().size()) {
                     Avaliacao av = inscricao.getAvaliacoes().get(i);
                     if (av != null && av.isLancada()) {
                         nota = String.format("%.1f", av.getNota());
-                        somaFinal += av.getNota() * momentos.get(i).getPeso() / 100.0;
-                        totalPeso += momentos.get(i).getPeso();
+                        somaFinal += av.getNota() * momentosAluno.get(i).getPeso() / 100.0;
+                        totalPeso += momentosAluno.get(i).getPeso();
                     }
                 }
                 System.out.printf("  %-12s", nota);

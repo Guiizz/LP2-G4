@@ -15,7 +15,7 @@ public class AvaliacaoDAL implements IAvaliacaoDAL {
 
     private static final String FICHEIRO_CSV = "csv/avaliacoes.csv";
     private static final String SEPARADOR = ";";
-    private static final String CABECALHO = "uc_nomes;peso;data;nota;aprovado";
+    private static final String CABECALHO = "uc_nomes;peso;data;nota;aprovado;curso;lancada";
     private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy");
 
     private ArrayList<Avaliacao> avaliacoes;
@@ -104,7 +104,14 @@ public class AvaliacaoDAL implements IAvaliacaoDAL {
                 double nota = Double.parseDouble(campos[3]);
                 boolean aprovado = Boolean.parseBoolean(campos[4]);
 
-                Avaliacao avaliacao = new Avaliacao(ucs, peso, data, nota, aprovado);
+                boolean lancada = campos.length < 7 || Boolean.parseBoolean(campos[6]);
+
+                Avaliacao avaliacao = lancada
+                        ? new Avaliacao(ucs, peso, data, nota, aprovado)
+                        : new Avaliacao(ucs, peso, data);
+                if (campos.length >= 6 && !campos[5].isBlank()) {
+                    avaliacao.setNomeCurso(campos[5]);
+                }
                 avaliacoes.add(avaliacao);
 
                 for (UnidadeCurricular uc : ucs) {
@@ -134,7 +141,9 @@ public class AvaliacaoDAL implements IAvaliacaoDAL {
                                 avaliacao.getPeso() + SEPARADOR +
                                 SDF.format(avaliacao.getData()) + SEPARADOR +
                                 avaliacao.getNota() + SEPARADOR +
-                                (avaliacao.getNota() >= 10.0)
+                                (avaliacao.getNota() >= 10.0) + SEPARADOR +
+                                (avaliacao.getNomeCurso() != null ? avaliacao.getNomeCurso() : "") + SEPARADOR +
+                                avaliacao.isLancada()
                 );
             }
         } catch (IOException e) {
