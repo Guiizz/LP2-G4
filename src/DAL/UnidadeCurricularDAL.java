@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UnidadeCurricularDAL {
+public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
 
     private static final String FICHEIRO_CSV = "csv/unidades_curriculares.csv";
     private static final String SEPARADOR = ";";

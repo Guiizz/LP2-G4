@@ -161,4 +161,21 @@ public class UnidadeCurricular {
                 "Estado: " + (this.ativa ? "Ativa" : "Inativa") + "\n" +
                 "===========================";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UnidadeCurricular)) {
+            return false;
+        }
+        UnidadeCurricular that = (UnidadeCurricular) o;
+        return nome != null && nome.equalsIgnoreCase(that.nome);
+    }
+
+    @Override
+    public int hashCode() {
+        return nome != null ? nome.toLowerCase().hashCode() : 0;
+    }
 }

@@ -129,4 +129,21 @@ public class Curso {
         sb.append("=============");
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Curso)) {
+            return false;
+        }
+        Curso that = (Curso) o;
+        return nomeCurso != null && nomeCurso.equalsIgnoreCase(that.nomeCurso);
+    }
+
+    @Override
+    public int hashCode() {
+        return nomeCurso != null ? nomeCurso.toLowerCase().hashCode() : 0;
+    }
 }

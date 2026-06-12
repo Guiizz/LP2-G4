@@ -9,6 +9,7 @@ public class Avaliacao {
     /**
      * Atributos
      */
+    private int id = 0;   // 0 em modo ficheiro; preenchido pelo BD ao carregar
     private List<UnidadeCurricular> uc;
     private double peso;
     private Date data;
@@ -49,6 +50,9 @@ public class Avaliacao {
      * Gets e Sets
      * @return
      */
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public List<UnidadeCurricular> getUc() {return uc;}
 
     public double getPeso() {return peso;}
@@ -119,6 +123,28 @@ public class Avaliacao {
                 "Data: " + getDataFormatada() + "\n" +
                 (dataModificacao != null ? "Última modificação: " + getDataModificacaoFormatada() + "\n" : "") +
                 "================================";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Avaliacao)) {
+            return false;
+        }
+        Avaliacao that = (Avaliacao) o;
+        if (this.data == null || that.data == null) {
+            return false;
+        }
+        return this.data.equals(that.data) && (this.uc != null ? this.uc.equals(that.uc) : that.uc == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = data != null ? data.hashCode() : 0;
+        result = 31 * result + (uc != null ? uc.hashCode() : 0);
+        return result;
     }
 }
 

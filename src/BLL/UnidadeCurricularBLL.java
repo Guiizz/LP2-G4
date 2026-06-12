@@ -1,7 +1,9 @@
 package BLL;
 
 import DAL.AnoLetivoDAL;
+import DAL.IAnoLetivoDAL;
 import DAL.UnidadeCurricularDAL;
+import DAL.IUnidadeCurricularDAL;
 import Model.AnoLetivo;
 import Model.MomentoAvaliacao;
 import Model.UnidadeCurricular;
@@ -11,16 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnidadeCurricularBLL {
-    private UnidadeCurricularDAL unidadeCurricularDAL;
-    private AnoLetivoDAL         anoLetivoDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
+    private IAnoLetivoDAL         anoLetivoDAL;
 
-    public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL, AnoLetivoDAL anoLetivoDAL) {
+    public UnidadeCurricularBLL(IUnidadeCurricularDAL unidadeCurricularDAL, IAnoLetivoDAL anoLetivoDAL) {
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.anoLetivoDAL         = anoLetivoDAL;
     }
 
     /** Construtor de compatibilidade. */
-    public UnidadeCurricularBLL(UnidadeCurricularDAL unidadeCurricularDAL) {
+    public UnidadeCurricularBLL(IUnidadeCurricularDAL unidadeCurricularDAL) {
         this(unidadeCurricularDAL, new AnoLetivoDAL());
     }
 
@@ -101,6 +103,9 @@ public class UnidadeCurricularBLL {
         }
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("O nome do momento não pode ser vazio.");
+        }
+        if (uc.isAtiva()) {
+            throw new IllegalArgumentException("Não é possível adicionar momentos à UC '" + uc.getNome() + "' porque já está ativa.");
         }
 
         AnoLetivo anoAberto = anoLetivoDAL.procurarAnoAberto();

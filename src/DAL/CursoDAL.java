@@ -9,21 +9,21 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CursoDAL {
+public class CursoDAL implements ICursoDAL {
 
     private static final String FICHEIRO_CSV = "csv/cursos.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "nomeCurso;siglaDepartamento;nomesUCs;estado;valorPropina";
 
     private ArrayList<Curso> cursos;
-    private DepartamentoDAL departamentoDAL;
-    private UnidadeCurricularDAL unidadeCurricularDAL;
+    private IDepartamentoDAL departamentoDAL;
+    private IUnidadeCurricularDAL unidadeCurricularDAL;
 
     public CursoDAL() {
         this(new DepartamentoDAL(), new UnidadeCurricularDAL());
     }
 
-    public CursoDAL(DepartamentoDAL departamentoDAL, UnidadeCurricularDAL unidadeCurricularDAL) {
+    public CursoDAL(IDepartamentoDAL departamentoDAL, IUnidadeCurricularDAL unidadeCurricularDAL) {
         this.departamentoDAL = departamentoDAL;
         this.unidadeCurricularDAL = unidadeCurricularDAL;
         this.cursos = new ArrayList<>();
