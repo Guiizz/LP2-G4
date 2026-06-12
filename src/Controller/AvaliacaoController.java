@@ -16,8 +16,8 @@ public class AvaliacaoController {
         this.avaliacaoBLL = avaliacaoBLL;
     }
 
-    public Avaliacao registarAvaliacao(List<UnidadeCurricular> ucs, double peso, Date data, double nota) {
-        return avaliacaoBLL.registarAvaliacao(ucs, peso, data, nota);
+    public Avaliacao registarAvaliacao(List<UnidadeCurricular> ucs, String nomeCurso, Date data, double nota) {
+        return avaliacaoBLL.registarAvaliacao(ucs, nomeCurso, data, nota);
     }
 
     public void removerAvaliacao(Avaliacao avaliacao) {

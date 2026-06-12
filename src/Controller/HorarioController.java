@@ -34,7 +34,8 @@ public class HorarioController {
         return HorarioBLL.DIAS_SEMANA;
     }
 
-    public String[] getHorasValidas(int duracao) {
-        return HorarioBLL.getHorasValidasParaDuracao(duracao);
+    public String proximaHoraLivre(String nomeCurso, int anoCurricular, int anoLetivo,
+                                   String diaSemana, int duracao) {
+        return horarioBLL.proximaHoraLivre(nomeCurso, anoCurricular, anoLetivo, diaSemana, duracao);
     }
 }

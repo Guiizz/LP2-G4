@@ -154,7 +154,11 @@ public class CursoBLL {
         if (uc == null) {
             throw new IllegalArgumentException("A unidade curricular não pode ser nula.");
         }
-        validarCursoNaoAlocado(curso, estudanteDAL.listarEstudantes(), "alterar");
+        if (curso.getEstado() != null && !curso.getEstado().equalsIgnoreCase("PENDENTE")) {
+            throw new IllegalArgumentException(
+                    "Não é possível adicionar UCs ao curso '" + curso.getNomeCurso() +
+                            "' porque já foi iniciado.");
+        }
 
         if (uc.getAnoCurricular() < 1 || uc.getAnoCurricular() > DURACAO_CURSO) {
             throw new IllegalArgumentException(
@@ -330,7 +334,7 @@ public class CursoBLL {
             for (UnidadeCurricular uc : curso.getUnidades()) {
                 if (uc.getAnoCurricular() == ano) {
                     temUC = true;
-                    if (uc.momentosValidosParaAno(anoLetivo)) {
+                    if (uc.momentosValidosParaAno(anoLetivo, curso.getNomeCurso())) {
                         temUCComMomentos = true;
                     }
                 }

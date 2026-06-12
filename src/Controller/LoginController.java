@@ -82,7 +82,7 @@ public class LoginController {
         IAvaliacaoDAL avaliacaoDAL = ModoPersistencia.isBaseDados()
                 ? new AvaliacaoDAL_BD(ucDAL)
                 : new AvaliacaoDAL(ucDAL);
-        AvaliacaoBLL avalBLL = new AvaliacaoBLL(avaliacaoDAL);
+        AvaliacaoBLL avalBLL = new AvaliacaoBLL(avaliacaoDAL, anoLetivoDAL);
         BLL.HorarioBLL horarioBLL = new BLL.HorarioBLL(horarioDAL, ucDAL);
         BLL.PresencaBLL presencaBLL = new BLL.PresencaBLL(registoAulaDAL, presencaDAL);
         BLL.JustificacaoBLL justificacaoBLL = new BLL.JustificacaoBLL(justificacaoDAL, tipoJustDAL);

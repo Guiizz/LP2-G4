@@ -1,10 +1,11 @@
 package View;
 
-import Controller.AvaliacaoController;
+import Controller.AnoLetivoController;
 import Controller.CursoController;
 import Controller.UnidadeCurricularController;
-import Model.Avaliacao;
+import Model.AnoLetivo;
 import Model.Curso;
+import Model.MomentoAvaliacao;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
@@ -13,35 +14,40 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Gestão dos momentos de avaliação das UCs, por curso.
+ * Cada UC pode ter até 3 momentos por curso e ano letivo,
+ * com pesos distribuídos automaticamente (100 / 50-50 / 33-33-34).
+ */
 public class AvaliacaoView {
 
-    private final AvaliacaoController         avaliacaoController;
     private final UnidadeCurricularController unidadeCurricularController;
     private final CursoController             cursoController;
+    private final AnoLetivoController         anoLetivoController;
     private final Scanner                     scanner;
 
-    public AvaliacaoView(AvaliacaoController avaliacaoController,
-                         UnidadeCurricularController unidadeCurricularController,
+    public AvaliacaoView(UnidadeCurricularController unidadeCurricularController,
                          CursoController cursoController,
+                         AnoLetivoController anoLetivoController,
                          Scanner scanner) {
-        this.avaliacaoController         = avaliacaoController;
         this.unidadeCurricularController = unidadeCurricularController;
         this.cursoController             = cursoController;
+        this.anoLetivoController         = anoLetivoController;
         this.scanner                     = scanner;
     }
 
     public void iniciar() {
         String[] opcoes = {
-                "Registar Avaliação",
-                "Listar Avaliações",
-                "Procurar Avaliações por UC",
-                "Remover Avaliação"
+                "Registar momento de avaliação",
+                "Listar momentos de avaliação",
+                "Procurar momentos por UC",
+                "Remover momento de avaliação"
         };
 
         int opcao;
         do {
             Utils.limparEcra();
-            opcao = Utils.mostrarMenu("GESTÃO DE AVALIAÇÕES", opcoes, scanner);
+            opcao = Utils.mostrarMenu("MOMENTOS DE AVALIAÇÃO", opcoes, scanner);
             try {
                 switch (opcao) {
                     case 1: registar(); break;
@@ -60,91 +66,119 @@ public class AvaliacaoView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        Utils.tituloPagina("Registar Avaliação");
+        Utils.tituloPagina("Registar Momento de Avaliação");
 
-        UnidadeCurricular uc = selecionarUC();
+        Curso curso = selecionarCurso();
+        if (curso == null) return;
+
+        UnidadeCurricular uc = selecionarUCDoCurso(curso);
         if (uc == null) return;
 
-        List<Model.MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
-        double peso;
-        if (momentos == null || momentos.isEmpty()) {
-            System.out.println("  [!] A UC não tem momentos de avaliação definidos. Introduza o peso manualmente.");
-            peso = Utils.lerDouble("  Peso (%): ", scanner);
-        } else {
-            System.out.println("\n  Momentos de avaliação:");
-            for (int i = 0; i < momentos.size(); i++) {
-                System.out.println("  " + (i + 1) + ". " + momentos.get(i).getNome()
-                        + " (" + momentos.get(i).getPeso() + "%)");
-            }
-            int escolha = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
-            if (escolha == 0) return;
-            if (escolha < 1 || escolha > momentos.size()) {
-                System.out.println("  [!] Opção inválida. Selecione entre 1 e " + momentos.size() + ".");
-                Utils.pausar(scanner);
-                return;
-            }
-            peso = momentos.get(escolha - 1).getPeso();
-            System.out.println("  Peso: " + peso + "%");
-        }
-
+        String nome = Utils.lerCampo("  Nome do momento (ex: Frequência, Exame, Projeto): ", scanner);
         Date data = Utils.lerDataAvaliacao("  Data (DD/MM/AAAA): ", scanner);
 
-        List<UnidadeCurricular> ucs = new ArrayList<>();
-        ucs.add(uc);
+        unidadeCurricularController.adicionarMomento(uc, nome, curso.getNomeCurso(), data);
 
-        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, 0);
         System.out.println("  [✓] Momento de avaliação registado com sucesso.");
-        System.out.println("  " + a);
+        int anoLetivo = anoLetivoAberto();
+        System.out.println("  Distribuição atual na UC '" + uc.getNome() + "' (" + curso.getNomeCurso() + "):");
+        for (MomentoAvaliacao m : uc.getMomentosParaAno(anoLetivo, curso.getNomeCurso())) {
+            System.out.printf("      %-25s %5.2f%%  %s%n", m.getNome(), m.getPeso(), m.getDataFormatada());
+        }
         Utils.pausar(scanner);
     }
 
     private void listar() {
         Utils.limparEcra();
-        Utils.tituloPagina("Lista de Avaliações");
-        ArrayList<Avaliacao> lista = avaliacaoController.listarAvaliacoes();
-        if (lista.isEmpty()) { System.out.println("  (sem avaliações registadas)"); Utils.pausar(scanner); return; }
-        for (Avaliacao a : lista) { System.out.println(a + "\n"); }
+        Utils.tituloPagina("Momentos de Avaliação");
+        boolean encontrou = false;
+        for (UnidadeCurricular uc : unidadeCurricularController.listarUnidades()) {
+            List<MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
+            if (momentos == null || momentos.isEmpty()) continue;
+            encontrou = true;
+            System.out.println("\n  UC: " + uc.getNome() + " (Ano " + uc.getAnoCurricular() + ")");
+            for (MomentoAvaliacao m : momentos) {
+                System.out.printf("    - %-25s %5.2f%%  %-12s %s%n",
+                        m.getNome(), m.getPeso(), m.getDataFormatada(),
+                        m.getNomeCurso() != null ? m.getNomeCurso() : "(sem curso)");
+            }
+        }
+        if (!encontrou) System.out.println("  (sem momentos de avaliação registados)");
         Utils.pausar(scanner);
     }
 
     private void procurarPorUC() {
         Utils.limparEcra();
-        Utils.tituloPagina("Avaliações por Unidade Curricular");
+        Utils.tituloPagina("Momentos por Unidade Curricular");
 
         UnidadeCurricular uc = selecionarUC();
         if (uc == null) return;
 
-        ArrayList<Avaliacao> avaliacoes = avaliacaoController.procurarPorUC(uc);
-        if (avaliacoes.isEmpty()) { System.out.println("  (sem avaliações para esta UC)"); Utils.pausar(scanner); return; }
-        for (Avaliacao a : avaliacoes) { System.out.println(a + "\n"); }
+        List<MomentoAvaliacao> momentos = uc.getMomentosAvaliacao();
+        if (momentos == null || momentos.isEmpty()) {
+            System.out.println("  (sem momentos para esta UC)");
+            Utils.pausar(scanner);
+            return;
+        }
+        for (MomentoAvaliacao m : momentos) {
+            System.out.println(m + "\n");
+        }
         Utils.pausar(scanner);
     }
 
     private void remover() {
         Utils.limparEcra();
-        Utils.tituloPagina("Remover Avaliação");
-        ArrayList<Avaliacao> lista = avaliacaoController.listarAvaliacoes();
-        if (lista.isEmpty()) { System.out.println("  (sem avaliações registadas)"); Utils.pausar(scanner); return; }
+        Utils.tituloPagina("Remover Momento de Avaliação");
 
-        for (int i = 0; i < lista.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + lista.get(i));
+        Curso curso = selecionarCurso();
+        if (curso == null) return;
+
+        UnidadeCurricular uc = selecionarUCDoCurso(curso);
+        if (uc == null) return;
+
+        int anoLetivo = anoLetivoAberto();
+        List<MomentoAvaliacao> momentosDoCurso = uc.getMomentosParaAno(anoLetivo, curso.getNomeCurso());
+        if (momentosDoCurso.isEmpty()) {
+            System.out.println("  [!] A UC '" + uc.getNome() + "' não tem momentos neste curso.");
+            Utils.pausar(scanner);
+            return;
         }
 
-        int escolha = Utils.lerInteiro("  Selecione a avaliação a remover (0 para voltar): ", scanner);
+        System.out.println("\n  Momentos de '" + uc.getNome() + "' (" + curso.getNomeCurso() + "):");
+        for (int i = 0; i < momentosDoCurso.size(); i++) {
+            MomentoAvaliacao m = momentosDoCurso.get(i);
+            System.out.printf("  %d. %-25s %5.2f%%  %s%n", i + 1, m.getNome(), m.getPeso(), m.getDataFormatada());
+        }
+
+        int escolha = Utils.lerInteiro("  Selecione o momento a remover (0 para voltar): ", scanner);
         if (escolha == 0) return;
-        if (escolha < 1 || escolha > lista.size()) {
+        if (escolha < 1 || escolha > momentosDoCurso.size()) {
             System.out.println("  [!] Opção inválida.");
             Utils.pausar(scanner);
             return;
         }
-        Avaliacao alvo = lista.get(escolha - 1);
 
-        if (!Utils.confirmar("Remover a avaliação de " + alvo.getDataFormatada() + "?", scanner)) {
+        MomentoAvaliacao alvo = momentosDoCurso.get(escolha - 1);
+        int indiceReal = uc.getMomentosAvaliacao().indexOf(alvo);
+        if (indiceReal < 0) {
+            System.out.println("  [!] Não foi possível localizar o momento.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        if (!Utils.confirmar("Remover o momento '" + alvo.getNome() + "'?", scanner)) {
             System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
         }
-        avaliacaoController.removerAvaliacao(alvo);
-        System.out.println("  [✓] Avaliação removida com sucesso.");
+        unidadeCurricularController.removerMomento(uc, indiceReal);
+        System.out.println("  [✓] Momento removido com sucesso.");
         Utils.pausar(scanner);
+    }
+
+    // ── Seletores ─────────────────────────────────────────────────────────────
+
+    private int anoLetivoAberto() {
+        AnoLetivo aberto = anoLetivoController.consultarAnoAtual();
+        return aberto != null ? aberto.getAno() : 0;
     }
 
     private UnidadeCurricular selecionarUC() {
@@ -169,6 +203,56 @@ public class AvaliacaoView {
             return null;
         }
         return ucs.get(escolha - 1);
+    }
+
+    private Curso selecionarCurso() {
+        ArrayList<Curso> cursos = cursoController.listarCursos();
+        if (cursos.isEmpty()) {
+            System.out.println("  [!] Não existem cursos registados.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        System.out.println("  Cursos disponíveis:");
+        for (int i = 0; i < cursos.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + cursos.get(i).getNomeCurso());
+        }
+        int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
+        if (escolha < 1 || escolha > cursos.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return cursos.get(escolha - 1);
+    }
+
+    private UnidadeCurricular selecionarUCDoCurso(Curso curso) {
+        List<UnidadeCurricular> ucsDoCurso = new ArrayList<>(curso.getUnidades());
+        if (ucsDoCurso.isEmpty()) {
+            System.out.println("  [!] O curso '" + curso.getNomeCurso() + "' não tem UCs registadas.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        ucsDoCurso.sort((a, b) -> Integer.compare(a.getAnoCurricular(), b.getAnoCurricular()));
+
+        System.out.println("\n  UCs do curso " + curso.getNomeCurso() + ":");
+        int anoAtual = 0;
+        for (int i = 0; i < ucsDoCurso.size(); i++) {
+            UnidadeCurricular uc = ucsDoCurso.get(i);
+            if (uc.getAnoCurricular() != anoAtual) {
+                anoAtual = uc.getAnoCurricular();
+                System.out.println("  ── " + anoAtual + ".º ano ──");
+            }
+            System.out.println("  " + (i + 1) + ". " + uc.getNome());
+        }
+        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+        if (escolha == 0) return null;
+        if (escolha < 1 || escolha > ucsDoCurso.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return null;
+        }
+        return ucsDoCurso.get(escolha - 1);
     }
 
     private String cursosComUC(UnidadeCurricular uc) {

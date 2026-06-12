@@ -11,6 +11,7 @@ public class Avaliacao {
      */
     private int id = 0;   // 0 em modo ficheiro; preenchido pelo BD ao carregar
     private List<UnidadeCurricular> uc;
+    private String nomeCurso; // momento pertence a um curso; a mesma UC noutro curso tem momentos próprios
     private double peso;
     private Date data;
     private double nota;
@@ -54,6 +55,9 @@ public class Avaliacao {
     public void setId(int id) { this.id = id; }
 
     public List<UnidadeCurricular> getUc() {return uc;}
+
+    public String getNomeCurso() { return nomeCurso; }
+    public void setNomeCurso(String nomeCurso) { this.nomeCurso = nomeCurso; }
 
     public double getPeso() {return peso;}
 
@@ -118,6 +122,7 @@ public class Avaliacao {
     public String toString() {
         return  "===== Momento de Avaliação =====\n"+
                 "Cadeira: " + (uc != null && !uc.isEmpty() ? uc.get(0).getNome() : "(sem UC)") + "\n" +
+                "Curso: " + (nomeCurso != null && !nomeCurso.isBlank() ? nomeCurso : "(sem curso)") + "\n" +
                 "Peso: " + peso + "\n" +
                 "Nota: " + getNotaFormatada()+ "\n" +
                 "Data: " + getDataFormatada() + "\n" +
