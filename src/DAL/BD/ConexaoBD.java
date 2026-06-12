@@ -14,6 +14,10 @@ public class ConexaoBD {
     private Connection connection;
 
     public ConexaoBD() {
+        // O SQL Server do ISEP usa TLS antigo (1.0/1.1), desativado por defeito no Java moderno
+        java.security.Security.setProperty("jdk.tls.disabledAlgorithms",
+                "SSLv3, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, anon, NULL");
+
         Dotenv dotenv = Dotenv.configure()
                 .directory("./")
                 .ignoreIfMalformed()
@@ -34,7 +38,7 @@ public class ConexaoBD {
                         + ";databaseName=" + databaseName
                         + ";user=" + username
                         + ";password=" + password
-                        + ";encrypt=true;trustServerCertificate=true;sslProtocol=TLSv1.2;";
+                        + ";encrypt=false;trustServerCertificate=true";
                 connection = DriverManager.getConnection(connectionUrl);
             }
             return connection;
