@@ -30,7 +30,7 @@ public class UnidadeCurricularBLL {
         if (unidade == null) {
             throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
         }
-        Utils.validarNome(unidade.getNome());
+        Utils.validarDesignacao(unidade.getNome());
         if (unidade.getAnoCurricular() < 1 || unidade.getAnoCurricular() > 3) {
             throw new IllegalArgumentException("Ano curricular inválido, deve ser entre 1 e 3.");
         }
@@ -54,7 +54,7 @@ public class UnidadeCurricularBLL {
         if (unidade == null) {
             throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
         }
-        Utils.validarNome(unidade.getNome());
+        Utils.validarDesignacao(unidade.getNome());
 
         boolean atualizado = unidadeCurricularDAL.atualizarUnidade(unidade);
         if(!atualizado) {

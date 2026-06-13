@@ -13,7 +13,7 @@ public class Main {
     private static void escolherModoPersistencia() {
         Scanner scanner = new Scanner(System.in);
         String[] opcoes = {
-                "Ficheiros / Memória",
+                "Ficheiros",
                 "Base de Dados (SQL Server)"
         };
 
