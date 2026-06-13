@@ -32,9 +32,14 @@ public class PresencaBLL {
     }
 
     public Presenca marcarPresencaEstudante(String numMecanografico, String nomeUC, String nomeCurso, int anoLetivo, LocalDate data, String horaInicio) {
-        if (!registoAulaDAL.existe(nomeUC, nomeCurso, anoLetivo, data, horaInicio)) {
+        RegistoAula aula = registoAulaDAL.procurar(nomeUC, nomeCurso, anoLetivo, data, horaInicio);
+        if (aula == null) {
             throw new IllegalArgumentException(
                     "O docente ainda não marcou presença nesta aula.");
+        }
+        if (aula.isTerminada()) {
+            throw new IllegalArgumentException(
+                    "A aula já foi terminada pelo docente. Já não é possível marcar presença.");
         }
         if (presencaDAL.existe(numMecanografico, nomeUC, nomeCurso, anoLetivo, data, horaInicio)) {
             throw new IllegalArgumentException("Já marcou a sua presença nesta aula.");
@@ -42,6 +47,47 @@ public class PresencaBLL {
         Presenca presenca = new Presenca(numMecanografico, nomeUC, nomeCurso, anoLetivo, data, horaInicio, true);
         presencaDAL.adicionar(presenca);
         return presenca;
+    }
+
+    /**
+     * Termina uma aula marcada pelo docente. Todos os estudantes inscritos
+     * que ainda não marcaram presença ficam com falta (presença = false).
+     * Após terminada, não é possível marcar presença na aula.
+     *
+     * @param numMecanograficosInscritos números mecanográficos dos alunos inscritos na UC/curso/ano
+     * @return número de faltas registadas
+     */
+    public int terminarAula(String nomeUC, String nomeCurso, int anoLetivo,
+                            LocalDate data, String horaInicio,
+                            List<String> numMecanograficosInscritos) {
+        RegistoAula aula = registoAulaDAL.procurar(nomeUC, nomeCurso, anoLetivo, data, horaInicio);
+        if (aula == null) {
+            throw new IllegalArgumentException("Aula não encontrada.");
+        }
+        if (aula.isTerminada()) {
+            throw new IllegalArgumentException("Esta aula já foi terminada.");
+        }
+
+        int faltas = 0;
+        for (String num : numMecanograficosInscritos) {
+            if (!presencaDAL.existe(num, nomeUC, nomeCurso, anoLetivo, data, horaInicio)) {
+                presencaDAL.adicionar(new Presenca(num, nomeUC, nomeCurso, anoLetivo, data, horaInicio, false));
+                faltas++;
+            }
+        }
+
+        aula.setTerminada(true);
+        registoAulaDAL.guardar();
+        return faltas;
+    }
+
+    /** Faltas (presença = false) de um estudante — base para o pedido de justificação. */
+    public List<Presenca> listarFaltasEstudante(String numMecanografico) {
+        List<Presenca> faltas = new ArrayList<>();
+        for (Presenca p : presencaDAL.listarPorEstudante(numMecanografico)) {
+            if (!p.isPresente()) faltas.add(p);
+        }
+        return faltas;
     }
 
     public List<RegistoAula> listarAulasDocente(String siglaDocente) {
@@ -64,6 +110,7 @@ public class PresencaBLL {
         List<RegistoAula> aulas = registoAulaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo);
         List<RegistoAula> semPresenca = new ArrayList<>();
         for (RegistoAula r : aulas) {
+            if (r.isTerminada()) continue; // aula terminada já não aceita presença
             if (!presencaDAL.existe(numMecanografico, nomeUC, nomeCurso,
                     anoLetivo, r.getData(), r.getHoraInicio())) {
                 semPresenca.add(r);

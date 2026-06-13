@@ -47,7 +47,7 @@ public class CursoBLL {
     // -------------------------------------------------------------------------
 
     public Curso registarCurso(String nomeCurso, Departamento departamento, double valorPropina) {
-        Utils.validarNome(nomeCurso);
+        Utils.validarDesignacao(nomeCurso);
         if (departamento == null)
             throw new IllegalArgumentException("O departamento não pode ser nulo.");
         if (valorPropina < 0)
@@ -74,7 +74,7 @@ public class CursoBLL {
         if (curso == null) {
             throw new IllegalArgumentException("O curso não pode ser nulo.");
         }
-        Utils.validarNome(novoNome);
+        Utils.validarDesignacao(novoNome);
 
         if (temEstudantesAlocados(curso, estudantes) || temDocentesAlocados(curso)) {
             throw new IllegalArgumentException(
@@ -121,7 +121,7 @@ public class CursoBLL {
     // -------------------------------------------------------------------------
 
     public Curso procurarPorNome(String nome) {
-        Utils.validarNome(nome);
+        Utils.validarDesignacao(nome);
         for (Curso c : cursoDAL.listarCursos()) {
             if (c.getNomeCurso().equalsIgnoreCase(nome.trim())) {
                 return c;

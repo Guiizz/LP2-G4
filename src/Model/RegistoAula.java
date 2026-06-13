@@ -10,15 +10,24 @@ public class RegistoAula {
     private int anoLetivo;
     private LocalDate data;
     private String horaInicio;
+    private boolean terminada;
 
     public RegistoAula(String siglaDocente, String nomeUC, String nomeCurso, int anoLetivo, LocalDate data, String horaInicio) {
+        this(siglaDocente, nomeUC, nomeCurso, anoLetivo, data, horaInicio, false);
+    }
+
+    public RegistoAula(String siglaDocente, String nomeUC, String nomeCurso, int anoLetivo, LocalDate data, String horaInicio, boolean terminada) {
         this.siglaDocente = siglaDocente;
         this.nomeUC = nomeUC;
         this.nomeCurso = nomeCurso;
         this.anoLetivo = anoLetivo;
         this.data = data;
         this.horaInicio = horaInicio;
+        this.terminada = terminada;
     }
+
+    public boolean isTerminada() { return terminada; }
+    public void setTerminada(boolean terminada) { this.terminada = terminada; }
 
     public String getSiglaDocente() {
         return siglaDocente;
@@ -54,6 +63,7 @@ public class RegistoAula {
 
     @Override
     public String toString() {
-        return data + "  " + horaInicio + "  |  " + nomeUC + "  (" + nomeCurso + ")";
+        return data + "  " + horaInicio + "  |  " + nomeUC + "  (" + nomeCurso + ")"
+                + (terminada ? "  [TERMINADA]" : "");
     }
 }

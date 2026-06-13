@@ -38,8 +38,7 @@ public class DocenteGestorView {
                 "Listar Docentes",
                 "Procurar Docente por Sigla",
                 "Atualizar Docente",
-                "Remover Docente",
-                "Atribuir Docente Responsável"
+                "Remover Docente"
         };
 
         int opcao;
@@ -53,7 +52,6 @@ public class DocenteGestorView {
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover(); break;
-                    case 6: atribuirDocente(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -167,88 +165,4 @@ public class DocenteGestorView {
         return lista.get(escolha - 1);
     }
 
-    private void atribuirDocente() {
-        Utils.tituloPagina("Atribuir Docente Responsável");
-
-        ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
-        if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
-
-        // Mostrar apenas UCs SEM docente responsável — UCs já atribuídas não aparecem como opção
-        ArrayList<UnidadeCurricular> ucsSemDocente = new ArrayList<>();
-        for (UnidadeCurricular uc : todasUCs) {
-            if (!uc.temDocenteResponsavel()) {
-                ucsSemDocente.add(uc);
-            }
-        }
-
-        if (ucsSemDocente.isEmpty()) {
-            System.out.println("  Todas as UCs já têm docente responsável atribuído.");
-            // Mostrar as atribuições actuais para contexto
-            System.out.println("\n  Atribuições actuais:");
-            for (UnidadeCurricular uc : todasUCs) {
-                System.out.println("  - " + uc.getNome()
-                        + " (Ano " + uc.getAnoCurricular() + ")"
-                        + " → " + uc.getDocenteResponsavel());
-            }
-            Utils.pausar(scanner);
-            return;
-        }
-
-        ArrayList<Docente> docentes = docenteController.listarDocentes();
-        if (docentes.isEmpty()) { System.out.println("  [!] Não existem docentes registados."); Utils.pausar(scanner); return; }
-
-        System.out.println("  UCs sem docente responsável:");
-        UnidadeCurricular uc = selecionarUC(ucsSemDocente);
-        if (uc == null) return;
-
-        System.out.println("  Docentes disponíveis:");
-        for (int i = 0; i < docentes.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + docentes.get(i).getNome()
-                    + " (" + docentes.get(i).getSigla() + ")");
-        }
-        int escolha = Utils.lerInteiro("  Selecione o docente (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > docentes.size()) {
-            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
-        }
-        Docente docente = docentes.get(escolha - 1);
-
-        unidadeCurricularController.atribuirDocenteResponsavel(uc.getNome(), docente.getSigla());
-
-        if (docente.getUnidadesLecionadas() != null && !docente.getUnidadesLecionadas().contains(uc)) {
-            docente.getUnidadesLecionadas().add(uc);
-            docenteController.atualizarDocente(docente);
-        }
-
-        System.out.println("  [✓] Docente '" + docente.getSigla() + "' atribuído à UC '" + uc.getNome() + "'.");
-        Utils.pausar(scanner);
-    }
-
-    private UnidadeCurricular selecionarUC(ArrayList<UnidadeCurricular> lista) {
-        for (int i = 0; i < lista.size(); i++) {
-            UnidadeCurricular uc = lista.get(i);
-            System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
-                    + " — " + cursosComUC(uc));
-        }
-        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > lista.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
-        }
-        return lista.get(escolha - 1);
-    }
-
-    private String cursosComUC(UnidadeCurricular uc) {
-        StringBuilder sb = new StringBuilder();
-        for (Curso c : cursoController.listarCursos()) {
-            if (c.getUnidades().contains(uc)) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(c.getNomeCurso());
-            }
-        }
-        return sb.length() > 0 ? sb.toString() : "(sem curso)";
-    }
 }

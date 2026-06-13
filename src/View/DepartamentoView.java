@@ -54,7 +54,7 @@ public class DepartamentoView {
 
     private void registar() {
         Utils.tituloPagina("Registar Departamento");
-        String nome  = Utils.lerNome("Nome: ", scanner);
+        String nome  = Utils.lerDesignacao("Nome: ", scanner);
         String sigla = Utils.lerSigla("Sigla (3 Letras): ", scanner);
 
         Departamento d = departamentoController.registarDepartamento(nome, sigla);

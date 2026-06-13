@@ -65,7 +65,7 @@ public class GestorView {
                         new DepartamentoView(departamentoController, cursoController, scanner).iniciar();
                         break;
                     case 3:
-                        new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar();
+                        new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, docenteController, scanner).iniciar();
                         break;
                     case 4:
                         new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar();
