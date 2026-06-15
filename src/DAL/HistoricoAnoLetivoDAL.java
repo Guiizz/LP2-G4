@@ -16,6 +16,14 @@ public class HistoricoAnoLetivoDAL {
         Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
     }
 
+    /**
+     * Lê o histórico de fechos de anos letivos guardado no CSV.
+     * @return lista de registos (cada um é um array com as colunas do cabeçalho)
+     */
+    public java.util.List<String[]> listarHistorico() {
+        return Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR);
+    }
+
     public String exportarFecho(AnoLetivo anoLetivo, RelatorioFechoAnoLetivo relatorio) {
         if (anoLetivo == null) {
             throw new IllegalArgumentException("Ano letivo inválido para exportação.");

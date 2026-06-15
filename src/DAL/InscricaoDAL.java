@@ -4,6 +4,7 @@ import Model.Avaliacao;
 import Model.Curso;
 import Model.Estudante;
 import Model.Inscricao;
+import Model.UnidadeCurricular;
 import Utils.Utils;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class InscricaoDAL implements IInscricaoDAL {
                         );
                     } catch (IllegalArgumentException ignored) {}
                 }
-                inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
+                inscricao.setAvaliacoes(deserializarAvaliacoes(notas, curso));
                 estudante.adicionarInscricao(inscricao);
 
             } catch (NumberFormatException e) {
@@ -125,19 +126,30 @@ public class InscricaoDAL implements IInscricaoDAL {
         return sb.toString();
     }
 
-    private ArrayList<Avaliacao> deserializarAvaliacoes(String notas) {
+    private ArrayList<Avaliacao> deserializarAvaliacoes(String notas, Curso curso) {
         ArrayList<Avaliacao> avaliacoes = new ArrayList<>();
         if (notas == null || notas.isBlank()) return avaliacoes;
         for (String par : notas.split(",")) {
             par = par.trim();
+            if (par.isEmpty()) continue;
             String[] partes = par.split(":", 2);
+            String nomeUC = partes.length > 1 ? partes[0].trim() : "";
             String notaStr = partes.length > 1 ? partes[1].trim() : par;
+
+            // Recuperar a UC pelo nome para não perder a associação ao recarregar
+            ArrayList<UnidadeCurricular> ucs = new ArrayList<>();
+            if (!nomeUC.isEmpty() && curso != null && curso.getUnidades() != null) {
+                for (UnidadeCurricular uc : curso.getUnidades()) {
+                    if (uc.getNome().equalsIgnoreCase(nomeUC)) { ucs.add(uc); break; }
+                }
+            }
+
             if (notaStr.equalsIgnoreCase("P")) {
-                avaliacoes.add(new Avaliacao(new ArrayList<>(), 100, new Date()));
+                avaliacoes.add(new Avaliacao(ucs, 100, new Date()));
             } else {
                 try {
                     double nota = Double.parseDouble(notaStr);
-                    avaliacoes.add(new Avaliacao(new ArrayList<>(), 100, new Date(), nota, nota >= 10));
+                    avaliacoes.add(new Avaliacao(ucs, 100, new Date(), nota, nota >= 10));
                 } catch (NumberFormatException ignored) {}
             }
         }

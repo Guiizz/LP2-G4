@@ -45,4 +45,8 @@ public class AnoLetivoController {
     public void removerAnoLetivo(int ano) {
         anoLetivoBLL.removerAnoLetivo(ano);
     }
+
+    public List<String[]> listarHistorico() {
+        return anoLetivoBLL.listarHistorico();
+    }
 }
