@@ -40,7 +40,7 @@ public class GestorMenuView {
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -52,7 +52,7 @@ public class GestorMenuView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        Utils.tituloPagina("Registar Gestor");
+        Utils.tituloPagina("GESTORES", "Registar Gestor");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
         String nif = Utils.lerNif("NIF: ", scanner);
@@ -67,8 +67,7 @@ public class GestorMenuView {
     }
 
     private void listar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lista de Gestores");
+        Utils.tituloPagina("GESTORES", "Lista de Gestores");
         ArrayList<Gestor> gestores = gestorController.listarGestores();
         if (gestores.isEmpty()) { System.out.println("  (sem gestores registados)"); Utils.pausar(scanner); return; }
         for (Gestor g : gestores) { System.out.println(g + "\n"); }
@@ -76,8 +75,7 @@ public class GestorMenuView {
     }
 
     private void procurar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Procurar Gestor");
+        Utils.tituloPagina("GESTORES", "Procurar Gestor");
         Gestor g = selecionarGestor();
         if (g == null) return;
         System.out.println("\n" + g.toStringDetalhado());
@@ -85,7 +83,7 @@ public class GestorMenuView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("Atualizar Gestor");
+        Utils.tituloPagina("GESTORES", "Atualizar Gestor");
         Gestor g = selecionarGestor();
         if (g == null) return;
 
@@ -102,7 +100,7 @@ public class GestorMenuView {
     }
 
     private void remover() {
-        Utils.tituloPagina("Remover Gestor");
+        Utils.tituloPagina("GESTORES", "Remover Gestor");
         Gestor g = selecionarGestor();
         if (g == null) return;
 

@@ -34,13 +34,8 @@ public class EstudanteGestorView {
 
     public void iniciar() {
         String[] opcoes = {
-                "Registar Estudante",
-                "Listar Estudantes",
-                "Procurar Estudante por Nº Mecanográfico",
-                "Atualizar Estudante",
-                "Remover Estudante",
-                "Inscrever Estudante em Curso",
-                "Verificar Progressão de Aluno",
+                "Dados do Estudante",
+                "Inscrições",
                 "Propinas"
         };
 
@@ -50,15 +45,62 @@ public class EstudanteGestorView {
             opcao = Utils.mostrarMenu("GESTÃO DE ESTUDANTES", opcoes, scanner);
             try {
                 switch (opcao) {
+                    case 1: menuDados(); break;
+                    case 2: menuInscricoes(); break;
+                    case 3: menuPropinas(); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuDados() {
+        String[] opcoes = {
+                "Registar Estudante",
+                "Listar Estudantes",
+                "Procurar Estudante",
+                "Atualizar Estudante",
+                "Remover Estudante"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("DADOS DO ESTUDANTE", opcoes, scanner);
+            try {
+                switch (opcao) {
                     case 1: registar(); break;
                     case 2: listar(); break;
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover(); break;
-                    case 6: inscrever(); break;
-                    case 7: verificarProgressao(); break;
-                    case 8: menuPropinas(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuInscricoes() {
+        String[] opcoes = {
+                "Inscrever Estudante em Curso",
+                "Desinscrever Estudante de Curso",
+                "Verificar Progressão de Aluno"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("INSCRIÇÕES", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: inscrever(); break;
+                    case 2: desinscrever(); break;
+                    case 3: verificarProgressao(); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -68,7 +110,7 @@ public class EstudanteGestorView {
     }
 
     private void registar() {
-        Utils.tituloPagina("Registar Estudante");
+        Utils.tituloPagina("DADOS DO ESTUDANTE", "Registar Estudante");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
         String nif;
@@ -89,8 +131,7 @@ public class EstudanteGestorView {
     }
 
     private void listar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lista de Estudantes");
+        Utils.tituloPagina("DADOS DO ESTUDANTE", "Lista de Estudantes");
         ArrayList<Estudante> lista = estudanteController.listarEstudante();
         if (lista.isEmpty()) { System.out.println("  (sem estudantes registados)"); Utils.pausar(scanner); return; }
         for (Estudante e : lista) { System.out.println(e + "\n"); }
@@ -98,8 +139,7 @@ public class EstudanteGestorView {
     }
 
     private void procurar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Procurar Estudante");
+        Utils.tituloPagina("DADOS DO ESTUDANTE", "Procurar Estudante");
         Estudante e = selecionarEstudante();
         if (e == null) return;
         System.out.println("\n" + e.toStringDetalhado());
@@ -107,7 +147,7 @@ public class EstudanteGestorView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("Atualizar Estudante");
+        Utils.tituloPagina("DADOS DO ESTUDANTE", "Atualizar Estudante");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -125,7 +165,7 @@ public class EstudanteGestorView {
     }
 
     private void remover() {
-        Utils.tituloPagina("Remover Estudante");
+        Utils.tituloPagina("DADOS DO ESTUDANTE", "Remover Estudante");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -162,7 +202,7 @@ public class EstudanteGestorView {
     }
 
     private void inscrever() {
-        Utils.tituloPagina("Inscrever Estudante em Curso");
+        Utils.tituloPagina("INSCRIÇÕES", "Inscrever em Curso");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -191,9 +231,33 @@ public class EstudanteGestorView {
         Utils.pausar(scanner);
     }
 
+    private void desinscrever() {
+        Utils.tituloPagina("INSCRIÇÕES", "Desinscrever de Curso");
+        Estudante e = selecionarEstudante();
+        if (e == null) return;
+
+        Inscricao inscricao = inscricaoController.obterInscricaoAtual(e);
+        if (inscricao == null) {
+            System.out.println("  [!] Este estudante não está inscrito em nenhum curso.");
+            Utils.pausar(scanner); return;
+        }
+
+        String nomeCurso = inscricao.getCurso() != null ? inscricao.getCurso().getNomeCurso() : "desconhecido";
+        System.out.println("\n  Estudante : " + e.getNome() + " (" + e.getNumMecanografico() + ")");
+        System.out.println("  Curso     : " + nomeCurso);
+        System.out.println("  Ano       : " + inscricao.getAnoDeCurso());
+
+        if (!Utils.confirmar("Desinscrever '" + e.getNome() + "' do curso '" + nomeCurso + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
+        }
+
+        inscricaoController.desinscreverEstudante(e);
+        System.out.println("  [✓] Estudante desinscrido do curso com sucesso.");
+        Utils.pausar(scanner);
+    }
+
     private void verificarProgressao() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Verificar Progressão de Aluno");
+        Utils.tituloPagina("INSCRIÇÕES", "Verificar Progressão");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -210,7 +274,7 @@ public class EstudanteGestorView {
     }
 
     private void marcarPropinaPaga() {
-        Utils.tituloPagina("Marcar Propina como Paga");
+        Utils.tituloPagina("PROPINAS", "Marcar Propina como Paga");
         Estudante e = selecionarEstudante();
         if (e == null) return;
 
@@ -221,8 +285,7 @@ public class EstudanteGestorView {
     }
 
     private void listarTodasAsPropinas() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Propinas de Todos os Estudantes");
+        Utils.tituloPagina("PROPINAS", "Todas as Propinas");
 
         ArrayList<Estudante> todos = estudanteController.listarEstudante();
         if (todos.isEmpty()) {
@@ -277,8 +340,7 @@ public class EstudanteGestorView {
     }
 
     private void listarPropinasEmDivida() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Estudantes com Propina em Dívida");
+        Utils.tituloPagina("PROPINAS", "Propinas em Dívida");
 
         ArrayList<Estudante> estudantes = estudanteController.listarComPropinaEmDivida();
 
@@ -333,7 +395,7 @@ public class EstudanteGestorView {
                     case 1: listarTodasAsPropinas(); break;
                     case 2: listarPropinasEmDivida(); break;
                     case 3: marcarPropinaPaga(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());

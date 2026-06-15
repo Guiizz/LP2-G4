@@ -40,61 +40,97 @@ public class EstudanteView {
 
     public void iniciar(Estudante estudante) {
         String[] opcoes = {
-                "Ver a minha Ficha",
-                "Ver as minhas Inscrições",
-                "Ver as minhas Avaliações",
-                "Atualizar a minha Morada",
-                "Propinas",
+                "Situação Académica",
+                "Presenças e Faltas",
                 "Ver o meu Horário",
-                "Marcar a minha Presença",
-                "Ver a minha Assiduidade",
-                "Justificar Falta",
-                "Ver as minhas Justificações",
-                "Alterar Password"
+                "A minha Conta"
         };
 
         int opcao;
         do {
             Utils.limparEcra();
-            opcao = Utils.mostrarMenu("ÁREA DO ESTUDANTE — " + estudante.getNome(), opcoes, scanner);
+            opcao = Utils.mostrarMenu("ÁREA DO ESTUDANTE — " + estudante.getNome(), opcoes, "Sair", scanner);
             try {
                 switch (opcao) {
-                    case 1:
-                        verFicha(estudante);
-                        break;
-                    case 2:
-                        new InscricaoView(inscricaoController, scanner).iniciar(estudante);
-                        break;
-                    case 3:
-                        verAvaliacoes(estudante);
-                        break;
-                    case 4:
-                        atualizar(estudante);
-                        break;
-                    case 5:
-                        verPropinas(estudante);
-                        break;
-                    case 6:
-                        verHorario(estudante);
-                        break;
-                    case 7:
-                        marcarPresenca(estudante);
-                        break;
-                    case 8:
-                        verAssiduidade(estudante);
-                        break;
-                    case 9:
-                        justificarFalta(estudante);
-                        break;
-                    case 10:
-                        verJustificacoes(estudante);
-                        break;
-                    case 11:
-                        alterarPassword(estudante);
-                        break;
-                    case 0:
-                        System.out.println("  A terminar sessão...");
-                        break;
+                    case 1: menuSituacaoAcademica(estudante); break;
+                    case 2: menuPresencas(estudante); break;
+                    case 3: verHorario(estudante); break;
+                    case 4: menuConta(estudante); break;
+                    case 0: System.out.println("  A terminar sessão..."); break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuSituacaoAcademica(Estudante estudante) {
+        String[] opcoes = {
+                "Ver as minhas Inscrições",
+                "Ver as minhas Avaliações",
+                "Propinas"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("SITUAÇÃO ACADÉMICA", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: new InscricaoView(inscricaoController, scanner).iniciar(estudante); break;
+                    case 2: verAvaliacoes(estudante); break;
+                    case 3: verPropinas(estudante); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuPresencas(Estudante estudante) {
+        String[] opcoes = {
+                "Marcar a minha Presença",
+                "Ver a minha Assiduidade",
+                "Justificar Falta",
+                "Ver as minhas Justificações"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("PRESENÇAS E FALTAS", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: marcarPresenca(estudante); break;
+                    case 2: verAssiduidade(estudante); break;
+                    case 3: justificarFalta(estudante); break;
+                    case 4: verJustificacoes(estudante); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuConta(Estudante estudante) {
+        String[] opcoes = {
+                "Ver a minha Ficha",
+                "Atualizar a minha Morada",
+                "Alterar Password"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("A MINHA CONTA", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: verFicha(estudante); break;
+                    case 2: atualizar(estudante); break;
+                    case 3: alterarPassword(estudante); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -104,15 +140,13 @@ public class EstudanteView {
     }
 
     private void verFicha(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("A minha Ficha");
+        Utils.tituloPagina("A MINHA CONTA", "A minha Ficha");
         System.out.println(estudante.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void verAvaliacoes(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Avaliações");
+        Utils.tituloPagina("SITUAÇÃO ACADÉMICA", "As minhas Avaliações");
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
         if (inscricoes.isEmpty()) {
             System.out.println("  (sem inscrições registadas)");
@@ -174,8 +208,7 @@ public class EstudanteView {
     }
 
     private void verAssiduidade(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("A minha Assiduidade");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "A minha Assiduidade");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -223,8 +256,7 @@ public class EstudanteView {
     }
 
     private void atualizar(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Atualizar a minha Morada");
+        Utils.tituloPagina("A MINHA CONTA", "Atualizar a minha Morada");
         System.out.println("  Nome, nº mecanográfico, email, NIF e data de nascimento não são editáveis.");
         System.out.println("  Morada atual: " + estudante.getMorada());
 
@@ -236,8 +268,7 @@ public class EstudanteView {
     }
 
     private void verHorario(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("O meu Horário");
+        Utils.tituloPagina("HORÁRIOS", "O meu Horário");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -254,8 +285,7 @@ public class EstudanteView {
     }
 
     private void marcarPresenca(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Marcar a minha Presença");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "Marcar a minha Presença");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -324,8 +354,7 @@ public class EstudanteView {
     }
 
     private void justificarFalta(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Justificar Falta");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "Justificar Falta");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -368,52 +397,49 @@ public class EstudanteView {
         }
         String nomeUC = ucsNoHorario.get(escolhaUC - 1);
 
-        // Aulas marcadas pelo docente onde o estudante foi ausente
-        List<RegistoAula> ausencias = presencaController.listarAulasSemPresencaEstudante(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
-        if (ausencias.isEmpty()) {
-            System.out.println("  (não tem faltas por justificar nesta UC)");
-            Utils.pausar(scanner);
-            return;
-        }
+        // Loop: justificar várias faltas da mesma UC sem sair
+        while (true) {
+            List<RegistoAula> ausencias = presencaController.listarAulasSemPresencaEstudante(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
+            if (ausencias.isEmpty()) {
+                System.out.println("  (não tem mais faltas por justificar nesta UC)");
+                Utils.pausar(scanner);
+                return;
+            }
 
-        System.out.println("\n  Faltas por justificar:");
-        for (int i = 0; i < ausencias.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + ausencias.get(i));
-        }
-        int escolhaAula = Utils.lerInteiro("  Selecione a falta (0 para voltar): ", scanner);
-        if (escolhaAula == 0) return;
-        if (escolhaAula < 1 || escolhaAula > ausencias.size()) {
-            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + ausencias.size() + ".");
-            Utils.pausar(scanner);
-            return;
-        }
-        RegistoAula aula = ausencias.get(escolhaAula - 1);
+            System.out.println("\n  Faltas por justificar em " + nomeUC + ":");
+            for (int i = 0; i < ausencias.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + ausencias.get(i));
+            }
+            int escolhaAula = Utils.lerInteiro("  Selecione a falta (0 para voltar):", scanner);
+            if (escolhaAula == 0) return;
+            if (escolhaAula < 1 || escolhaAula > ausencias.size()) {
+                System.out.println("  [!] Opção inválida. Selecione entre 1 e " + ausencias.size() + ".");
+                continue;
+            }
+            RegistoAula aula = ausencias.get(escolhaAula - 1);
 
-        // Tipo de justificação
-        List<TipoJustificacao> tipos = justificacaoController.listarTipos();
-        System.out.println("\n  Tipos de justificação:");
-        for (int i = 0; i < tipos.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + tipos.get(i));
-        }
-        System.out.println("  " + (tipos.size() + 1) + ". Outro");
-        int totalOpcoes = tipos.size() + 1;
-        int escolhaTipo = Utils.lerInteiro("  Selecione o tipo (0 para voltar): ", scanner);
-        if (escolhaTipo == 0) return;
-        if (escolhaTipo < 1 || escolhaTipo > totalOpcoes) {
-            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + totalOpcoes + ".");
-            Utils.pausar(scanner);
-            return;
-        }
-        String nomeTipo = (escolhaTipo == totalOpcoes) ? "Outro" : tipos.get(escolhaTipo - 1).getNome();
+            List<TipoJustificacao> tipos = justificacaoController.listarTipos();
+            System.out.println("\n  Tipos de justificação:");
+            for (int i = 0; i < tipos.size(); i++) {
+                System.out.println("  " + (i + 1) + ". " + tipos.get(i));
+            }
+            System.out.println("  " + (tipos.size() + 1) + ". Outro");
+            int totalOpcoes = tipos.size() + 1;
+            int escolhaTipo = Utils.lerInteiro("  Selecione o tipo (0 para voltar): ", scanner);
+            if (escolhaTipo == 0) continue;
+            if (escolhaTipo < 1 || escolhaTipo > totalOpcoes) {
+                System.out.println("  [!] Opção inválida. Selecione entre 1 e " + totalOpcoes + ".");
+                continue;
+            }
+            String nomeTipo = (escolhaTipo == totalOpcoes) ? "Outro" : tipos.get(escolhaTipo - 1).getNome();
 
-        justificacaoController.pedirJustificacao(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo, aula.getData(), aula.getHoraInicio(), nomeTipo);
-        System.out.println("  [✓] Pedido de justificação enviado ao gestor.");
-        Utils.pausar(scanner);
+            justificacaoController.pedirJustificacao(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo, aula.getData(), aula.getHoraInicio(), nomeTipo);
+            System.out.println("  [✓] Pedido de justificação enviado ao gestor.");
+        }
     }
 
     private void verJustificacoes(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Justificações");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "As minhas Justificações");
         List<JustificacaoFalta> lista = justificacaoController
                 .listarPorEstudante(estudante.getNumMecanografico());
         if (lista.isEmpty()) {
@@ -433,8 +459,7 @@ public class EstudanteView {
     }
 
     private void alterarPassword(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Alterar Password");
+        Utils.tituloPagina("A MINHA CONTA", "Alterar Password");
         System.out.print("  Password atual: ");
         String atual = lerPasswordMascarada();
         System.out.print("  Nova password : ");
@@ -469,8 +494,7 @@ public class EstudanteView {
     }
 
     private void verPropinas(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Propinas");
+        Utils.tituloPagina("SITUAÇÃO ACADÉMICA", "As minhas Propinas");
 
         Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(estudante);
         if (inscricaoAtual == null) {
