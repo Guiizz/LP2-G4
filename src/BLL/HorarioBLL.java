@@ -11,7 +11,7 @@ import java.util.List;
 
 public class HorarioBLL {
 
-    public static final String[] DIAS_SEMANA = {"Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
+    public static final String[] DIAS_SEMANA = {"Segunda", "Terça", "Quarta", "Quinta", "Sexta"};
 
     private static final int HORA_INICIO_MIN = 18 * 60;      // 18:00
     private static final int HORA_FIM_MAX = 23 * 60 + 30; // 23:30

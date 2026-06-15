@@ -243,6 +243,28 @@ public class EstudanteBLL {
         return estudante.getInscricoes().get(estudante.getInscricoes().size() - 1);
     }
 
+    public void desinscreverEstudante(Estudante estudante) {
+        if (estudante == null)
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+
+        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
+        if (inscricaoAtual == null)
+            throw new IllegalArgumentException("O estudante '" + estudante.getNome() + "' não tem inscrição ativa.");
+
+        if (inscricaoAtual.getAvaliacoes() != null) {
+            for (Avaliacao av : inscricaoAtual.getAvaliacoes()) {
+                if (av.isLancada())
+                    throw new IllegalArgumentException(
+                            "Não é possível desinscrever: o estudante já tem notas lançadas.");
+            }
+        }
+
+        estudante.getInscricoes().remove(inscricaoAtual);
+        estudante.setAnoAtual(1);
+        estudante.setEstado("ATIVO");
+        estudanteDAL.atualizarEstudante(estudante);
+    }
+
     public void marcarPropinaAtualComoPaga(String numMecanografico) {
         Estudante estudante = procurarPorNumMecanografico(numMecanografico);
         Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
