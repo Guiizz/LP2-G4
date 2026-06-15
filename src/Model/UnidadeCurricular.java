@@ -105,6 +105,46 @@ public class UnidadeCurricular {
         return especificos.isEmpty() ? legados : especificos;
     }
 
+    /**
+     * Devolve os momentos de um ano letivo num curso específico.
+     * Momentos legados (sem curso) contam para qualquer curso.
+     */
+    public List<MomentoAvaliacao> getMomentosParaAno(int anoLetivo, String nomeCurso) {
+        List<MomentoAvaliacao> resultado = new ArrayList<>();
+        for (MomentoAvaliacao m : getMomentosParaAno(anoLetivo)) {
+            if (m.pertenceAoCurso(nomeCurso)) {
+                resultado.add(m);
+            }
+        }
+        return resultado;
+    }
+
+    /** Cursos distintos que têm momentos neste ano letivo (null = momentos legados sem curso). */
+    public List<String> cursosComMomentosParaAno(int anoLetivo) {
+        List<String> cursos = new ArrayList<>();
+        for (MomentoAvaliacao m : getMomentosParaAno(anoLetivo)) {
+            String c = m.getNomeCurso();
+            boolean existe = false;
+            for (String s : cursos) {
+                if (s == null ? c == null : s.equalsIgnoreCase(c)) { existe = true; break; }
+            }
+            if (!existe) cursos.add(c);
+        }
+        return cursos;
+    }
+
+    /**
+     * Verifica se os momentos de um ano letivo num curso são válidos:
+     * pelo menos 1 momento, no máximo 3, soma de pesos = 100%.
+     */
+    public boolean momentosValidosParaAno(int anoLetivo, String nomeCurso) {
+        List<MomentoAvaliacao> lista = getMomentosParaAno(anoLetivo, nomeCurso);
+        if (lista.isEmpty() || lista.size() > 3) return false;
+        double soma = 0;
+        for (MomentoAvaliacao m : lista) soma += m.getPeso();
+        return Math.abs(soma - 100.0) < 0.01;
+    }
+
     /** Soma dos pesos dos momentos de um ano letivo específico. */
     public double somaPesosParaAno(int anoLetivo) {
         double soma = 0;
@@ -115,15 +155,17 @@ public class UnidadeCurricular {
     }
 
     /**
-     * Verifica se os momentos de um ano letivo são válidos para iniciar/activar a UC:
-     * pelo menos 1 momento, no máximo 3, soma de pesos = 100%.
+     * Verifica se os momentos de um ano letivo são válidos para iniciar/activar a UC.
+     * Como os momentos são por curso, basta que pelo menos um curso tenha um
+     * conjunto válido (1 a 3 momentos, soma de pesos = 100%).
      */
     public boolean momentosValidosParaAno(int anoLetivo) {
-        List<MomentoAvaliacao> lista = getMomentosParaAno(anoLetivo);
-        if (lista.isEmpty() || lista.size() > 3) return false;
-        double soma = 0;
-        for (MomentoAvaliacao m : lista) soma += m.getPeso();
-        return Math.abs(soma - 100.0) < 0.01;
+        List<String> cursos = cursosComMomentosParaAno(anoLetivo);
+        if (cursos.isEmpty()) return false;
+        for (String curso : cursos) {
+            if (momentosValidosParaAno(anoLetivo, curso)) return true;
+        }
+        return false;
     }
 
     /**

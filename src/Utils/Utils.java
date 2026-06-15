@@ -21,6 +21,20 @@ public class Utils {
 
     // ── Validações ────────────────────────────────────────────────────────────
 
+    /**
+     * Valida a designação de uma entidade não-pessoa (curso, departamento, UC).
+     * Aceita uma só palavra (ex: "Informática"), exigindo apenas que não seja
+     * vazia e tenha pelo menos 2 caracteres.
+     */
+    public static void validarDesignacao(String designacao) {
+        if (designacao == null || designacao.trim().isEmpty()) {
+            throw new IllegalArgumentException("A designação não pode ser vazia.");
+        }
+        if (designacao.trim().length() < 2) {
+            throw new IllegalArgumentException("A designação deve ter pelo menos 2 caracteres.");
+        }
+    }
+
     public static void validarNome(String nome) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("O nome não pode ser vazio.");
@@ -153,6 +167,21 @@ public class Utils {
             if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
             try {
                 validarNome(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+            }
+        }
+    }
+
+    /** Lê uma designação (curso, departamento, UC) — aceita uma só palavra. */
+    public static String lerDesignacao(String mensagem, Scanner scanner) {
+        while (true) {
+            System.out.print(mensagem);
+            String valor = scanner.nextLine().trim();
+            if (valor.equals("0")) throw new IllegalArgumentException("Registo cancelado pelo utilizador.");
+            try {
+                validarDesignacao(valor);
                 return valor;
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());

@@ -30,7 +30,7 @@ public class UnidadeCurricularBLL {
         if (unidade == null) {
             throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
         }
-        Utils.validarNome(unidade.getNome());
+        Utils.validarDesignacao(unidade.getNome());
         if (unidade.getAnoCurricular() < 1 || unidade.getAnoCurricular() > 3) {
             throw new IllegalArgumentException("Ano curricular inválido, deve ser entre 1 e 3.");
         }
@@ -54,7 +54,7 @@ public class UnidadeCurricularBLL {
         if (unidade == null) {
             throw new IllegalArgumentException("A Unidade Curricular não pode ser nula.");
         }
-        Utils.validarNome(unidade.getNome());
+        Utils.validarDesignacao(unidade.getNome());
 
         boolean atualizado = unidadeCurricularDAL.atualizarUnidade(unidade);
         if(!atualizado) {
@@ -94,15 +94,20 @@ public class UnidadeCurricularBLL {
     }
 
     /**
-     * Adiciona um momento de avaliação a uma UC, associado ao ano letivo actual.
+     * Adiciona um momento de avaliação a uma UC, associado ao ano letivo actual
+     * e a um curso específico (a mesma UC noutro curso tem momentos próprios).
      * O peso é calculado automaticamente: 1→100%, 2→50/50%, 3→33/33/34%.
+     * A data tem de ser hoje ou no futuro e cair dentro do ano letivo aberto.
      */
-    public void adicionarMomento(UnidadeCurricular uc, String nome) {
+    public void adicionarMomento(UnidadeCurricular uc, String nome, String nomeCurso, java.util.Date data) {
         if (uc == null) {
             throw new IllegalArgumentException("A UC não pode ser nula.");
         }
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("O nome do momento não pode ser vazio.");
+        }
+        if (nomeCurso == null || nomeCurso.isBlank()) {
+            throw new IllegalArgumentException("O momento tem de estar associado a um curso.");
         }
         if (uc.isAtiva()) {
             throw new IllegalArgumentException("Não é possível adicionar momentos à UC '" + uc.getNome() + "' porque já está ativa.");
@@ -115,16 +120,42 @@ public class UnidadeCurricularBLL {
         }
         int anoLetivo = anoAberto.getAno();
 
-        List<MomentoAvaliacao> momentosDoAno = uc.getMomentosParaAno(anoLetivo);
+        validarDataMomento(data, anoAberto);
+
+        List<MomentoAvaliacao> momentosDoAno = uc.getMomentosParaAno(anoLetivo, nomeCurso);
         if (momentosDoAno.size() >= 3) {
             throw new IllegalArgumentException(
                     "A UC já tem 3 momentos para o ano letivo "
-                    + anoLetivo + "/" + (anoLetivo + 1) + ".");
+                    + anoLetivo + "/" + (anoLetivo + 1) + " no curso '" + nomeCurso + "'.");
         }
 
-        uc.adicionarMomento(new MomentoAvaliacao(nome, 0, anoLetivo));
-        redistribuirPesos(uc.getMomentosParaAno(anoLetivo));
+        uc.adicionarMomento(new MomentoAvaliacao(nome, 0, anoLetivo, nomeCurso, data));
+        redistribuirPesos(uc.getMomentosParaAno(anoLetivo, nomeCurso));
         unidadeCurricularDAL.atualizarUnidade(uc);
+    }
+
+    /**
+     * Valida a data de um momento: não pode ser no passado nem fora do ano letivo aberto.
+     * O ano letivo X/X+1 termina a 31 de agosto de X+1.
+     */
+    private void validarDataMomento(java.util.Date data, AnoLetivo anoAberto) {
+        if (data == null) {
+            throw new IllegalArgumentException("A data do momento não pode ser nula.");
+        }
+        java.time.LocalDate dataMomento = data.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+
+        if (dataMomento.isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("A data do momento não pode ser no passado.");
+        }
+
+        java.time.LocalDate fimAnoLetivo = java.time.LocalDate.of(anoAberto.getAno() + 1, 8, 31);
+        if (dataMomento.isAfter(fimAnoLetivo)) {
+            throw new IllegalArgumentException(
+                    "A data do momento tem de estar dentro do ano letivo "
+                    + anoAberto.getDesignacao() + " (até " + fimAnoLetivo + ").");
+        }
     }
 
     /**
@@ -148,7 +179,7 @@ public class UnidadeCurricularBLL {
         MomentoAvaliacao removido = uc.getMomentosAvaliacao().get(indice);
         int anoLetivo = removido.getAnoLetivo();
         uc.getMomentosAvaliacao().remove(indice);
-        redistribuirPesos(uc.getMomentosParaAno(anoLetivo));
+        redistribuirPesos(uc.getMomentosParaAno(anoLetivo, removido.getNomeCurso()));
         unidadeCurricularDAL.atualizarUnidade(uc);
     }
 

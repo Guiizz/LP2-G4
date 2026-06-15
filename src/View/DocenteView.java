@@ -51,95 +51,57 @@ public class DocenteView {
 
     public void iniciar(Docente docente) {
         String[] opcoes = {
-                "As minhas UCs",
-                "Presenças",
-                "Ver o meu Horário",
-                "A minha Conta"
-        };
-
-        int opcao;
-        do {
-            Utils.limparEcra();
-            opcao = Utils.mostrarMenu("ÁREA DO DOCENTE — " + docente.getNome(), opcoes, "Sair", scanner);
-            try {
-                switch (opcao) {
-                    case 1: menuUCs(docente); break;
-                    case 2: menuPresencas(docente); break;
-                    case 3: verHorario(docente); break;
-                    case 4: menuConta(docente); break;
-                    case 0: System.out.println("  A terminar sessão..."); break;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println("  [!] " + e.getMessage());
-                Utils.pausar(scanner);
-            }
-        } while (opcao != 0);
-    }
-
-    private void menuUCs(Docente docente) {
-        String[] opcoes = {
+                "Ver a minha Ficha",
                 "Ver as minhas Unidades Curriculares",
                 "Ver os meus Alunos",
                 "Lançar Nota",
-                "Ver Resultados da UC"
-        };
-        int opcao;
-        do {
-            Utils.limparEcra();
-            opcao = Utils.mostrarMenu("AS MINHAS UCs", opcoes, scanner);
-            try {
-                switch (opcao) {
-                    case 1: verUCs(docente); break;
-                    case 2: verAlunos(docente); break;
-                    case 3: lancarAvaliacao(docente); break;
-                    case 4: verResultados(docente); break;
-                    case 0: break;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println("  [!] " + e.getMessage());
-                Utils.pausar(scanner);
-            }
-        } while (opcao != 0);
-    }
-
-    private void menuPresencas(Docente docente) {
-        String[] opcoes = {
+                "Ver Resultados da UC",
+                "Ver o meu Horário",
                 "Marcar Presença em Aula",
-                "Ver Presenças dos Alunos"
-        };
-        int opcao;
-        do {
-            Utils.limparEcra();
-            opcao = Utils.mostrarMenu("PRESENÇAS", opcoes, scanner);
-            try {
-                switch (opcao) {
-                    case 1: marcarPresenca(docente); break;
-                    case 2: verPresencasAlunos(docente); break;
-                    case 0: break;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println("  [!] " + e.getMessage());
-                Utils.pausar(scanner);
-            }
-        } while (opcao != 0);
-    }
-
-    private void menuConta(Docente docente) {
-        String[] opcoes = {
-                "Ver a minha Ficha",
+                "Ver Presenças dos Alunos",
                 "Atualizar os meus Dados",
                 "Alterar Password"
         };
+
         int opcao;
         do {
             Utils.limparEcra();
-            opcao = Utils.mostrarMenu("A MINHA CONTA", opcoes, scanner);
+            opcao = Utils.mostrarMenu("ÁREA DO DOCENTE — " + docente.getNome(), opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1: verFicha(docente); break;
-                    case 2: atualizar(docente); break;
-                    case 3: alterarPassword(docente); break;
-                    case 0: break;
+                    case 1:
+                        verFicha(docente);
+                        break;
+                    case 2:
+                        verUCs(docente);
+                        break;
+                    case 3:
+                        verAlunos(docente);
+                        break;
+                    case 4:
+                        lancarAvaliacao(docente);
+                        break;
+                    case 5:
+                        verResultados(docente);
+                        break;
+                    case 6:
+                        verHorario(docente);
+                        break;
+                    case 7:
+                        marcarPresenca(docente);
+                        break;
+                    case 8:
+                        verPresencasAlunos(docente);
+                        break;
+                    case 9:
+                        atualizar(docente);
+                        break;
+                    case 10:
+                        alterarPassword(docente);
+                        break;
+                    case 0:
+                        System.out.println("  A terminar sessão...");
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -149,13 +111,15 @@ public class DocenteView {
     }
 
     private void verFicha(Docente docente) {
-        Utils.tituloPagina("A MINHA CONTA", "A minha Ficha");
+        Utils.limparEcra();
+        Utils.tituloPagina("A minha Ficha");
         System.out.println(docente.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void verUCs(Docente docente) {
-        Utils.tituloPagina("AS MINHAS UCS", "As minhas Unidades Curriculares");
+        Utils.limparEcra();
+        Utils.tituloPagina("As minhas Unidades Curriculares");
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         boolean encontrou = false;
         for (UnidadeCurricular uc : todasUCs) {
@@ -180,7 +144,8 @@ public class DocenteView {
     }
 
     private void verAlunos(Docente docente) {
-        Utils.tituloPagina("AS MINHAS UCS", "Os meus Alunos");
+        Utils.limparEcra();
+        Utils.tituloPagina("Os meus Alunos");
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
 
@@ -215,12 +180,16 @@ public class DocenteView {
     }
 
     private void lancarAvaliacao(Docente docente) {
-        Utils.tituloPagina("AS MINHAS UCS", "Lançar Nota");
+        Utils.limparEcra();
+        Utils.tituloPagina("Lançar Nota por Aluno");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
+
         for (UnidadeCurricular uc : todasUCs) {
-            if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) minhasUCs.add(uc);
+            if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
+                minhasUCs.add(uc);
+            }
         }
 
         if (minhasUCs.isEmpty()) {
@@ -258,6 +227,7 @@ public class DocenteView {
         }
 
         List<MomentoAvaliacao> momentos = ucEscolhida.getMomentosParaAno(anoLetivo);
+
         if (momentos == null || momentos.isEmpty()) {
             System.out.println("  [!] A UC '" + ucEscolhida.getNome()
                     + "' não tem momentos de avaliação definidos"
@@ -285,8 +255,10 @@ public class DocenteView {
 
         ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
         ArrayList<Estudante> alunosDaUC = new ArrayList<>();
+
         for (Estudante e : todosEstudantes) {
             Inscricao inscricao = estudanteController.obterInscricaoAtual(e);
+
             if (inscricao != null
                     && inscricao.getCurso() != null
                     && inscricao.getCurso().getUnidades().contains(ucEscolhida)
@@ -301,52 +273,74 @@ public class DocenteView {
             return;
         }
 
-        // Loop: lançar notas a vários alunos sem sair do ecrã
-        while (true) {
-            Utils.tituloPagina("LANÇAR NOTA", ucEscolhida.getNome() + " — " + momentoEscolhido.getNome());
+        System.out.println("\n  Alunos - Momento: " + momentoEscolhido.getNome());
+        System.out.println("  " + "─".repeat(58));
+        System.out.printf("  %-5s %-25s %-12s %s%n", "Nº", "Nome", "Nº Mecano.", "Nota atual");
+        System.out.println("  " + "─".repeat(58));
 
-            System.out.println("  " + "─".repeat(58));
-            System.out.printf("  %-5s %-25s %-12s %s%n", "Nº", "Nome", "Nº Mecano.", "Nota atual");
-            System.out.println("  " + "─".repeat(58));
-            for (int i = 0; i < alunosDaUC.size(); i++) {
-                Estudante e = alunosDaUC.get(i);
-                Inscricao insc = estudanteController.obterInscricaoAtual(e);
-                String notaAtual = "Pendente";
-                if (insc != null && insc.getAvaliacoes() != null && indiceMomento < insc.getAvaliacoes().size()) {
-                    Avaliacao av = insc.getAvaliacoes().get(indiceMomento);
-                    notaAtual = av.isLancada() ? String.format("%.1f", av.getNota()) : "Pendente";
-                }
-                System.out.printf("  %-5d %-25s %-12s %s%n", (i + 1), e.getNome(), e.getNumMecanografico(), notaAtual);
-            }
-            System.out.println("  " + "─".repeat(58));
+        for (int i = 0; i < alunosDaUC.size(); i++) {
+            Estudante e = alunosDaUC.get(i);
+            Inscricao insc = estudanteController.obterInscricaoAtual(e);
 
-            int escolhaAluno = Utils.lerInteiro("  Selecione o aluno (0 para voltar):", scanner);
-            if (escolhaAluno == 0) return;
-            if (escolhaAluno < 1 || escolhaAluno > alunosDaUC.size()) {
-                System.out.println("  [!] Opção inválida.");
-                continue;
+            String notaAtual = "Pendente";
+            if (insc != null
+                    && insc.getAvaliacoes() != null
+                    && indiceMomento < insc.getAvaliacoes().size()) {
+                Avaliacao av = insc.getAvaliacoes().get(indiceMomento);
+                notaAtual = av.isLancada() ? String.format("%.1f", av.getNota()) : "Pendente";
             }
 
-            Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
-            Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);
-            if (inscricaoAluno != null && inscricaoAluno.getAvaliacoes() != null
-                    && indiceMomento < inscricaoAluno.getAvaliacoes().size()) {
-                Avaliacao avExistente = inscricaoAluno.getAvaliacoes().get(indiceMomento);
-                if (avExistente != null && avExistente.isLancada()) {
-                    System.out.println("  [!] Já existe uma nota lançada: " + String.format("%.1f", avExistente.getNota()) + "/20.");
-                    if (!Utils.confirmar("Deseja substituir esta nota?", scanner)) continue;
-                }
-            }
-
-            double nota = Utils.lerDouble("  Nota (0-20): ", scanner);
-            estudanteController.lancarNotaMomento(alunoEscolhido, ucEscolhida, indiceMomento, nota);
-            System.out.println("  [✓] Nota " + String.format("%.1f", nota)
-                    + " registada para " + alunoEscolhido.getNome() + ".");
+            System.out.printf("  %-5d %-25s %-12s %s%n",
+                    (i + 1), e.getNome(), e.getNumMecanografico(), notaAtual);
         }
+
+        System.out.println("  " + "─".repeat(58));
+        System.out.println("\n  (0 para voltar sem guardar)");
+
+        int escolhaAluno = Utils.lerInteiro("  Selecione o aluno (número): ", scanner);
+        if (escolhaAluno == 0) return;
+
+        if (escolhaAluno < 1 || escolhaAluno > alunosDaUC.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
+
+        Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);
+        if (inscricaoAluno != null
+                && inscricaoAluno.getAvaliacoes() != null
+                && indiceMomento < inscricaoAluno.getAvaliacoes().size()) {
+            Avaliacao avExistente = inscricaoAluno.getAvaliacoes().get(indiceMomento);
+            if (avExistente != null && avExistente.isLancada()) {
+                System.out.println("  [!] Já existe uma nota lançada: " + String.format("%.1f", avExistente.getNota()) + "/20.");
+                if (!Utils.confirmar("Deseja substituir esta nota?", scanner)) {
+                    Utils.pausar(scanner);
+                    return;
+                }
+            }
+        }
+
+        double nota = Utils.lerDouble("  Nota (0-20): ", scanner);
+
+        estudanteController.lancarNotaMomento(
+                alunoEscolhido,
+                ucEscolhida,
+                indiceMomento,
+                nota
+        );
+
+        System.out.println("  [✓] Nota " + String.format("%.1f", nota)
+                + " registada para " + alunoEscolhido.getNome()
+                + " no momento '" + momentoEscolhido.getNome() + "'.");
+
+        Utils.pausar(scanner);
     }
 
     private void verResultados(Docente docente) {
-        Utils.tituloPagina("AS MINHAS UCS", "Resultados da UC");
+        Utils.limparEcra();
+        Utils.tituloPagina("Resultados da UC");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
@@ -442,7 +436,8 @@ public class DocenteView {
     }
 
     private void verHorario(Docente docente) {
-        Utils.tituloPagina("HORÁRIOS", "O meu Horário");
+        Utils.limparEcra();
+        Utils.tituloPagina("O meu Horário");
         AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
         int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : 0;
 
@@ -479,7 +474,8 @@ public class DocenteView {
     }
 
     private void marcarPresenca(Docente docente) {
-        Utils.tituloPagina("PRESENÇAS", "Marcar Presença em Aula");
+        Utils.limparEcra();
+        Utils.tituloPagina("Marcar Presença em Aula");
         AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
         if (anoAberto == null) {
             System.out.println("  [!] Não existe um ano letivo aberto.");
@@ -557,7 +553,8 @@ public class DocenteView {
     }
 
     private void verPresencasAlunos(Docente docente) {
-        Utils.tituloPagina("PRESENÇAS", "Presenças dos Alunos");
+        Utils.limparEcra();
+        Utils.tituloPagina("Presenças dos Alunos");
         AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
         int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : 0;
 
@@ -630,7 +627,8 @@ public class DocenteView {
     }
 
     private void alterarPassword(Docente docente) {
-        Utils.tituloPagina("A MINHA CONTA", "Alterar Password");
+        Utils.limparEcra();
+        Utils.tituloPagina("Alterar Password");
         System.out.print("  Password atual: ");
         String atual = lerPasswordMascarada();
         System.out.print("  Nova password : ");
@@ -662,7 +660,8 @@ public class DocenteView {
     }
 
     private void atualizar(Docente docente) {
-        Utils.tituloPagina("A MINHA CONTA", "Atualizar os meus Dados");
+        Utils.limparEcra();
+        Utils.tituloPagina("Atualizar os meus Dados");
         System.out.println("  Dados atuais: " + docente.getNome() + " | " + docente.getMorada());
 
         String novoNome = Utils.lerCampo("  Novo nome (Enter para manter): ", scanner);

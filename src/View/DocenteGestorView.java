@@ -54,7 +54,7 @@ public class DocenteGestorView {
                     case 4: atualizar(); break;
                     case 5: remover(); break;
                     case 6: atribuirDocente(); break;
-                    case 0: break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -64,7 +64,7 @@ public class DocenteGestorView {
     }
 
     private void registar() {
-        Utils.tituloPagina("DOCENTES", "Registar Docente");
+        Utils.tituloPagina("Registar Docente");
         String nome = Utils.lerNome("Nome: ", scanner);
         LocalDate data = Utils.lerDataNascimento("Data de nascimento (AAAA-MM-DD): ", scanner);
 
@@ -96,7 +96,8 @@ public class DocenteGestorView {
     }
 
     private void listar() {
-        Utils.tituloPagina("DOCENTES", "Lista de Docentes");
+        Utils.limparEcra();
+        Utils.tituloPagina("Lista de Docentes");
         ArrayList<Docente> lista = docenteController.listarDocentes();
         if (lista.isEmpty()) { System.out.println("  (sem docentes registados)"); Utils.pausar(scanner); return; }
         for (Docente d : lista) { System.out.println(d + "\n"); }
@@ -104,7 +105,8 @@ public class DocenteGestorView {
     }
 
     private void procurar() {
-        Utils.tituloPagina("DOCENTES", "Procurar Docente");
+        Utils.limparEcra();
+        Utils.tituloPagina("Procurar Docente");
         Docente d = selecionarDocente();
         if (d == null) return;
         System.out.println("\n" + d.toStringDetalhado());
@@ -112,7 +114,7 @@ public class DocenteGestorView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("DOCENTES", "Atualizar Docente");
+        Utils.tituloPagina("Atualizar Docente");
         Docente d = selecionarDocente();
         if (d == null) return;
 
@@ -129,7 +131,7 @@ public class DocenteGestorView {
     }
 
     private void remover() {
-        Utils.tituloPagina("DOCENTES", "Remover Docente");
+        Utils.tituloPagina("Remover Docente");
         Docente d = selecionarDocente();
         if (d == null) return;
 
@@ -166,7 +168,7 @@ public class DocenteGestorView {
     }
 
     private void atribuirDocente() {
-        Utils.tituloPagina("DOCENTES", "Atribuir Docente Responsável");
+        Utils.tituloPagina("Atribuir Docente Responsável");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         if (todasUCs.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }

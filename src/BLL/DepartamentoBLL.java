@@ -15,7 +15,7 @@ public class DepartamentoBLL {
     }
 
     public Departamento registarDepartamento(String nome, String sigla){
-        validarNome(nome);
+        validarDesignacao(nome);
         validarSigla(sigla);
 
         if (departamentoDAL.procurarPorSigla(sigla) != null){
@@ -45,7 +45,7 @@ public class DepartamentoBLL {
         if (departamento == null) {
             throw new IllegalArgumentException("O departamento não pode ser nulo.");
         }
-        validarNome(novoNome);
+        validarDesignacao(novoNome);
         departamento.setNome(novoNome);
         departamentoDAL.atualizarDepartamento(departamento);
     }

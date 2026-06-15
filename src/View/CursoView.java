@@ -54,7 +54,7 @@ public class CursoView {
                     case 5: iniciarCurso(); break;
                     case 6: atualizar(); break;
                     case 7: remover(); break;
-                    case 0: break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -64,7 +64,7 @@ public class CursoView {
     }
 
     private void registar() {
-        Utils.tituloPagina("CURSOS", "Registar Curso");
+        Utils.tituloPagina("Registar Curso");
 
         ArrayList<Departamento> deptos = departamentoController.listarDepartamentos();
         if (deptos.isEmpty()) {
@@ -91,7 +91,8 @@ public class CursoView {
     }
 
     private void listar() {
-        Utils.tituloPagina("CURSOS", "Lista de Cursos");
+        Utils.limparEcra();
+        Utils.tituloPagina("Lista de Cursos");
         ArrayList<Curso> lista = cursoController.listarCursos();
         if (lista.isEmpty()) { System.out.println("  (sem cursos registados)"); Utils.pausar(scanner); return; }
         for (Curso c : lista) { System.out.println(c + "\n"); }
@@ -99,7 +100,8 @@ public class CursoView {
     }
 
     private void procurar() {
-        Utils.tituloPagina("CURSOS", "Procurar Curso");
+        Utils.limparEcra();
+        Utils.tituloPagina("Procurar Curso");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
         System.out.println("\n" + c);
@@ -107,7 +109,7 @@ public class CursoView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("CURSOS", "Atualizar Nome de Curso");
+        Utils.tituloPagina("Atualizar Nome de Curso");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
         String novoNome = Utils.lerCampo("Novo nome: ", scanner);
@@ -117,7 +119,7 @@ public class CursoView {
     }
 
     private void remover() {
-        Utils.tituloPagina("CURSOS", "Remover Curso");
+        Utils.tituloPagina("Remover Curso");
         Curso c = selecionarCurso("Cursos disponíveis");
         if (c == null) return;
 
@@ -130,7 +132,7 @@ public class CursoView {
     }
 
     private void adicionarUC(Curso c) {
-        Utils.tituloPagina("CONFIGURAR CURSO", "Adicionar UC — " + c.getNomeCurso());
+        Utils.tituloPagina("Adicionar UC ao Curso '" + c.getNomeCurso() + "'");
 
         System.out.println("\n  Vagas por ano no curso '" + c.getNomeCurso() + "':");
         for (int ano = 1; ano <= 3; ano++) {
@@ -147,41 +149,9 @@ public class CursoView {
         Utils.pausar(scanner);
     }
 
-    private void removerUC(Curso c) {
-        Utils.tituloPagina("CONFIGURAR CURSO", "Remover UC — " + c.getNomeCurso());
-
-        List<UnidadeCurricular> ucs = c.getUnidades();
-        if (ucs.isEmpty()) {
-            System.out.println("  [!] Este curso não tem UCs associadas.");
-            Utils.pausar(scanner); return;
-        }
-
-        System.out.println("\n  UCs associadas ao curso:");
-        for (int i = 0; i < ucs.size(); i++) {
-            UnidadeCurricular uc = ucs.get(i);
-            System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
-                    + (uc.temDocenteResponsavel() ? " [tem docente]" : ""));
-        }
-
-        int escolha = Utils.lerInteiro("  Selecione a UC a remover (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > ucs.size()) {
-            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
-        }
-
-        UnidadeCurricular uc = ucs.get(escolha - 1);
-        if (!Utils.confirmar("Remover a UC '" + uc.getNome() + "' do curso '" + c.getNomeCurso() + "'?", scanner)) {
-            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
-        }
-
-        cursoController.removerUnidadeCurricular(c, uc);
-        System.out.println("  [✓] UC '" + uc.getNome() + "' removida do curso com sucesso.");
-        Utils.pausar(scanner);
-    }
-
     private void listarUCsPorAno(Curso c) {
-        Utils.tituloPagina("CONFIGURAR CURSO", "UCs por Ano — " + c.getNomeCurso());
+        Utils.limparEcra();
+        Utils.tituloPagina("UCs do Curso '" + c.getNomeCurso() + "' por Ano");
         System.out.println("  1. Ano 1");
         System.out.println("  2. Ano 2");
         System.out.println("  3. Ano 3");
@@ -202,7 +172,7 @@ public class CursoView {
     }
 
     private void atualizarPropina(Curso c) {
-        Utils.tituloPagina("CONFIGURAR CURSO", "Atualizar Propina — " + c.getNomeCurso());
+        Utils.tituloPagina("Atualizar Propina: " + c.getNomeCurso());
         System.out.printf("  Propina atual: %.2f €%n", c.getValorPropina());
         System.out.println("  (Enter para cancelar)");
         double novoValor = Utils.lerDouble("Novo valor da propina (€): ", scanner);
@@ -212,7 +182,7 @@ public class CursoView {
     }
 
     private void iniciarCurso() {
-        Utils.tituloPagina("CURSOS", "Iniciar Curso");
+        Utils.tituloPagina("Iniciar Curso");
         Curso c = selecionarCurso("Cursos disponíveis", "PENDENTE");
         if (c == null) return;
 
@@ -245,7 +215,8 @@ public class CursoView {
     }
 
     private void listarAlunosInscritos(Curso c) {
-        Utils.tituloPagina("CONFIGURAR CURSO", "Alunos Inscritos — " + c.getNomeCurso());
+        Utils.limparEcra();
+        Utils.tituloPagina("Alunos Inscritos: " + c.getNomeCurso());
 
         List<Estudante> todosEstudantes = estudanteController.listarEstudante();
         List<Estudante> inscritos = cursoController.listarEstudantesInscritos(c, todosEstudantes);
@@ -275,7 +246,6 @@ public class CursoView {
 
         String[] opcoesConfig = {
                 "Adicionar UC ao Curso",
-                "Remover UC do Curso",
                 "Listar UCs por Ano",
                 "Atualizar Valor de Propina",
                 "Listar Alunos Inscritos"
@@ -289,11 +259,10 @@ public class CursoView {
             try {
                 switch (opcao) {
                     case 1: adicionarUC(c); break;
-                    case 2: removerUC(c); break;
-                    case 3: listarUCsPorAno(c); break;
-                    case 4: atualizarPropina(c); break;
-                    case 5: listarAlunosInscritos(c); break;
-                    case 0: break;
+                    case 2: listarUCsPorAno(c); break;
+                    case 3: atualizarPropina(c); break;
+                    case 4: listarAlunosInscritos(c); break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());

@@ -50,6 +50,7 @@ public class HorarioView {
                         removerBloco();
                         break;
                     case 0:
+                        System.out.println("  A voltar...");
                         break;
                 }
             } catch (IllegalArgumentException e) {
@@ -62,7 +63,8 @@ public class HorarioView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void verHorario() {
-        Utils.tituloPagina("HORÁRIOS", "Ver Horário");
+        Utils.limparEcra();
+        Utils.tituloPagina("Ver Horário");
         Curso curso = selecionarCurso();
         if (curso == null) return;
         int anoCurricular = selecionarAnoCurricular();
@@ -74,7 +76,8 @@ public class HorarioView {
     }
 
     private void adicionarBloco() {
-        Utils.tituloPagina("HORÁRIOS", "Adicionar Bloco");
+        Utils.limparEcra();
+        Utils.tituloPagina("Adicionar Bloco ao Horário");
 
         Curso curso = selecionarCurso();
         if (curso == null) return;
@@ -94,120 +97,110 @@ public class HorarioView {
             return;
         }
 
-        // Loop: adicionar vários blocos ao mesmo curso/ano sem sair
-        while (true) {
-            Utils.tituloPagina("ADICIONAR BLOCO", curso.getNomeCurso() + " — " + anoCurricular + ".º Ano");
-
-            Horario horarioAtual = horarioController.obterHorario(curso.getNomeCurso(), anoCurricular, anoLetivo);
-            if (!horarioAtual.getBlocos().isEmpty()) {
-                imprimirHorario(horarioAtual);
-            }
-
-            System.out.println("\n  Unidades Curriculares:");
-            for (int i = 0; i < ucsAno.size(); i++) {
-                System.out.println("  " + (i + 1) + ". " + ucsAno.get(i).getNome());
-            }
-            int escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar):", scanner);
-            if (escolhaUC == 0) return;
-            if (escolhaUC < 1 || escolhaUC > ucsAno.size()) {
-                System.out.println("  [!] Opção inválida.");
-                continue;
-            }
-            String nomeUC = ucsAno.get(escolhaUC - 1).getNome();
-
-            String[] dias = horarioController.getDiasSemana();
-            System.out.println("\n  Dia da semana:");
-            for (int i = 0; i < dias.length; i++) System.out.println("  " + (i + 1) + ". " + dias[i]);
-            int escolhaDia = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-            if (escolhaDia == 0) continue;
-            if (escolhaDia < 1 || escolhaDia > dias.length) {
-                System.out.println("  [!] Opção inválida.");
-                continue;
-            }
-            String diaSemana = dias[escolhaDia - 1];
-
-            System.out.println("\n  Duração do bloco:");
-            System.out.println("  1. 1 hora");
-            System.out.println("  2. 2 horas");
-            int escolhaDuracao = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-            if (escolhaDuracao == 0) continue;
-            if (escolhaDuracao < 1 || escolhaDuracao > 2) {
-                System.out.println("  [!] Opção inválida.");
-                continue;
-            }
-            int duracao = (escolhaDuracao == 1) ? 60 : 120;
-
-            String[] horas = horarioController.getHorasValidas(duracao);
-            System.out.println("\n  Horas disponíveis para blocos de " + (duracao / 60) + "h:");
-            for (int i = 0; i < horas.length; i++) System.out.println("  " + (i + 1) + ". " + horas[i]);
-            int escolhaHora = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-            if (escolhaHora == 0) continue;
-            if (escolhaHora < 1 || escolhaHora > horas.length) {
-                System.out.println("  [!] Opção inválida.");
-                continue;
-            }
-            String horaInicio = horas[escolhaHora - 1];
-
-            System.out.println("\n  ─── Resumo do bloco ───────────────────────");
-            System.out.println("  Curso   : " + curso.getNomeCurso() + " (Ano " + anoCurricular + ")");
-            System.out.println("  UC      : " + nomeUC);
-            System.out.println("  Dia     : " + diaSemana);
-            System.out.println("  Hora    : " + horaInicio + " (" + (duracao / 60) + "h)");
-            System.out.println("  ───────────────────────────────────────────");
-
-            if (!Utils.confirmar("Confirmar adição do bloco?", scanner)) {
-                System.out.println("  Operação cancelada.");
-                continue;
-            }
-
-            try {
-                BlocoHorario bloco = horarioController.adicionarBloco(
-                        curso.getNomeCurso(), anoCurricular, anoLetivo, diaSemana, horaInicio, duracao, nomeUC);
-                System.out.println("  [✓] Bloco adicionado: " + bloco);
-            } catch (IllegalArgumentException e) {
-                System.out.println("  [!] " + e.getMessage());
-            }
+        System.out.println("\n  Unidades Curriculares:");
+        for (int i = 0; i < ucsAno.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + ucsAno.get(i).getNome());
         }
+        int escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+        if (escolhaUC == 0) return;
+        if (escolhaUC < 1 || escolhaUC > ucsAno.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        String nomeUC = ucsAno.get(escolhaUC - 1).getNome();
+
+        // Dia da semana
+        String[] dias = horarioController.getDiasSemana();
+        System.out.println("\n  Dia da semana:");
+        for (int i = 0; i < dias.length; i++) System.out.println("  " + (i + 1) + ". " + dias[i]);
+        int escolhaDia = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolhaDia == 0) return;
+        if (escolhaDia < 1 || escolhaDia > dias.length) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        String diaSemana = dias[escolhaDia - 1];
+
+        // Duração
+        System.out.println("\n  Duração do bloco:");
+        System.out.println("  1. 1 hora");
+        System.out.println("  2. 2 horas");
+        int escolhaDuracao = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolhaDuracao == 0) return;
+        if (escolhaDuracao < 1 || escolhaDuracao > 2) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        int duracao = (escolhaDuracao == 1) ? 60 : 120;
+
+        // Hora de início
+        String[] horas = horarioController.getHorasValidas(duracao);
+        System.out.println("\n  Horas disponíveis para blocos de " + (duracao / 60) + "h:");
+        for (int i = 0; i < horas.length; i++) System.out.println("  " + (i + 1) + ". " + horas[i]);
+        int escolhaHora = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolhaHora == 0) return;
+        if (escolhaHora < 1 || escolhaHora > horas.length) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        String horaInicio = horas[escolhaHora - 1];
+
+        System.out.println("\n  ─── Resumo do bloco ───────────────────────");
+        System.out.println("  Curso   : " + curso.getNomeCurso() + " (Ano " + anoCurricular + ")");
+        System.out.println("  UC      : " + nomeUC);
+        System.out.println("  Dia     : " + diaSemana);
+        System.out.println("  Hora    : " + horaInicio + " (" + (duracao / 60) + "h)");
+        System.out.println("  ───────────────────────────────────────────");
+
+        if (!Utils.confirmar("Confirmar adição do bloco?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
+        }
+
+        BlocoHorario bloco = horarioController.adicionarBloco(
+                curso.getNomeCurso(), anoCurricular, anoLetivo, diaSemana, horaInicio, duracao, nomeUC);
+        System.out.println("  [✓] Bloco adicionado: " + bloco);
+        Utils.pausar(scanner);
     }
 
     private void removerBloco() {
-        Utils.tituloPagina("HORÁRIOS", "Remover Bloco");
+        Utils.limparEcra();
+        Utils.tituloPagina("Remover Bloco do Horário");
         Curso curso = selecionarCurso();
         if (curso == null) return;
         int anoCurricular = selecionarAnoCurricular();
         if (anoCurricular == 0) return;
         int anoLetivo = obterAnoLetivo();
 
-        while (true) {
-            Utils.tituloPagina("REMOVER BLOCO", curso.getNomeCurso() + " — " + anoCurricular + ".º Ano");
-
-            Horario horario = horarioController.obterHorario(curso.getNomeCurso(), anoCurricular, anoLetivo);
-            List<BlocoHorario> blocos = horario.getBlocos();
-            if (blocos.isEmpty()) {
-                System.out.println("  (sem blocos no horário)");
-                Utils.pausar(scanner);
-                return;
-            }
-
-            imprimirHorario(horario);
-            System.out.println("\n  Blocos:");
-            for (int i = 0; i < blocos.size(); i++) {
-                System.out.println("  " + (i + 1) + ". " + blocos.get(i));
-            }
-            int escolha = Utils.lerInteiro("  Selecione o bloco a remover (0 para voltar):", scanner);
-            if (escolha == 0) return;
-            if (escolha < 1 || escolha > blocos.size()) {
-                System.out.println("  [!] Opção inválida.");
-                continue;
-            }
-
-            if (!Utils.confirmar("Remover o bloco '" + blocos.get(escolha - 1) + "'?", scanner)) {
-                System.out.println("  Operação cancelada.");
-                continue;
-            }
-            horarioController.removerBloco(curso.getNomeCurso(), anoCurricular, anoLetivo, escolha - 1);
-            System.out.println("  [✓] Bloco removido com sucesso.");
+        Horario horario = horarioController.obterHorario(curso.getNomeCurso(), anoCurricular, anoLetivo);
+        List<BlocoHorario> blocos = horario.getBlocos();
+        if (blocos.isEmpty()) {
+            System.out.println("  [!] Não existem blocos no horário.");
+            Utils.pausar(scanner);
+            return;
         }
+
+        System.out.println("\n  Blocos no horário:");
+        for (int i = 0; i < blocos.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + blocos.get(i));
+        }
+        int escolha = Utils.lerInteiro("  Selecione o bloco a remover (0 para voltar): ", scanner);
+        if (escolha == 0) return;
+        if (escolha < 1 || escolha > blocos.size()) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        if (!Utils.confirmar("Remover o bloco '" + blocos.get(escolha - 1) + "'?", scanner)) {
+            System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
+        }
+        horarioController.removerBloco(curso.getNomeCurso(), anoCurricular, anoLetivo, escolha - 1);
+        System.out.println("  [✓] Bloco removido com sucesso.");
+        Utils.pausar(scanner);
     }
 
     // ── Utilitários ───────────────────────────────────────────────────────────

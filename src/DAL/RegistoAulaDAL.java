@@ -13,7 +13,7 @@ public class RegistoAulaDAL {
 
     private static final String FICHEIRO_CSV = "csv/aulas_marcadas.csv";
     private static final String SEPARADOR = ";";
-    private static final String CABECALHO = "siglaDocente;nomeUC;nomeCurso;anoLetivo;data;horaInicio";
+    private static final String CABECALHO = "siglaDocente;nomeUC;nomeCurso;anoLetivo;data;horaInicio;terminada";
 
     private List<RegistoAula> registos;
 
@@ -30,10 +30,20 @@ public class RegistoAulaDAL {
 
     public boolean existe(String nomeUC, String nomeCurso, int anoLetivo,
                           LocalDate data, String horaInicio) {
+        return procurar(nomeUC, nomeCurso, anoLetivo, data, horaInicio) != null;
+    }
+
+    public RegistoAula procurar(String nomeUC, String nomeCurso, int anoLetivo,
+                                LocalDate data, String horaInicio) {
         for (RegistoAula r : registos) {
-            if (r.corresponde(nomeUC, nomeCurso, anoLetivo, data, horaInicio)) return true;
+            if (r.corresponde(nomeUC, nomeCurso, anoLetivo, data, horaInicio)) return r;
         }
-        return false;
+        return null;
+    }
+
+    /** Persiste o estado atual da lista (usar após alterar uma aula em memória). */
+    public void guardar() {
+        guardarNoCSV();
     }
 
     public List<RegistoAula> listarPorDocente(String siglaDocente) {
@@ -65,13 +75,15 @@ public class RegistoAulaDAL {
         for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
             if (campos.length < 6) continue;
             try {
+                boolean terminada = campos.length >= 7 && Boolean.parseBoolean(campos[6]);
                 registos.add(new RegistoAula(
                         campos[0],
                         campos[1],
                         campos[2],
                         Integer.parseInt(campos[3]),
                         LocalDate.parse(campos[4]),
-                        campos[5]
+                        campos[5],
+                        terminada
                 ));
             } catch (Exception e) {
                 System.err.println("Erro ao carregar registos de aulas do CSV: " + e.getMessage());
@@ -87,7 +99,8 @@ public class RegistoAulaDAL {
                         + r.getNomeCurso() + SEPARADOR
                         + r.getAnoLetivo() + SEPARADOR
                         + r.getData() + SEPARADOR
-                        + r.getHoraInicio());
+                        + r.getHoraInicio() + SEPARADOR
+                        + r.isTerminada());
             }
         } catch (IOException e) {
             System.err.println("Erro ao guardar registos de aulas no CSV: " + e.getMessage());

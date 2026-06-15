@@ -91,14 +91,52 @@ public class HorarioBLL {
         return horarioDAL.listarTodos();
     }
 
-    // ── Horas válidas por duração ─────────────────────────────────────────────
+    // ── Atribuição automática de hora ─────────────────────────────────────────
 
-    public static String[] getHorasValidasParaDuracao(int duracao) {
-        if (duracao == 60) {
-            return new String[]{"18:00", "19:00", "20:30", "21:30", "22:30"};
-        } else {
-            return new String[]{"18:00", "20:30", "21:30"};
+    /**
+     * Devolve a próxima hora de início livre para um bloco no dia indicado,
+     * preenchendo sequencialmente a partir das 18:00 e saltando a pausa
+     * de jantar (20:00–20:30). O dia termina às 23:30.
+     *
+     * @throws IllegalArgumentException Se não houver espaço para o bloco nesse dia.
+     */
+    public String proximaHoraLivre(String nomeCurso, int anoCurricular, int anoLetivo,
+                                   String diaSemana, int duracao) {
+        validarDiaSemana(diaSemana);
+        validarDuracao(duracao);
+
+        Horario horario = horarioDAL.procurarOuCriar(nomeCurso, anoCurricular, anoLetivo);
+        List<BlocoHorario> blocosDia = horario.getBlocosParaDia(diaSemana);
+
+        int inicio = HORA_INICIO_MIN;
+        while (inicio + duracao <= HORA_FIM_MAX) {
+            int fim = inicio + duracao;
+
+            // Se apanha a pausa de jantar, salta para o fim da pausa
+            if (inicio < PAUSA_FIM && fim > PAUSA_INICIO) {
+                inicio = PAUSA_FIM;
+                continue;
+            }
+
+            // Se colide com um bloco existente, salta para o fim desse bloco
+            boolean colide = false;
+            for (BlocoHorario b : blocosDia) {
+                int bInicio = parseMinutos(b.getHoraInicio());
+                int bFim = bInicio + b.getDuracao();
+                if (inicio < bFim && fim > bInicio) {
+                    inicio = bFim;
+                    colide = true;
+                    break;
+                }
+            }
+            if (colide) continue;
+
+            return String.format("%02d:%02d", inicio / 60, inicio % 60);
         }
+
+        throw new IllegalArgumentException(
+                "Não há espaço para um bloco de " + (duracao / 60) + "h em " + diaSemana
+                + " (horário das 18:00 às 23:30, pausa 20:00–20:30).");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

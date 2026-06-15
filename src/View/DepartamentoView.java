@@ -43,7 +43,7 @@ public class DepartamentoView {
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover();  break;
-                    case 0: break;
+                    case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -53,7 +53,7 @@ public class DepartamentoView {
     }
 
     private void registar() {
-        Utils.tituloPagina("DEPARTAMENTOS", "Registar Departamento");
+        Utils.tituloPagina("Registar Departamento");
         String nome  = Utils.lerNome("Nome: ", scanner);
         String sigla = Utils.lerSigla("Sigla (3 Letras): ", scanner);
 
@@ -63,7 +63,8 @@ public class DepartamentoView {
     }
 
     private void listar() {
-        Utils.tituloPagina("DEPARTAMENTOS", "Lista de Departamentos");
+        Utils.limparEcra();
+        Utils.tituloPagina("Lista de Departamentos");
         ArrayList<Departamento> lista = departamentoController.listarDepartamentos();
         if (lista.isEmpty()) {
             System.out.println("  (sem departamentos registados)");
@@ -79,7 +80,8 @@ public class DepartamentoView {
     }
 
     private void procurar() {
-        Utils.tituloPagina("DEPARTAMENTOS", "Procurar Departamento");
+        Utils.limparEcra();
+        Utils.tituloPagina("Procurar Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         System.out.println("\n  " + d.getNome() + " (" + d.getSigla() + ")");
@@ -88,7 +90,7 @@ public class DepartamentoView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("DEPARTAMENTOS", "Atualizar Departamento");
+        Utils.tituloPagina("Atualizar Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         System.out.println("  Dados atuais: " + d.getNome() + " (" + d.getSigla() + ")");
@@ -100,7 +102,7 @@ public class DepartamentoView {
     }
 
     private void remover() {
-        Utils.tituloPagina("DEPARTAMENTOS", "Remover Departamento");
+        Utils.tituloPagina("Remover Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         if (!Utils.confirmar("Remover o departamento '" + d.getNome() + "'?", scanner)) {
