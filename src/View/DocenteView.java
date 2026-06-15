@@ -293,11 +293,9 @@ public class DocenteView {
             Inscricao insc = estudanteController.obterInscricaoAtual(e);
 
             String notaAtual = "Pendente";
-            if (insc != null
-                    && insc.getAvaliacoes() != null
-                    && indiceMomento < insc.getAvaliacoes().size()) {
-                Avaliacao av = insc.getAvaliacoes().get(indiceMomento);
-                notaAtual = av.isLancada() ? String.format("%.1f", av.getNota()) : "Pendente";
+            Avaliacao av = avaliacaoDaUC(insc, ucEscolhida, indiceMomento);
+            if (av != null && av.isLancada()) {
+                notaAtual = String.format("%.1f", av.getNota());
             }
 
             System.out.printf("  %-5d %-25s %-12s %s%n",
@@ -319,16 +317,12 @@ public class DocenteView {
         Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
 
         Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);
-        if (inscricaoAluno != null
-                && inscricaoAluno.getAvaliacoes() != null
-                && indiceMomento < inscricaoAluno.getAvaliacoes().size()) {
-            Avaliacao avExistente = inscricaoAluno.getAvaliacoes().get(indiceMomento);
-            if (avExistente != null && avExistente.isLancada()) {
-                System.out.println("  [!] Já existe uma nota lançada: " + String.format("%.1f", avExistente.getNota()) + "/20.");
-                if (!Utils.confirmar("Deseja substituir esta nota?", scanner)) {
-                    Utils.pausar(scanner);
-                    return;
-                }
+        Avaliacao avExistente = avaliacaoDaUC(inscricaoAluno, ucEscolhida, indiceMomento);
+        if (avExistente != null && avExistente.isLancada()) {
+            System.out.println("  [!] Já existe uma nota lançada: " + String.format("%.1f", avExistente.getNota()) + "/20.");
+            if (!Utils.confirmar("Deseja substituir esta nota?", scanner)) {
+                Utils.pausar(scanner);
+                return;
             }
         }
 
@@ -423,13 +417,11 @@ public class DocenteView {
                     ucEscolhida.getMomentosParaAno(anoLetivo, inscricao.getCurso().getNomeCurso());
             for (int i = 0; i < momentosAluno.size(); i++) {
                 String nota = "Pendente";
-                if (inscricao.getAvaliacoes() != null && i < inscricao.getAvaliacoes().size()) {
-                    Avaliacao av = inscricao.getAvaliacoes().get(i);
-                    if (av != null && av.isLancada()) {
-                        nota = String.format("%.1f", av.getNota());
-                        somaFinal += av.getNota() * momentosAluno.get(i).getPeso() / 100.0;
-                        totalPeso += momentosAluno.get(i).getPeso();
-                    }
+                Avaliacao av = avaliacaoDaUC(inscricao, ucEscolhida, i);
+                if (av != null && av.isLancada()) {
+                    nota = String.format("%.1f", av.getNota());
+                    somaFinal += av.getNota() * momentosAluno.get(i).getPeso() / 100.0;
+                    totalPeso += momentosAluno.get(i).getPeso();
                 }
                 System.out.printf("  %-12s", nota);
             }
@@ -562,6 +554,22 @@ public class DocenteView {
         System.out.println("  [✓] Presença marcada para " + ucEscolhida.getNome()
                 + " em " + data + " às " + blocoEscolhido.getHoraInicio() + ".");
         Utils.pausar(scanner);
+    }
+
+    /**
+     * Devolve a avaliação de uma UC na posição do momento indicado, contando
+     * apenas as avaliações dessa UC (as notas são por UC, não posição global).
+     */
+    private Avaliacao avaliacaoDaUC(Inscricao insc, UnidadeCurricular uc, int indiceMomento) {
+        if (insc == null || insc.getAvaliacoes() == null) return null;
+        int count = 0;
+        for (Avaliacao a : insc.getAvaliacoes()) {
+            if (a != null && a.getUc() != null && a.getUc().contains(uc)) {
+                if (count == indiceMomento) return a;
+                count++;
+            }
+        }
+        return null;
     }
 
     private void terminarAula(Docente docente) {

@@ -111,65 +111,104 @@ public class EstudanteView {
     }
 
     private void verAvaliacoes(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Avaliações");
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
         if (inscricoes.isEmpty()) {
+            Utils.limparEcra();
+            Utils.tituloPagina("As minhas Avaliações");
             System.out.println("  (sem inscrições registadas)");
             Utils.pausar(scanner);
             return;
         }
+
+        // Agrupar as avaliações por UC (parallel lists, preservando a ordem)
+        List<String> nomesUC = new ArrayList<>();
+        List<String> contexto = new ArrayList<>();
+        List<List<Avaliacao>> momentosPorUC = new ArrayList<>();
+
         for (Inscricao i : inscricoes) {
-            System.out.println("\n  Ano " + i.getAnoDeCurso() + " — " + i.getCurso().getNomeCurso());
-            System.out.println("  " + "─".repeat(62));
-            if (i.getAvaliacoes() == null || i.getAvaliacoes().isEmpty()) {
-                System.out.println("  (sem avaliações)");
-            } else {
-                System.out.printf("  %-25s %-6s %-10s %s%n", "UC", "Peso", "Nota", "Estado");
-                System.out.println("  " + "─".repeat(62));
-                double somaNotas = 0;
-                double totalPeso = 0;
-                for (Object obj : i.getAvaliacoes()) {
-                    Avaliacao av = (Avaliacao) obj;
-                    String nomeUC = (av.getUc() != null && !av.getUc().isEmpty())
-                            ? av.getUc().get(0).getNome() : "—";
-                    String estado = av.isLancada()
-                            ? (av.isAprovado() ? "✓ Aprovado" : "✗ Reprovado")
-                            : "Pendente";
-                    System.out.printf("  %-25s %-6s %-10s %s%n",
-                            nomeUC,
-                            String.format("%.0f%%", av.getPeso()),
-                            av.getNotaFormatada(),
-                            estado);
-                    if (av.isLancada()) {
-                        somaNotas += av.getNota() * av.getPeso() / 100.0;
-                        totalPeso += av.getPeso();
-                    }
-                }
-                System.out.println("  " + "─".repeat(62));
-                if (totalPeso > 0) {
-                    double media = somaNotas * 100.0 / totalPeso;
-                    String sufixo = totalPeso < 100
-                            ? "  (parcial — " + (int)(100 - totalPeso) + "% por lançar)"
-                            : (media >= 10 ? "  ✓ Aprovado" : "  ✗ Reprovado");
-                    System.out.printf("  Média: %.1f/20%s%n", media, sufixo);
-                } else {
-                    System.out.println("  (sem notas lançadas)");
-                }
-            }
-        }
-        ArrayList<Avaliacao> ucsEmAtraso = estudante.getUCsEmAtraso();
-        if (ucsEmAtraso != null && !ucsEmAtraso.isEmpty()) {
-            System.out.println("\n  " + "─".repeat(62));
-            System.out.println("  UCs em Atraso:");
-            System.out.println("  " + "─".repeat(62));
-            for (Avaliacao av : ucsEmAtraso) {
+            if (i.getAvaliacoes() == null) continue;
+            for (Avaliacao av : i.getAvaliacoes()) {
                 String nomeUC = (av.getUc() != null && !av.getUc().isEmpty())
-                        ? av.getUc().get(0).getNome() : "UC desconhecida";
-                System.out.println("  [!] " + nomeUC + " — Nota: " + av.getNotaFormatada());
+                        ? av.getUc().get(0).getNome() : "—";
+                int idx = -1;
+                for (int k = 0; k < nomesUC.size(); k++) {
+                    if (nomesUC.get(k).equals(nomeUC)
+                            && contexto.get(k).equals(String.valueOf(i.getAnoDeCurso()))) { idx = k; break; }
+                }
+                if (idx < 0) {
+                    nomesUC.add(nomeUC);
+                    contexto.add(String.valueOf(i.getAnoDeCurso()));
+                    momentosPorUC.add(new ArrayList<>());
+                    idx = nomesUC.size() - 1;
+                }
+                momentosPorUC.get(idx).add(av);
             }
-            System.out.println("  Total em atraso: " + ucsEmAtraso.size());
         }
+
+        do {
+            Utils.limparEcra();
+            Utils.tituloPagina("As minhas Avaliações");
+
+            if (nomesUC.isEmpty()) {
+                System.out.println("  (sem avaliações registadas)");
+            } else {
+                System.out.printf("  %-4s %-25s %-6s %s%n", "#", "UC", "Ano", "Nota Final");
+                System.out.println("  " + "─".repeat(55));
+                for (int k = 0; k < nomesUC.size(); k++) {
+                    System.out.printf("  %-4d %-25s %-6s %s%n",
+                            k + 1, nomesUC.get(k), contexto.get(k) + "º", notaFinalUC(momentosPorUC.get(k)));
+                }
+                System.out.println("  " + "─".repeat(55));
+            }
+
+            // UCs em atraso (resumo)
+            ArrayList<Avaliacao> ucsEmAtraso = estudante.getUCsEmAtraso();
+            if (ucsEmAtraso != null && !ucsEmAtraso.isEmpty()) {
+                System.out.println("\n  UCs em atraso: " + ucsEmAtraso.size());
+            }
+
+            if (nomesUC.isEmpty()) { Utils.pausar(scanner); return; }
+
+            int escolha = Utils.lerInteiro("\n  Selecione uma UC para ver os momentos (0 para voltar): ", scanner);
+            if (escolha == 0) return;
+            if (escolha < 1 || escolha > nomesUC.size()) {
+                System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); continue;
+            }
+            mostrarMomentosUC(nomesUC.get(escolha - 1), momentosPorUC.get(escolha - 1));
+        } while (true);
+    }
+
+    /** Calcula a nota final ponderada de uma UC a partir dos seus momentos. */
+    private String notaFinalUC(List<Avaliacao> momentos) {
+        double soma = 0, peso = 0;
+        for (Avaliacao av : momentos) {
+            if (av.isLancada()) {
+                soma += av.getNota() * av.getPeso() / 100.0;
+                peso += av.getPeso();
+            }
+        }
+        if (peso <= 0) return "Pendente";
+        double media = soma * 100.0 / peso;
+        if (peso < 100) return String.format("%.1f (parcial)", media);
+        return String.format("%.1f  %s", media, media >= 10 ? "✓" : "✗");
+    }
+
+    /** Detalhe dos momentos de uma UC. */
+    private void mostrarMomentosUC(String nomeUC, List<Avaliacao> momentos) {
+        Utils.limparEcra();
+        Utils.tituloPagina("Momentos — " + nomeUC);
+        System.out.printf("  %-5s %-8s %-10s %s%n", "#", "Peso", "Nota", "Estado");
+        System.out.println("  " + "─".repeat(40));
+        for (int k = 0; k < momentos.size(); k++) {
+            Avaliacao av = momentos.get(k);
+            String estado = av.isLancada()
+                    ? (av.isAprovado() ? "✓ Aprovado" : "✗ Reprovado")
+                    : "Pendente";
+            System.out.printf("  %-5d %-8s %-10s %s%n",
+                    k + 1, String.format("%.0f%%", av.getPeso()), av.getNotaFormatada(), estado);
+        }
+        System.out.println("  " + "─".repeat(40));
+        System.out.println("  Nota final: " + notaFinalUC(momentos) + "/20");
         Utils.pausar(scanner);
     }
 

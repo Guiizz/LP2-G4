@@ -33,6 +33,11 @@ public class AnoLetivoBLL {
         anoLetivoDAL.removerAnoLetivo(ano);
     }
 
+    /** Devolve o histórico de fechos de anos letivos (cada registo é uma linha do CSV). */
+    public java.util.List<String[]> listarHistorico() {
+        return historicoAnoLetivoDAL.listarHistorico();
+    }
+
     public AnoLetivo abrirAnoLetivo(int ano) {
         if (ano < 2000) throw new IllegalArgumentException("Ano letivo invalido.");
         if (anoLetivoDAL.procurarAnoAberto() != null) throw new IllegalArgumentException("Ja existe um ano letivo aberto.");
@@ -94,6 +99,38 @@ public class AnoLetivoBLL {
     }
 
     // =========================================================================
+    // Auxiliares - detalhe por estudante (para o histórico)
+    // =========================================================================
+
+    /** Resumo da propina: pago/total e estado. */
+    private String resumoPropina(Inscricao insc) {
+        Propina p = insc.getPropina();
+        if (p == null) return "propina n/d";
+        return String.format("propina %.0f/%.0f%s", p.getValorPago(), p.getValorTotal(),
+                p.isTotalmentePaga() ? " (paga)" : " (em divida)");
+    }
+
+    /** Resumo das notas por UC: "Estatistica=12.0, Matematica=15.0" (P = pendente). */
+    private String resumoNotas(Inscricao insc) {
+        if (insc.getAvaliacoes() == null || insc.getAvaliacoes().isEmpty()) return "sem notas";
+        StringBuilder sb = new StringBuilder();
+        for (Avaliacao av : insc.getAvaliacoes()) {
+            String nomeUC = (av.getUc() != null && !av.getUc().isEmpty()) ? av.getUc().get(0).getNome() : "?";
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(nomeUC).append("=").append(av.isLancada() ? String.format("%.1f", av.getNota()) : "P");
+        }
+        return sb.toString();
+    }
+
+    /** Linha detalhada de um estudante no fecho. */
+    private String detalhar(Estudante estudante, Inscricao insc, String resultado) {
+        return estudante.getNome()
+                + " — " + resumoPropina(insc)
+                + " — Notas: " + resumoNotas(insc)
+                + " — " + resultado;
+    }
+
+    // =========================================================================
     // Auxiliares - path BD
     // =========================================================================
 
@@ -140,24 +177,25 @@ public class AnoLetivoBLL {
         }
         if (!inscricaoAtual.isPropinaPaga()) {
             relatorio.incrementarMantidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " mantido: propina do ano atual nao esta paga.");
+            relatorio.adicionarMensagem(detalhar(estudante, inscricaoAtual, "MANTIDO: propina do ano atual nao esta paga"));
             return;
         }
         if (inscricaoAtual.temNotasPorLancar()) {
             relatorio.incrementarMantidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " mantido: existem notas por lancar ou sem avaliacoes.");
+            relatorio.adicionarMensagem(detalhar(estudante, inscricaoAtual, "MANTIDO: existem notas por lancar"));
             return;
         }
         double aproveitamento = estudante.calcularAproveitamentoGlobal();
         if (aproveitamento < 0.60) {
             relatorio.incrementarMantidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " mantido: aproveitamento inferior a 60%.");
+            relatorio.adicionarMensagem(detalhar(estudante, inscricaoAtual,
+                    String.format("MANTIDO: aproveitamento %.0f%% (< 60%%)", aproveitamento * 100)));
             return;
         }
         if (estudante.getAnoAtual() >= 3) {
             estudante.setEstado("CONCLUIDO");
             relatorio.incrementarConcluidos();
-            relatorio.adicionarMensagem(estudante.getNome() + " concluiu o curso.");
+            relatorio.adicionarMensagem(detalhar(estudante, inscricaoAtual, "CONCLUIU o curso"));
             return;
         }
         int proximoAnoCurso = estudante.getAnoAtual() + 1;
@@ -170,10 +208,13 @@ public class AnoLetivoBLL {
             }
         }
         relatorio.registarUcsEmAtraso(estudante.getNome(), nomesUCsEmAtraso);
+        String resultadoAvanco = "AVANCOU para o " + proximoAnoCurso + ".o ano"
+                + (nomesUCsEmAtraso.isEmpty() ? "" : " (UCs em atraso: " + String.join(", ", nomesUCsEmAtraso) + ")");
+        String detalhe = detalhar(estudante, inscricaoAtual, resultadoAvanco);
         estudante.setAnoAtual(proximoAnoCurso);
         estudante.adicionarInscricao(new Inscricao(anoAtual.getAno()+1, proximoAnoCurso, inscricaoAtual.getCurso()));
         relatorio.incrementarAvancados();
-        relatorio.adicionarMensagem(estudante.getNome() + " avancou para o " + proximoAnoCurso + ".o ano.");
+        relatorio.adicionarMensagem(detalhe);
     }
 
     private Inscricao obterInscricaoAtual(Estudante estudante) {

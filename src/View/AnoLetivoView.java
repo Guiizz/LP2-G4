@@ -30,7 +30,8 @@ public class AnoLetivoView {
                 "Listar todos os anos letivos",
                 "Abrir novo ano letivo",
                 "Fechar ano letivo e avançar estudantes aprovados",
-                "Remover ano letivo"
+                "Remover ano letivo",
+                "Ver histórico de fechos"
         };
 
         int opcao;
@@ -46,6 +47,7 @@ public class AnoLetivoView {
                     case 3: abrirNovoAno(); break;
                     case 4: fecharAnoLetivo(); break;
                     case 5: removerAnoLetivo(); break;
+                    case 6: verHistorico(); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -53,6 +55,34 @@ public class AnoLetivoView {
                 Utils.pausar(scanner);
             }
         } while (opcao != 0);
+    }
+
+    private void verHistorico() {
+        Utils.limparEcra();
+        Utils.tituloPagina("Histórico de Fechos de Anos Letivos");
+        List<String[]> registos = anoLetivoController.listarHistorico();
+        if (registos.isEmpty()) {
+            System.out.println("  (sem fechos registados)");
+            Utils.pausar(scanner);
+            return;
+        }
+        // Colunas: anoLetivo;dataFecho;estadoFinal;avancados;mantidos;concluidos;detalhes
+        for (String[] r : registos) {
+            if (r.length < 6) continue;
+            System.out.println("  " + "─".repeat(55));
+            System.out.println("  Ano Letivo : " + r[0] + "   (fechado em " + r[1] + ")");
+            System.out.println("  Avançados  : " + r[3]
+                    + "   Mantidos: " + r[4]
+                    + "   Concluídos: " + r[5]);
+            if (r.length >= 7 && !r[6].isBlank()) {
+                System.out.println("  Detalhes:");
+                for (String msg : r[6].split("\\|")) {
+                    System.out.println("    - " + msg.trim());
+                }
+            }
+        }
+        System.out.println("  " + "─".repeat(55));
+        Utils.pausar(scanner);
     }
 
     private void listarTodos() {
