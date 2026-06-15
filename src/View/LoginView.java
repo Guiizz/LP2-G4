@@ -46,8 +46,7 @@ public class LoginView {
 
 
     private void efetuarLogin() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Login");
+        Utils.tituloPagina("ISSMF", "Login");
         System.out.print("  E-mail: ");
         String email = scanner.nextLine().trim();
         System.out.print("  Palavra-passe: ");
@@ -124,8 +123,7 @@ public class LoginView {
     }
 
     private void recuperarPassword() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Recuperar Password");
+        Utils.tituloPagina("ISSMF", "Recuperar Password");
         System.out.println("  Introduza o seu e-mail institucional (@issmf.pt).");
         System.out.print("  E-mail: ");
         String email = scanner.nextLine().trim();

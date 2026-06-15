@@ -407,15 +407,8 @@ public class EstudanteView {
         }
         String nomeUC = ucsNoHorario.get(escolhaUC - 1);
 
-        // Faltas (presença = false), registadas quando o docente terminou a aula, nesta UC
-        List<Presenca> ausencias = new ArrayList<>();
-        for (Presenca p : presencaController.listarFaltasEstudante(estudante.getNumMecanografico())) {
-            if (p.getNomeUC().equalsIgnoreCase(nomeUC)
-                    && p.getNomeCurso().equalsIgnoreCase(nomeCurso)
-                    && p.getAnoLetivo() == anoLetivo) {
-                ausencias.add(p);
-            }
-        }
+        // Aulas marcadas pelo docente onde o estudante foi ausente
+        List<RegistoAula> ausencias = presencaController.listarAulasSemPresencaEstudante(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
         if (ausencias.isEmpty()) {
             System.out.println("  (não tem faltas por justificar nesta UC)");
             Utils.pausar(scanner);
@@ -424,9 +417,7 @@ public class EstudanteView {
 
         System.out.println("\n  Faltas por justificar:");
         for (int i = 0; i < ausencias.size(); i++) {
-            Presenca f = ausencias.get(i);
-            System.out.println("  " + (i + 1) + ". " + f.getData() + "  " + f.getHoraInicio()
-                    + "  |  " + f.getNomeUC());
+            System.out.println("  " + (i + 1) + ". " + ausencias.get(i));
         }
         int escolhaAula = Utils.lerInteiro("  Selecione a falta (0 para voltar): ", scanner);
         if (escolhaAula == 0) return;
@@ -435,27 +426,24 @@ public class EstudanteView {
             Utils.pausar(scanner);
             return;
         }
-        Presenca aula = ausencias.get(escolhaAula - 1);
+        RegistoAula aula = ausencias.get(escolhaAula - 1);
 
         // Tipo de justificação
         List<TipoJustificacao> tipos = justificacaoController.listarTipos();
-        if (tipos.isEmpty()) {
-            System.out.println("  [!] Não existem tipos de justificação. O gestor tem de os criar primeiro.");
-            Utils.pausar(scanner);
-            return;
-        }
         System.out.println("\n  Tipos de justificação:");
         for (int i = 0; i < tipos.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + tipos.get(i));
         }
+        System.out.println("  " + (tipos.size() + 1) + ". Outro");
+        int totalOpcoes = tipos.size() + 1;
         int escolhaTipo = Utils.lerInteiro("  Selecione o tipo (0 para voltar): ", scanner);
         if (escolhaTipo == 0) return;
-        if (escolhaTipo < 1 || escolhaTipo > tipos.size()) {
-            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + tipos.size() + ".");
+        if (escolhaTipo < 1 || escolhaTipo > totalOpcoes) {
+            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + totalOpcoes + ".");
             Utils.pausar(scanner);
             return;
         }
-        String nomeTipo = tipos.get(escolhaTipo - 1).getNome();
+        String nomeTipo = (escolhaTipo == totalOpcoes) ? "Outro" : tipos.get(escolhaTipo - 1).getNome();
 
         justificacaoController.pedirJustificacao(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo, aula.getData(), aula.getHoraInicio(), nomeTipo);
         System.out.println("  [✓] Pedido de justificação enviado ao gestor.");

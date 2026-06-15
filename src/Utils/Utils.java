@@ -263,7 +263,7 @@ public class Utils {
         while (true) {
             try {
                 System.out.print(mensagem);
-                String input = scanner.nextLine().trim();
+                String input = scanner.nextLine().trim().replace("/", "-");
                 if (input.equals("0")) throw new IllegalArgumentException("Registo cancelado.");
                 LocalDate data = LocalDate.parse(input);
                 validarDataNascimento(data);
@@ -272,7 +272,7 @@ public class Utils {
                 if (e.getMessage().equals("Registo cancelado.")) throw e;
                 System.out.println("  [!] " + e.getMessage());
             } catch (Exception e) {
-                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
+                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD ou AAAA/MM/DD.");
             }
         }
     }
@@ -318,13 +318,13 @@ public class Utils {
         while (true) {
             try {
                 System.out.print(mensagem);
-                String input = scanner.nextLine().trim();
+                String input = scanner.nextLine().trim().replace("/", "-");
                 if (input.equals("0")) throw new IllegalArgumentException("Registo cancelado.");
                 return LocalDate.parse(input);
             } catch (IllegalArgumentException e) {
                 throw e;
             } catch (Exception e) {
-                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD.");
+                System.out.println("  [!] Data inválida. Use o formato AAAA-MM-DD ou AAAA/MM/DD.");
             }
         }
     }
@@ -339,13 +339,13 @@ public class Utils {
         while (true) {
             try {
                 System.out.print(mensagem);
-                String input = scanner.nextLine().trim();
+                String input = scanner.nextLine().trim().replace("-", "/");
                 if (input.equals("0")) throw new IllegalArgumentException("Operação cancelada.");
                 return sdf.parse(input);
             } catch (IllegalArgumentException e) {
                 throw e;
             } catch (ParseException e) {
-                System.out.println("  [!] Data inválida. Use o formato DD/MM/AAAA.");
+                System.out.println("  [!] Data inválida. Use o formato DD/MM/AAAA ou DD-MM-AAAA.");
             }
         }
     }
@@ -382,6 +382,10 @@ public class Utils {
     // ── Menu ──────────────────────────────────────────────────────────────────
 
     public static int mostrarMenu(String titulo, String[] opcoes, Scanner scanner) {
+        return mostrarMenu(titulo, opcoes, "Voltar", scanner);
+    }
+
+    public static int mostrarMenu(String titulo, String[] opcoes, String labelZero, Scanner scanner) {
         int larguraMaxima = titulo.length() + 4;
 
         for (int i = 0; i < opcoes.length; i++) {
@@ -389,7 +393,7 @@ public class Utils {
             if (linhaOpcao.length() > larguraMaxima) larguraMaxima = linhaOpcao.length();
         }
 
-        String linhaSair = "  0 - Voltar / Sair";
+        String linhaSair = "  0 - " + labelZero;
         if (linhaSair.length() > larguraMaxima) larguraMaxima = linhaSair.length();
 
         final int LARGURA = Math.max(42, larguraMaxima + 2);
@@ -402,7 +406,7 @@ public class Utils {
                 System.out.println("║" + padDir("  " + (i + 1) + " - " + opcoes[i], LARGURA) + "║");
             }
             System.out.println("╠" + "═".repeat(LARGURA) + "╣");
-            System.out.println("║" + padDir("  0 - Voltar / Sair", LARGURA) + "║");
+            System.out.println("║" + padDir("  0 - " + labelZero, LARGURA) + "║");
             System.out.println("╚" + "═".repeat(LARGURA) + "╝");
             System.out.print("  Opção: ");
 
@@ -417,6 +421,7 @@ public class Utils {
     }
 
     public static void tituloPagina(String titulo) {
+        limparEcra();
         int largura = Math.max(36, titulo.length() + 4);
         System.out.println("\n  ┌" + "─".repeat(largura) + "┐");
         System.out.println("  │" + centrar(titulo, largura) + "│");
@@ -424,6 +429,7 @@ public class Utils {
     }
 
     public static void tituloPagina(String secao, String titulo) {
+        limparEcra();
         System.out.println("\n  " + secao + " › " + titulo);
         int largura = Math.max(36, titulo.length() + 4);
         System.out.println("  └" + "─".repeat(largura) + "┘");

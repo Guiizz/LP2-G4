@@ -46,6 +46,10 @@ public class CursoController {
         cursoBLL.adicionarUnidadeCurricular(curso, uc);
     }
 
+    public void removerUnidadeCurricular(Curso curso, UnidadeCurricular uc) {
+        cursoBLL.removerUnidadeCurricular(curso, uc);
+    }
+
     public List<UnidadeCurricular> listarUCsPorAno(Curso curso, int anoCurricular) {
         return cursoBLL.listarUCsPorAno(curso, anoCurricular);
     }

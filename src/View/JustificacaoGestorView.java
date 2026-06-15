@@ -40,7 +40,6 @@ public class JustificacaoGestorView {
                         verTodas();
                         break;
                     case 0:
-                        System.out.println("  A voltar...");
                         break;
                 }
             } catch (IllegalArgumentException e) {
@@ -80,7 +79,7 @@ public class JustificacaoGestorView {
     }
 
     private void criarTipo() {
-        Utils.tituloPagina("Criar Tipo de Justificação");
+        Utils.tituloPagina("JUSTIFICAÇÕES", "Criar Tipo");
         String nome = Utils.lerCampo("  Nome (ex: Baixa médica): ", scanner);
         System.out.println("\n  Categoria:");
         System.out.println("  1. " + TipoJustificacao.CATEGORIA_SAUDE + "  (razões de saúde)");
@@ -98,8 +97,7 @@ public class JustificacaoGestorView {
     }
 
     private void listarTipos() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Tipos de Justificação");
+        Utils.tituloPagina("JUSTIFICAÇÕES", "Tipos de Justificação");
         List<TipoJustificacao> tipos = justificacaoController.listarTipos();
         if (tipos.isEmpty()) {
             System.out.println("  (sem tipos registados)");
@@ -110,7 +108,7 @@ public class JustificacaoGestorView {
     }
 
     private void removerTipo() {
-        Utils.tituloPagina("Remover Tipo de Justificação");
+        Utils.tituloPagina("JUSTIFICAÇÕES", "Remover Tipo");
         List<TipoJustificacao> tipos = justificacaoController.listarTipos();
         if (tipos.isEmpty()) {
             System.out.println("  (sem tipos registados)");
@@ -139,46 +137,44 @@ public class JustificacaoGestorView {
     // ── Justificações ─────────────────────────────────────────────────────────
 
     private void verPendentes() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Justificações Pendentes");
-        List<JustificacaoFalta> pendentes = justificacaoController.listarPendentes();
-        if (pendentes.isEmpty()) {
-            System.out.println("  (sem justificações pendentes)");
-            Utils.pausar(scanner);
-            return;
+        while (true) {
+            Utils.tituloPagina("JUSTIFICAÇÕES", "Pendentes");
+            List<JustificacaoFalta> pendentes = justificacaoController.listarPendentes();
+            if (pendentes.isEmpty()) {
+                System.out.println("  (sem justificações pendentes)");
+                Utils.pausar(scanner);
+                return;
+            }
+            for (int i = 0; i < pendentes.size(); i++) {
+                JustificacaoFalta j = pendentes.get(i);
+                System.out.println("  " + (i + 1) + ". " + j.getNumMecanografico()
+                        + "  |  " + j.getNomeUC()
+                        + "  |  " + j.getDataAula() + " " + j.getHoraInicio()
+                        + "  |  " + j.getNomeTipoJustificacao());
+            }
+            System.out.println();
+            int escolha = Utils.lerInteiro("  Selecione para decidir (0 para voltar):", scanner);
+            if (escolha == 0) return;
+            if (escolha < 1 || escolha > pendentes.size()) {
+                System.out.println("  [!] Opção inválida.");
+                continue;
+            }
+            JustificacaoFalta j = pendentes.get(escolha - 1);
+            System.out.println("\n  Justificação: " + j);
+            System.out.println("  1. Aprovar   2. Rejeitar   0. Cancelar");
+            int decisao = Utils.lerInteiro("  Decisão: ", scanner);
+            if (decisao == 1) {
+                justificacaoController.aprovarJustificacao(j);
+                System.out.println("  [✓] Justificação aprovada.");
+            } else if (decisao == 2) {
+                justificacaoController.rejeitarJustificacao(j);
+                System.out.println("  [✓] Justificação rejeitada.");
+            }
         }
-        for (int i = 0; i < pendentes.size(); i++) {
-            JustificacaoFalta j = pendentes.get(i);
-            System.out.println("  " + (i + 1) + ". " + j.getNumMecanografico()
-                    + "  |  " + j.getNomeUC()
-                    + "  |  " + j.getDataAula() + " " + j.getHoraInicio()
-                    + "  |  " + j.getNomeTipoJustificacao());
-        }
-        System.out.println();
-        int escolha = Utils.lerInteiro("  Selecione para decidir (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > pendentes.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
-        JustificacaoFalta j = pendentes.get(escolha - 1);
-        System.out.println("\n  Justificação: " + j);
-        System.out.println("  1. Aprovar   2. Rejeitar   0. Cancelar");
-        int decisao = Utils.lerInteiro("  Decisão: ", scanner);
-        if (decisao == 1) {
-            justificacaoController.aprovarJustificacao(j);
-            System.out.println("  [✓] Justificação aprovada.");
-        } else if (decisao == 2) {
-            justificacaoController.rejeitarJustificacao(j);
-            System.out.println("  [✓] Justificação rejeitada.");
-        }
-        Utils.pausar(scanner);
     }
 
     private void verTodas() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Todas as Justificações");
+        Utils.tituloPagina("JUSTIFICAÇÕES", "Todas as Justificações");
         List<JustificacaoFalta> todas = justificacaoController.listarTodas();
         if (todas.isEmpty()) {
             System.out.println("  (sem justificações registadas)");

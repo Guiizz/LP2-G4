@@ -49,6 +49,7 @@ public class AnoLetivoView {
                     case 5: removerAnoLetivo(); break;
                     case 6: verHistorico(); break;
                     case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -86,8 +87,7 @@ public class AnoLetivoView {
     }
 
     private void listarTodos() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Histórico de Anos Letivos");
+        Utils.tituloPagina("ANO LETIVO", "Histórico");
         List<AnoLetivo> anos = anoLetivoController.listarTodos();
         if (anos.isEmpty()) {
             System.out.println("  (sem anos letivos registados)");
@@ -109,7 +109,7 @@ public class AnoLetivoView {
     }
 
     private void removerAnoLetivo() {
-        Utils.tituloPagina("Remover Ano Letivo");
+        Utils.tituloPagina("ANO LETIVO", "Remover Ano Letivo");
         List<AnoLetivo> anos = anoLetivoController.listarTodos();
         if (anos.isEmpty()) {
             System.out.println("  (sem anos letivos registados)");
@@ -138,8 +138,7 @@ public class AnoLetivoView {
     }
 
     private void consultarAtual() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Ano Letivo Atual");
+        Utils.tituloPagina("ANO LETIVO", "Ano Letivo Atual");
 
         AnoLetivo atual = anoLetivoController.consultarAnoAtual();
 
@@ -161,7 +160,7 @@ public class AnoLetivoView {
     }
 
     private void abrirNovoAno() {
-        Utils.tituloPagina("Abrir Novo Ano Letivo");
+        Utils.tituloPagina("ANO LETIVO", "Abrir Novo Ano Letivo");
 
         int anoSugerido = LocalDate.now().getYear();
         int ano = Utils.lerInteiro("Ano de início (ex.: " + anoSugerido + "): ", scanner);
@@ -173,7 +172,7 @@ public class AnoLetivoView {
     }
 
     private void fecharAnoLetivo() {
-        Utils.tituloPagina("Fechar Ano Letivo");
+        Utils.tituloPagina("ANO LETIVO", "Fechar Ano Letivo");
 
         AnoLetivo atual = anoLetivoController.consultarAnoAtual();
 

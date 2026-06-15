@@ -78,6 +78,10 @@ public class Curso {
         this.unidades.add(uc);
     }
 
+    public void removerUnidadeCurricular(UnidadeCurricular uc) {
+        this.unidades.remove(uc);
+    }
+
     public String getEstado() {
         return estado;
     }

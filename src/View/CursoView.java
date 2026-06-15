@@ -2,12 +2,10 @@ package View;
 
 import Controller.CursoController;
 import Controller.DepartamentoController;
-import Controller.DocenteController;
 import Controller.EstudanteController;
 import Controller.UnidadeCurricularController;
 import Model.Curso;
 import Model.Departamento;
-import Model.Docente;
 import Model.Estudante;
 import Model.UnidadeCurricular;
 import Utils.Utils;
@@ -22,15 +20,13 @@ public class CursoView {
     private final DepartamentoController departamentoController;
     private final UnidadeCurricularController unidadeCurricularController;
     private final EstudanteController estudanteController;
-    private final DocenteController docenteController;
     private final Scanner scanner;
 
-    public CursoView(CursoController cursoController, DepartamentoController departamentoController, UnidadeCurricularController unidadeCurricularController, EstudanteController estudanteController, DocenteController docenteController, Scanner scanner) {
+    public CursoView(CursoController cursoController, DepartamentoController departamentoController, UnidadeCurricularController unidadeCurricularController, EstudanteController estudanteController, Scanner scanner) {
         this.cursoController = cursoController;
         this.departamentoController = departamentoController;
         this.unidadeCurricularController = unidadeCurricularController;
         this.estudanteController = estudanteController;
-        this.docenteController = docenteController;
         this.scanner = scanner;
     }
 
@@ -132,59 +128,6 @@ public class CursoView {
         }
         cursoController.removerCurso(c);
         System.out.println("  [✓] Curso removido com sucesso.");
-        Utils.pausar(scanner);
-    }
-
-    private void atribuirDocenteResponsavel(Curso c) {
-        Utils.tituloPagina("Atribuir Docente Responsável — " + c.getNomeCurso());
-
-        List<UnidadeCurricular> ucsDoCurso = c.getUnidades();
-        if (ucsDoCurso == null || ucsDoCurso.isEmpty()) {
-            System.out.println("  [!] O curso ainda não tem UCs. Adicione UCs primeiro.");
-            Utils.pausar(scanner);
-            return;
-        }
-
-        // Listar as UCs do curso mostrando o docente atual (ou —)
-        System.out.println("\n  UCs do curso:");
-        for (int i = 0; i < ucsDoCurso.size(); i++) {
-            UnidadeCurricular uc = ucsDoCurso.get(i);
-            System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
-                    + " → " + (uc.temDocenteResponsavel() ? uc.getDocenteResponsavel() : "(sem docente)"));
-        }
-        int escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
-        if (escolhaUC == 0) return;
-        if (escolhaUC < 1 || escolhaUC > ucsDoCurso.size()) {
-            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
-        }
-        UnidadeCurricular uc = ucsDoCurso.get(escolhaUC - 1);
-
-        ArrayList<Docente> docentes = docenteController.listarDocentes();
-        if (docentes.isEmpty()) {
-            System.out.println("  [!] Não existem docentes registados."); Utils.pausar(scanner); return;
-        }
-
-        System.out.println("\n  Docentes disponíveis:");
-        for (int i = 0; i < docentes.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + docentes.get(i).getNome()
-                    + " (" + docentes.get(i).getSigla() + ")");
-        }
-        int escolha = Utils.lerInteiro("  Selecione o docente (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > docentes.size()) {
-            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
-        }
-        Docente docente = docentes.get(escolha - 1);
-
-        unidadeCurricularController.atribuirDocenteResponsavel(uc.getNome(), docente.getSigla());
-
-        if (docente.getUnidadesLecionadas() != null && !docente.getUnidadesLecionadas().contains(uc)) {
-            docente.getUnidadesLecionadas().add(uc);
-            docenteController.atualizarDocente(docente);
-        }
-
-        System.out.println("  [✓] Docente '" + docente.getSigla() + "' atribuído à UC '" + uc.getNome() + "'.");
         Utils.pausar(scanner);
     }
 
@@ -303,7 +246,6 @@ public class CursoView {
 
         String[] opcoesConfig = {
                 "Adicionar UC ao Curso",
-                "Atribuir Docente Responsável a UC",
                 "Listar UCs por Ano",
                 "Atualizar Valor de Propina",
                 "Listar Alunos Inscritos"
@@ -317,10 +259,9 @@ public class CursoView {
             try {
                 switch (opcao) {
                     case 1: adicionarUC(c); break;
-                    case 2: atribuirDocenteResponsavel(c); break;
-                    case 3: listarUCsPorAno(c); break;
-                    case 4: atualizarPropina(c); break;
-                    case 5: listarAlunosInscritos(c); break;
+                    case 2: listarUCsPorAno(c); break;
+                    case 3: atualizarPropina(c); break;
+                    case 4: listarAlunosInscritos(c); break;
                     case 0: System.out.println("  A voltar..."); break;
                 }
             } catch (IllegalArgumentException e) {
