@@ -223,51 +223,20 @@ public class UnidadeCurricularView {
     }
 
     private void adicionarMomento(UnidadeCurricular uc, int anoLetivo) {
-        // O momento pertence a um curso: a mesma UC noutro curso tem momentos próprios
-        List<Model.Curso> cursosComEstaUC = new ArrayList<>();
-        for (Model.Curso c : cursoController.listarCursos()) {
-            if (c.getUnidades().contains(uc)) cursosComEstaUC.add(c);
-        }
-        if (cursosComEstaUC.isEmpty()) {
-            System.out.println("  [!] A UC '" + uc.getNome() + "' não está associada a nenhum curso.");
-            Utils.pausar(scanner);
-            return;
-        }
-
-        Model.Curso curso;
-        if (cursosComEstaUC.size() == 1) {
-            curso = cursosComEstaUC.get(0);
-            System.out.println("  Curso: " + curso.getNomeCurso());
-        } else {
-            System.out.println("\n  Cursos com esta UC:");
-            for (int i = 0; i < cursosComEstaUC.size(); i++) {
-                System.out.println("  " + (i + 1) + ". " + cursosComEstaUC.get(i).getNomeCurso());
-            }
-            int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
-            if (escolha == 0) return;
-            if (escolha < 1 || escolha > cursosComEstaUC.size()) {
-                System.out.println("  [!] Opção inválida.");
-                Utils.pausar(scanner);
-                return;
-            }
-            curso = cursosComEstaUC.get(escolha - 1);
-        }
-
-        List<MomentoAvaliacao> momentosDoAno = uc.getMomentosParaAno(anoLetivo, curso.getNomeCurso());
+        List<MomentoAvaliacao> momentosDoAno = uc.getMomentosParaAno(anoLetivo);
         if (momentosDoAno.size() >= 3) {
-            System.out.println("  [!] Já tem 3 momentos para este ano letivo neste curso. Remova um antes de adicionar.");
+            System.out.println("  [!] Já tem 3 momentos para este ano letivo. Remova um antes de adicionar.");
             Utils.pausar(scanner);
             return;
         }
 
         String nomeMomento = Utils.lerCampo("  Nome do momento (ex: Frequência, Exame, Projeto): ", scanner);
-        java.util.Date dataMomento = Utils.lerDataAvaliacao("  Data (DD/MM/AAAA): ", scanner);
-        unidadeCurricularController.adicionarMomento(uc, nomeMomento, curso.getNomeCurso(), dataMomento);
+        unidadeCurricularController.adicionarMomento(uc, nomeMomento);
 
-        List<MomentoAvaliacao> atualizados = uc.getMomentosParaAno(anoLetivo, curso.getNomeCurso());
+        List<MomentoAvaliacao> atualizados = uc.getMomentosParaAno(anoLetivo);
         System.out.println("  [✓] Momento '" + nomeMomento + "' adicionado. Distribuição atual:");
         for (MomentoAvaliacao m : atualizados) {
-            System.out.printf("      %-30s %.2f%%  %s%n", m.getNome(), m.getPeso(), m.getDataFormatada());
+            System.out.printf("      %-30s %.0f%%%n", m.getNome(), m.getPeso());
         }
         Utils.pausar(scanner);
     }

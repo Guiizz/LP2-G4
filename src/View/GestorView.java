@@ -77,7 +77,7 @@ public class GestorView {
                         new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar();
                         break;
                     case 7:
-                        new AvaliacaoView(unidadeCurricularController, cursoController, anoLetivoController, scanner).iniciar();
+                        new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar();
                         break;
                     case 8:
                         lancarNota();
@@ -153,9 +153,7 @@ public class GestorView {
         System.out.println("\n  Momentos de Avaliação:");
         for (int i = 0; i < momentos.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + momentos.get(i).getNome()
-                    + " (" + momentos.get(i).getPeso() + "%)"
-                    + (momentos.get(i).getNomeCurso() != null ? " — " + momentos.get(i).getNomeCurso() : "")
-                    + (momentos.get(i).getData() != null ? " — " + momentos.get(i).getDataFormatada() : ""));
+                    + " (" + momentos.get(i).getPeso() + "%)");
         }
         int escolhaMomento = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
         if (escolhaMomento == 0) return;
@@ -164,11 +162,8 @@ public class GestorView {
             Utils.pausar(scanner);
             return;
         }
-        Model.MomentoAvaliacao momentoEscolhido = momentos.get(escolhaMomento - 1);
-        // O índice da nota na inscrição é a posição do momento dentro do grupo do curso
-        int indiceMomento = ucEscolhida
-                .getMomentosParaAno(anoLetivo, momentoEscolhido.getNomeCurso())
-                .indexOf(momentoEscolhido);
+        int indiceMomento = escolhaMomento - 1;
+        Model.MomentoAvaliacao momentoEscolhido = momentos.get(indiceMomento);
 
         java.util.ArrayList<Model.Estudante> todosEstudantes = estudanteController.listarEstudante();
         java.util.ArrayList<Model.Estudante> alunosDaUC = new java.util.ArrayList<>();
@@ -176,8 +171,7 @@ public class GestorView {
             Model.Inscricao insc = estudanteController.obterInscricaoAtual(e);
             if (insc != null && insc.getCurso() != null
                     && insc.getCurso().getUnidades().contains(ucEscolhida)
-                    && insc.getAnoDeCurso() == ucEscolhida.getAnoCurricular()
-                    && momentoEscolhido.pertenceAoCurso(insc.getCurso().getNomeCurso())) {
+                    && insc.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
                 alunosDaUC.add(e);
             }
         }

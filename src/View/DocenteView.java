@@ -239,9 +239,7 @@ public class DocenteView {
         System.out.println("\n  Momentos de Avaliação da UC '" + ucEscolhida.getNome() + "':");
         for (int i = 0; i < momentos.size(); i++) {
             MomentoAvaliacao m = momentos.get(i);
-            System.out.println("  " + (i + 1) + ". " + m.getNome() + " (Peso: " + m.getPeso() + "%)"
-                    + (m.getNomeCurso() != null ? " — " + m.getNomeCurso() : "")
-                    + (m.getData() != null ? " — " + m.getDataFormatada() : ""));
+            System.out.println("  " + (i + 1) + ". " + m.getNome() + " (Peso: " + m.getPeso() + "%)");
         }
 
         int escolhaMomento = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
@@ -252,11 +250,8 @@ public class DocenteView {
             return;
         }
 
-        MomentoAvaliacao momentoEscolhido = momentos.get(escolhaMomento - 1);
-        // O índice da nota na inscrição é a posição do momento dentro do grupo do curso
-        int indiceMomento = ucEscolhida
-                .getMomentosParaAno(anoLetivo, momentoEscolhido.getNomeCurso())
-                .indexOf(momentoEscolhido);
+        int indiceMomento = escolhaMomento - 1;
+        MomentoAvaliacao momentoEscolhido = momentos.get(indiceMomento);
 
         ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
         ArrayList<Estudante> alunosDaUC = new ArrayList<>();
@@ -267,8 +262,7 @@ public class DocenteView {
             if (inscricao != null
                     && inscricao.getCurso() != null
                     && inscricao.getCurso().getUnidades().contains(ucEscolhida)
-                    && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()
-                    && momentoEscolhido.pertenceAoCurso(inscricao.getCurso().getNomeCurso())) {
+                    && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
                 alunosDaUC.add(e);
             }
         }
@@ -289,11 +283,9 @@ public class DocenteView {
             Inscricao insc = estudanteController.obterInscricaoAtual(e);
 
             String notaAtual = "Pendente";
-            if (insc != null
-                    && insc.getAvaliacoes() != null
-                    && indiceMomento < insc.getAvaliacoes().size()) {
-                Avaliacao av = insc.getAvaliacoes().get(indiceMomento);
-                notaAtual = av.isLancada() ? String.format("%.1f", av.getNota()) : "Pendente";
+            Avaliacao av = avaliacaoDaUC(insc, ucEscolhida, indiceMomento);
+            if (av != null && av.isLancada()) {
+                notaAtual = String.format("%.1f", av.getNota());
             }
 
             System.out.printf("  %-5d %-25s %-12s %s%n",
@@ -315,16 +307,12 @@ public class DocenteView {
         Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
 
         Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);
-        if (inscricaoAluno != null
-                && inscricaoAluno.getAvaliacoes() != null
-                && indiceMomento < inscricaoAluno.getAvaliacoes().size()) {
-            Avaliacao avExistente = inscricaoAluno.getAvaliacoes().get(indiceMomento);
-            if (avExistente != null && avExistente.isLancada()) {
-                System.out.println("  [!] Já existe uma nota lançada: " + String.format("%.1f", avExistente.getNota()) + "/20.");
-                if (!Utils.confirmar("Deseja substituir esta nota?", scanner)) {
-                    Utils.pausar(scanner);
-                    return;
-                }
+        Avaliacao avExistente = avaliacaoDaUC(inscricaoAluno, ucEscolhida, indiceMomento);
+        if (avExistente != null && avExistente.isLancada()) {
+            System.out.println("  [!] Já existe uma nota lançada: " + String.format("%.1f", avExistente.getNota()) + "/20.");
+            if (!Utils.confirmar("Deseja substituir esta nota?", scanner)) {
+                Utils.pausar(scanner);
+                return;
             }
         }
 
@@ -414,17 +402,19 @@ public class DocenteView {
             System.out.printf("  %-12s %-22s", e.getNumMecanografico(), e.getNome());
             double somaFinal = 0;
             double totalPeso = 0;
-            // Cada aluno é avaliado pelos momentos do SEU curso
-            List<MomentoAvaliacao> momentosAluno =
-                    ucEscolhida.getMomentosParaAno(anoLetivo, inscricao.getCurso().getNomeCurso());
-            for (int i = 0; i < momentosAluno.size(); i++) {
+            for (int i = 0; i < momentos.size(); i++) {
                 String nota = "Pendente";
+                Avaliacao av = avaliacaoDaUC(inscricao, ucEscolhida, i);
+                if (av != null && av.isLancada()) {
+                    nota = String.format("%.1f", av.getNota());
+                    somaFinal += av.getNota() * momentosAluno.get(i).getPeso() / 100.0;
+                    totalPeso += momentosAluno.get(i).getPeso();
                 if (inscricao.getAvaliacoes() != null && i < inscricao.getAvaliacoes().size()) {
                     Avaliacao av = inscricao.getAvaliacoes().get(i);
                     if (av != null && av.isLancada()) {
                         nota = String.format("%.1f", av.getNota());
-                        somaFinal += av.getNota() * momentosAluno.get(i).getPeso() / 100.0;
-                        totalPeso += momentosAluno.get(i).getPeso();
+                        somaFinal += av.getNota() * momentos.get(i).getPeso() / 100.0;
+                        totalPeso += momentos.get(i).getPeso();
                     }
                 }
                 System.out.printf("  %-12s", nota);
@@ -561,6 +551,23 @@ public class DocenteView {
         Utils.pausar(scanner);
     }
 
+    /**
+     * Devolve a avaliação de uma UC na posição do momento indicado, contando
+     * apenas as avaliações dessa UC (as notas são por UC, não posição global).
+     */
+    private Avaliacao avaliacaoDaUC(Inscricao insc, UnidadeCurricular uc, int indiceMomento) {
+        if (insc == null || insc.getAvaliacoes() == null) return null;
+        int count = 0;
+        for (Avaliacao a : insc.getAvaliacoes()) {
+            if (a != null && a.getUc() != null && a.getUc().contains(uc)) {
+                if (count == indiceMomento) return a;
+                count++;
+            }
+        }
+        return null;
+    }
+
+    private void terminarAula(Docente docente) {
     private void verPresencasAlunos(Docente docente) {
         Utils.limparEcra();
         Utils.tituloPagina("Presenças dos Alunos");

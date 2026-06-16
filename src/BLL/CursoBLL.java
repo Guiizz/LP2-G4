@@ -47,7 +47,7 @@ public class CursoBLL {
     // -------------------------------------------------------------------------
 
     public Curso registarCurso(String nomeCurso, Departamento departamento, double valorPropina) {
-        Utils.validarNome(nomeCurso);
+        Utils.validarDesignacao(nomeCurso);
         if (departamento == null)
             throw new IllegalArgumentException("O departamento não pode ser nulo.");
         if (valorPropina < 0)
@@ -74,7 +74,7 @@ public class CursoBLL {
         if (curso == null) {
             throw new IllegalArgumentException("O curso não pode ser nulo.");
         }
-        Utils.validarNome(novoNome);
+        Utils.validarDesignacao(novoNome);
 
         if (temEstudantesAlocados(curso, estudantes) || temDocentesAlocados(curso)) {
             throw new IllegalArgumentException(
@@ -121,7 +121,7 @@ public class CursoBLL {
     // -------------------------------------------------------------------------
 
     public Curso procurarPorNome(String nome) {
-        Utils.validarNome(nome);
+        Utils.validarDesignacao(nome);
         for (Curso c : cursoDAL.listarCursos()) {
             if (c.getNomeCurso().equalsIgnoreCase(nome.trim())) {
                 return c;
@@ -182,6 +182,24 @@ public class CursoBLL {
         }
 
         curso.adicionarUnidadeCurricular(uc);
+        cursoDAL.atualizarCurso(curso);
+    }
+
+    public void removerUnidadeCurricular(Curso curso, UnidadeCurricular uc) {
+        if (curso == null)
+            throw new IllegalArgumentException("O curso não pode ser nulo.");
+        if (uc == null)
+            throw new IllegalArgumentException("A unidade curricular não pode ser nula.");
+        if (!curso.getUnidades().contains(uc))
+            throw new IllegalArgumentException(
+                    "A UC '" + uc.getNome() + "' não está associada a este curso.");
+        if (uc.temDocenteResponsavel())
+            throw new IllegalArgumentException(
+                    "Não é possível remover a UC '" + uc.getNome() + "': tem docente responsável atribuído.");
+        if (temEstudantesAlocados(curso, estudanteDAL.listarEstudantes()))
+            throw new IllegalArgumentException(
+                    "Não é possível remover a UC: o curso '" + curso.getNomeCurso() + "' tem estudantes inscritos.");
+        curso.removerUnidadeCurricular(uc);
         cursoDAL.atualizarCurso(curso);
     }
 

@@ -27,6 +27,11 @@ public class InscricaoController {
         return inscricao;
     }
 
+    public void desinscreverEstudante(Estudante estudante) {
+        if (estudante == null) throw new IllegalArgumentException("O estudante não pode ser nulo.");
+        estudanteBLL.desinscreverEstudante(estudante);
+    }
+
     public void verificarProgressaoAno(Estudante estudante) {
         estudanteBLL.podeProgredirAno(estudante);
     }

@@ -243,6 +243,28 @@ public class EstudanteBLL {
         return estudante.getInscricoes().get(estudante.getInscricoes().size() - 1);
     }
 
+    public void desinscreverEstudante(Estudante estudante) {
+        if (estudante == null)
+            throw new IllegalArgumentException("O estudante não pode ser nulo.");
+
+        Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
+        if (inscricaoAtual == null)
+            throw new IllegalArgumentException("O estudante '" + estudante.getNome() + "' não tem inscrição ativa.");
+
+        if (inscricaoAtual.getAvaliacoes() != null) {
+            for (Avaliacao av : inscricaoAtual.getAvaliacoes()) {
+                if (av.isLancada())
+                    throw new IllegalArgumentException(
+                            "Não é possível desinscrever: o estudante já tem notas lançadas.");
+            }
+        }
+
+        estudante.getInscricoes().remove(inscricaoAtual);
+        estudante.setAnoAtual(1);
+        estudante.setEstado("ATIVO");
+        estudanteDAL.atualizarEstudante(estudante);
+    }
+
     public void marcarPropinaAtualComoPaga(String numMecanografico) {
         Estudante estudante = procurarPorNumMecanografico(numMecanografico);
         Inscricao inscricaoAtual = obterInscricaoAtual(estudante);
@@ -361,14 +383,26 @@ public class EstudanteBLL {
             inscricaoAtual.setAvaliacoes(avaliacoes);
         }
 
-        while (avaliacoes.size() <= indiceMomento) {
-            avaliacoes.add(criarAvaliacaoPendenteParaMomento(uc, avaliacoes.size()));
-        }
-
-        Avaliacao avaliacao = avaliacoes.get(indiceMomento);
-        if (avaliacao == null || avaliacao.getUc() == null || avaliacao.getUc().isEmpty()) {
-            avaliacao = criarAvaliacaoPendenteParaMomento(uc, indiceMomento);
-            avaliacoes.set(indiceMomento, avaliacao);
+        Avaliacao avaliacao;
+        if (uc != null) {
+            // As notas são por UC: o índice do momento conta apenas dentro da própria UC,
+            // para não colidir com momentos de outras UCs na mesma inscrição.
+            ArrayList<Avaliacao> daUC = new ArrayList<>();
+            for (Avaliacao a : avaliacoes) {
+                if (a != null && a.getUc() != null && a.getUc().contains(uc)) daUC.add(a);
+            }
+            while (daUC.size() <= indiceMomento) {
+                Avaliacao nova = criarAvaliacaoPendenteParaMomento(uc, daUC.size());
+                avaliacoes.add(nova);
+                daUC.add(nova);
+            }
+            avaliacao = daUC.get(indiceMomento);
+        } else {
+            // Compatibilidade: sem UC, usa posição global (comportamento antigo)
+            while (avaliacoes.size() <= indiceMomento) {
+                avaliacoes.add(criarAvaliacaoPendenteParaMomento(null, avaliacoes.size()));
+            }
+            avaliacao = avaliacoes.get(indiceMomento);
         }
 
         avaliacao.lancarNota(nota, nota >= 10);

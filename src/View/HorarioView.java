@@ -136,16 +136,24 @@ public class HorarioView {
         }
         int duracao = (escolhaDuracao == 1) ? 60 : 120;
 
-        // Hora de início atribuída automaticamente: preenche a partir das 18:00,
-        // salta a pausa de jantar (20:00–20:30) e respeita o limite das 23:30
-        String horaInicio = horarioController.proximaHoraLivre(
-                curso.getNomeCurso(), anoCurricular, anoLetivo, diaSemana, duracao);
+        // Hora de início
+        String[] horas = horarioController.getHorasValidas(duracao);
+        System.out.println("\n  Horas disponíveis para blocos de " + (duracao / 60) + "h:");
+        for (int i = 0; i < horas.length; i++) System.out.println("  " + (i + 1) + ". " + horas[i]);
+        int escolhaHora = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+        if (escolhaHora == 0) return;
+        if (escolhaHora < 1 || escolhaHora > horas.length) {
+            System.out.println("  [!] Opção inválida.");
+            Utils.pausar(scanner);
+            return;
+        }
+        String horaInicio = horas[escolhaHora - 1];
 
         System.out.println("\n  ─── Resumo do bloco ───────────────────────");
         System.out.println("  Curso   : " + curso.getNomeCurso() + " (Ano " + anoCurricular + ")");
         System.out.println("  UC      : " + nomeUC);
         System.out.println("  Dia     : " + diaSemana);
-        System.out.println("  Hora    : " + horaInicio + " (" + (duracao / 60) + "h) — atribuída automaticamente");
+        System.out.println("  Hora    : " + horaInicio + " (" + (duracao / 60) + "h)");
         System.out.println("  ───────────────────────────────────────────");
 
         if (!Utils.confirmar("Confirmar adição do bloco?", scanner)) {

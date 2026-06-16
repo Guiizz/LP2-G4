@@ -30,7 +30,8 @@ public class AnoLetivoView {
                 "Listar todos os anos letivos",
                 "Abrir novo ano letivo",
                 "Fechar ano letivo e avançar estudantes aprovados",
-                "Remover ano letivo"
+                "Remover ano letivo",
+                "Ver histórico de fechos"
         };
 
         int opcao;
@@ -46,7 +47,9 @@ public class AnoLetivoView {
                     case 3: abrirNovoAno(); break;
                     case 4: fecharAnoLetivo(); break;
                     case 5: removerAnoLetivo(); break;
+                    case 6: verHistorico(); break;
                     case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -55,9 +58,36 @@ public class AnoLetivoView {
         } while (opcao != 0);
     }
 
-    private void listarTodos() {
+    private void verHistorico() {
         Utils.limparEcra();
-        Utils.tituloPagina("Histórico de Anos Letivos");
+        Utils.tituloPagina("Histórico de Fechos de Anos Letivos");
+        List<String[]> registos = anoLetivoController.listarHistorico();
+        if (registos.isEmpty()) {
+            System.out.println("  (sem fechos registados)");
+            Utils.pausar(scanner);
+            return;
+        }
+        // Colunas: anoLetivo;dataFecho;estadoFinal;avancados;mantidos;concluidos;detalhes
+        for (String[] r : registos) {
+            if (r.length < 6) continue;
+            System.out.println("  " + "─".repeat(55));
+            System.out.println("  Ano Letivo : " + r[0] + "   (fechado em " + r[1] + ")");
+            System.out.println("  Avançados  : " + r[3]
+                    + "   Mantidos: " + r[4]
+                    + "   Concluídos: " + r[5]);
+            if (r.length >= 7 && !r[6].isBlank()) {
+                System.out.println("  Detalhes:");
+                for (String msg : r[6].split("\\|")) {
+                    System.out.println("    - " + msg.trim());
+                }
+            }
+        }
+        System.out.println("  " + "─".repeat(55));
+        Utils.pausar(scanner);
+    }
+
+    private void listarTodos() {
+        Utils.tituloPagina("ANO LETIVO", "Histórico");
         List<AnoLetivo> anos = anoLetivoController.listarTodos();
         if (anos.isEmpty()) {
             System.out.println("  (sem anos letivos registados)");
@@ -79,7 +109,7 @@ public class AnoLetivoView {
     }
 
     private void removerAnoLetivo() {
-        Utils.tituloPagina("Remover Ano Letivo");
+        Utils.tituloPagina("ANO LETIVO", "Remover Ano Letivo");
         List<AnoLetivo> anos = anoLetivoController.listarTodos();
         if (anos.isEmpty()) {
             System.out.println("  (sem anos letivos registados)");
@@ -108,8 +138,7 @@ public class AnoLetivoView {
     }
 
     private void consultarAtual() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Ano Letivo Atual");
+        Utils.tituloPagina("ANO LETIVO", "Ano Letivo Atual");
 
         AnoLetivo atual = anoLetivoController.consultarAnoAtual();
 
@@ -131,7 +160,7 @@ public class AnoLetivoView {
     }
 
     private void abrirNovoAno() {
-        Utils.tituloPagina("Abrir Novo Ano Letivo");
+        Utils.tituloPagina("ANO LETIVO", "Abrir Novo Ano Letivo");
 
         int anoSugerido = LocalDate.now().getYear();
         int ano = Utils.lerInteiro("Ano de início (ex.: " + anoSugerido + "): ", scanner);
@@ -143,7 +172,7 @@ public class AnoLetivoView {
     }
 
     private void fecharAnoLetivo() {
-        Utils.tituloPagina("Fechar Ano Letivo");
+        Utils.tituloPagina("ANO LETIVO", "Fechar Ano Letivo");
 
         AnoLetivo atual = anoLetivoController.consultarAnoAtual();
 

@@ -34,7 +34,7 @@ public class InscricaoView {
                     case 1: verInscricaoAtual(estudante); break;
                     case 2: verHistorico(estudante); break;
                     case 3: verificarProgressao(estudante); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -44,8 +44,7 @@ public class InscricaoView {
     }
 
     private void verInscricaoAtual(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Inscrição Atual");
+        Utils.tituloPagina("INSCRIÇÕES", "Inscrição Atual");
         Inscricao atual = inscricaoController.obterInscricaoAtual(estudante);
         if (atual == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -56,8 +55,7 @@ public class InscricaoView {
     }
 
     private void verHistorico(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Histórico de Inscrições");
+        Utils.tituloPagina("INSCRIÇÕES", "Histórico");
         ArrayList<Inscricao> inscricoes = inscricaoController.listarInscricoes(estudante);
         if (inscricoes.isEmpty()) {
             System.out.println("  (sem inscrições registadas)");
@@ -71,8 +69,7 @@ public class InscricaoView {
     }
 
     private void verificarProgressao(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Verificar Progressão de Ano");
+        Utils.tituloPagina("INSCRIÇÕES", "Verificar Progressão");
         try {
             inscricaoController.verificarProgressaoAno(estudante);
             System.out.println("  [✓] Cumpre os requisitos para progredir para o ano seguinte.");
