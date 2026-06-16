@@ -111,15 +111,13 @@ public class DocenteView {
     }
 
     private void verFicha(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("A minha Ficha");
+        Utils.tituloPagina("A MINHA CONTA", "A minha Ficha");
         System.out.println(docente.toStringDetalhado());
         Utils.pausar(scanner);
     }
 
     private void verUCs(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Unidades Curriculares");
+        Utils.tituloPagina("AS MINHAS UCS", "As minhas Unidades Curriculares");
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         boolean encontrou = false;
         for (UnidadeCurricular uc : todasUCs) {
@@ -144,8 +142,7 @@ public class DocenteView {
     }
 
     private void verAlunos(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Os meus Alunos");
+        Utils.tituloPagina("AS MINHAS UCS", "Os meus Alunos");
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<Estudante> todosEstudantes = estudanteController.listarEstudante();
 
@@ -180,8 +177,7 @@ public class DocenteView {
     }
 
     private void lancarAvaliacao(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lançar Nota por Aluno");
+        Utils.tituloPagina("AS MINHAS UCS", "Lançar Nota");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
@@ -333,8 +329,7 @@ public class DocenteView {
     }
 
     private void verResultados(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Resultados da UC");
+        Utils.tituloPagina("AS MINHAS UCS", "Resultados da UC");
 
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         ArrayList<UnidadeCurricular> minhasUCs = new ArrayList<>();
@@ -407,15 +402,8 @@ public class DocenteView {
                 Avaliacao av = avaliacaoDaUC(inscricao, ucEscolhida, i);
                 if (av != null && av.isLancada()) {
                     nota = String.format("%.1f", av.getNota());
-                    somaFinal += av.getNota() * momentosAluno.get(i).getPeso() / 100.0;
-                    totalPeso += momentosAluno.get(i).getPeso();
-                if (inscricao.getAvaliacoes() != null && i < inscricao.getAvaliacoes().size()) {
-                    Avaliacao av = inscricao.getAvaliacoes().get(i);
-                    if (av != null && av.isLancada()) {
-                        nota = String.format("%.1f", av.getNota());
-                        somaFinal += av.getNota() * momentos.get(i).getPeso() / 100.0;
-                        totalPeso += momentos.get(i).getPeso();
-                    }
+                    somaFinal += av.getNota() * momentos.get(i).getPeso() / 100.0;
+                    totalPeso += momentos.get(i).getPeso();
                 }
                 System.out.printf("  %-12s", nota);
             }
@@ -435,8 +423,7 @@ public class DocenteView {
     }
 
     private void verHorario(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("O meu Horário");
+        Utils.tituloPagina("HORÁRIOS", "O meu Horário");
         AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
         int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : 0;
 
@@ -473,8 +460,7 @@ public class DocenteView {
     }
 
     private void marcarPresenca(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Marcar Presença em Aula");
+        Utils.tituloPagina("PRESENÇAS", "Marcar Presença em Aula");
         AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
         if (anoAberto == null) {
             System.out.println("  [!] Não existe um ano letivo aberto.");
@@ -567,10 +553,8 @@ public class DocenteView {
         return null;
     }
 
-    private void terminarAula(Docente docente) {
     private void verPresencasAlunos(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Presenças dos Alunos");
+        Utils.tituloPagina("PRESENÇAS", "Presenças dos Alunos");
         AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
         int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : 0;
 
@@ -643,8 +627,7 @@ public class DocenteView {
     }
 
     private void alterarPassword(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Alterar Password");
+        Utils.tituloPagina("A MINHA CONTA", "Alterar Password");
         System.out.print("  Password atual: ");
         String atual = lerPasswordMascarada();
         System.out.print("  Nova password : ");
@@ -676,8 +659,7 @@ public class DocenteView {
     }
 
     private void atualizar(Docente docente) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Atualizar os meus Dados");
+        Utils.tituloPagina("A MINHA CONTA", "Atualizar os meus Dados");
         System.out.println("  Dados atuais: " + docente.getNome() + " | " + docente.getMorada());
 
         String novoNome = Utils.lerCampo("  Novo nome (Enter para manter): ", scanner);

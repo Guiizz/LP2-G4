@@ -104,8 +104,7 @@ public class EstudanteView {
     }
 
     private void verFicha(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("A minha Ficha");
+        Utils.tituloPagina("A MINHA CONTA", "A minha Ficha");
         System.out.println(estudante.toStringDetalhado());
         Utils.pausar(scanner);
     }
@@ -113,8 +112,7 @@ public class EstudanteView {
     private void verAvaliacoes(Estudante estudante) {
         ArrayList<Inscricao> inscricoes = estudante.getInscricoes();
         if (inscricoes.isEmpty()) {
-            Utils.limparEcra();
-            Utils.tituloPagina("As minhas Avaliações");
+            Utils.tituloPagina("SITUAÇÃO ACADÉMICA", "As minhas Avaliações");
             System.out.println("  (sem inscrições registadas)");
             Utils.pausar(scanner);
             return;
@@ -146,8 +144,7 @@ public class EstudanteView {
         }
 
         do {
-            Utils.limparEcra();
-            Utils.tituloPagina("As minhas Avaliações");
+            Utils.tituloPagina("SITUAÇÃO ACADÉMICA", "As minhas Avaliações");
 
             if (nomesUC.isEmpty()) {
                 System.out.println("  (sem avaliações registadas)");
@@ -195,8 +192,7 @@ public class EstudanteView {
 
     /** Detalhe dos momentos de uma UC. */
     private void mostrarMomentosUC(String nomeUC, List<Avaliacao> momentos) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Momentos — " + nomeUC);
+        Utils.tituloPagina("SITUAÇÃO ACADÉMICA", "Momentos — " + nomeUC);
         System.out.printf("  %-5s %-8s %-10s %s%n", "#", "Peso", "Nota", "Estado");
         System.out.println("  " + "─".repeat(40));
         for (int k = 0; k < momentos.size(); k++) {
@@ -213,8 +209,7 @@ public class EstudanteView {
     }
 
     private void verAssiduidade(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("A minha Assiduidade");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "A minha Assiduidade");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -262,8 +257,7 @@ public class EstudanteView {
     }
 
     private void atualizar(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Atualizar a minha Morada");
+        Utils.tituloPagina("A MINHA CONTA", "Atualizar a minha Morada");
         System.out.println("  Nome, nº mecanográfico, email, NIF e data de nascimento não são editáveis.");
         System.out.println("  Morada atual: " + estudante.getMorada());
 
@@ -275,8 +269,7 @@ public class EstudanteView {
     }
 
     private void verHorario(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("O meu Horário");
+        Utils.tituloPagina("HORÁRIOS", "O meu Horário");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -293,8 +286,7 @@ public class EstudanteView {
     }
 
     private void marcarPresenca(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Marcar a minha Presença");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "Marcar a minha Presença");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -363,8 +355,7 @@ public class EstudanteView {
     }
 
     private void justificarFalta(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Justificar Falta");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "Justificar Falta");
         Inscricao insc = estudanteController.obterInscricaoAtual(estudante);
         if (insc == null) {
             System.out.println("  (sem inscrição ativa)");
@@ -451,8 +442,7 @@ public class EstudanteView {
     }
 
     private void verJustificacoes(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Justificações");
+        Utils.tituloPagina("PRESENÇAS E FALTAS", "As minhas Justificações");
         List<JustificacaoFalta> lista = justificacaoController
                 .listarPorEstudante(estudante.getNumMecanografico());
         if (lista.isEmpty()) {
@@ -472,8 +462,7 @@ public class EstudanteView {
     }
 
     private void alterarPassword(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("Alterar Password");
+        Utils.tituloPagina("A MINHA CONTA", "Alterar Password");
         System.out.print("  Password atual: ");
         String atual = lerPasswordMascarada();
         System.out.print("  Nova password : ");
@@ -508,8 +497,7 @@ public class EstudanteView {
     }
 
     private void verPropinas(Estudante estudante) {
-        Utils.limparEcra();
-        Utils.tituloPagina("As minhas Propinas");
+        Utils.tituloPagina("SITUAÇÃO ACADÉMICA", "As minhas Propinas");
 
         Inscricao inscricaoAtual = estudanteController.obterInscricaoAtual(estudante);
         if (inscricaoAtual == null) {

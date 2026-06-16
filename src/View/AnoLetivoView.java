@@ -48,7 +48,6 @@ public class AnoLetivoView {
                     case 4: fecharAnoLetivo(); break;
                     case 5: removerAnoLetivo(); break;
                     case 6: verHistorico(); break;
-                    case 0: System.out.println("  A voltar..."); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
@@ -59,8 +58,7 @@ public class AnoLetivoView {
     }
 
     private void verHistorico() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Histórico de Fechos de Anos Letivos");
+        Utils.tituloPagina("ANO LETIVO", "Ver Histórico de Fechos");
         List<String[]> registos = anoLetivoController.listarHistorico();
         if (registos.isEmpty()) {
             System.out.println("  (sem fechos registados)");
