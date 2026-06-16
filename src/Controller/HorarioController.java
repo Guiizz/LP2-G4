@@ -34,6 +34,14 @@ public class HorarioController {
         return HorarioBLL.DIAS_SEMANA;
     }
 
+    public String[] getHorasValidas(int duracao) {
+        java.util.List<String> horas = new java.util.ArrayList<>();
+        for (int t = 18 * 60; t + duracao <= 23 * 60 + 30; t += 30) {
+            horas.add(String.format("%02d:%02d", t / 60, t % 60));
+        }
+        return horas.toArray(new String[0]);
+    }
+
     public String proximaHoraLivre(String nomeCurso, int anoCurricular, int anoLetivo,
                                    String diaSemana, int duracao) {
         return horarioBLL.proximaHoraLivre(nomeCurso, anoCurricular, anoLetivo, diaSemana, duracao);

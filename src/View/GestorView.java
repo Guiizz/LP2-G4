@@ -38,67 +38,25 @@ public class GestorView {
 
     public void iniciar(Gestor gestor) {
         String[] opcoes = {
-                "Ano Letivo",
-                "Gerir Departamentos",
-                "Gerir Cursos",
-                "Gerir Unidades Curriculares",
-                "Gerir Docentes",
-                "Gerir Estudantes",
-                "Gerir Momentos de Avaliação",
-                "Lançar Nota a Aluno",
-                "Gerir Horários",
-                "Gerir Justificações de Faltas",
-                "Ver a minha Ficha",
-                "Gerir Gestores"
+                "Administração",
+                "Gestão Académica",
+                "Pessoas",
+                "Avaliações",
+                "A minha Conta"
         };
 
         int opcao;
         do {
             Utils.limparEcra();
-            opcao = Utils.mostrarMenu("ÁREA DO GESTOR [" + gestor.getEmail() + "]", opcoes, scanner);
+            opcao = Utils.mostrarMenu("ÁREA DO GESTOR [" + gestor.getEmail() + "]", opcoes, "Sair", scanner);
             try {
                 switch (opcao) {
-                    case 1:
-                        new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar();
-                        break;
-                    case 2:
-                        new DepartamentoView(departamentoController, cursoController, scanner).iniciar();
-                        break;
-                    case 3:
-                        new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar();
-                        break;
-                    case 4:
-                        new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar();
-                        break;
-                    case 5:
-                        new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, cursoController, scanner).iniciar();
-                        break;
-                    case 6:
-                        new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar();
-                        break;
-                    case 7:
-                        new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar();
-                        break;
-                    case 8:
-                        lancarNota();
-                        break;
-                    case 9:
-                        new HorarioView(horarioController, cursoController, unidadeCurricularController, anoLetivoController, scanner).iniciar();
-                        break;
-                    case 10:
-                        new JustificacaoGestorView(justificacaoController, scanner).iniciar();
-                        break;
-                    case 11:
-                        Utils.limparEcra();
-                        System.out.println("\n" + gestor);
-                        Utils.pausar(scanner);
-                        break;
-                    case 12:
-                        new GestorMenuView(gestorController, scanner).iniciar();
-                        break;
-                    case 0:
-                        System.out.println("  A terminar sessão...");
-                        break;
+                    case 1: menuAdministracao(); break;
+                    case 2: menuAcademico(); break;
+                    case 3: menuPessoas(); break;
+                    case 4: menuAvaliacoes(); break;
+                    case 5: verFicha(gestor); break;
+                    case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -107,9 +65,112 @@ public class GestorView {
         } while (opcao != 0);
     }
 
+    // ── Submenus ──────────────────────────────────────────────────────────────
+
+    private void menuAdministracao() {
+        String[] opcoes = {
+                "Ano Letivo",
+                "Departamentos",
+                "Gestores"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("ADMINISTRAÇÃO", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
+                    case 2: new DepartamentoView(departamentoController, cursoController, scanner).iniciar(); break;
+                    case 3: new GestorMenuView(gestorController, scanner).iniciar(); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuAcademico() {
+        String[] opcoes = {
+                "Cursos",
+                "Unidades Curriculares",
+                "Horários"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("GESTÃO ACADÉMICA", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
+                    case 2: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar(); break;
+                    case 3: new HorarioView(horarioController, cursoController, unidadeCurricularController, anoLetivoController, scanner).iniciar(); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuPessoas() {
+        String[] opcoes = {
+                "Docentes",
+                "Estudantes"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("PESSOAS", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
+                    case 2: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar(); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuAvaliacoes() {
+        String[] opcoes = {
+                "Momentos de Avaliação",
+                "Lançar Nota a Aluno",
+                "Justificações de Faltas"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("AVALIAÇÕES", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
+                    case 2: lancarNota(); break;
+                    case 3: new JustificacaoGestorView(justificacaoController, scanner).iniciar(); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    // ── Ações ─────────────────────────────────────────────────────────────────
+
+    private void verFicha(Gestor gestor) {
+        Utils.tituloPagina("A MINHA CONTA", "A minha Ficha");
+        System.out.println("\n" + gestor);
+        Utils.pausar(scanner);
+    }
+
     private void lancarNota() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lançar Nota a Aluno");
+        Utils.tituloPagina("AVALIAÇÕES", "Lançar Nota a Aluno");
 
         java.util.ArrayList<Model.UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
         if (todasUCs.isEmpty()) {
@@ -128,13 +189,13 @@ public class GestorView {
                     + " (Ano " + uc.getAnoCurricular() + ")"
                     + " | " + (uc.isAtiva() ? "Ativa" : "Inativa"));
         }
-        int escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
-        if (escolhaUC == 0) return;
-        if (escolhaUC < 1 || escolhaUC > todasUCs.size()) {
-            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + todasUCs.size() + ".");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaUC;
+        do {
+            escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+            if (escolhaUC == 0) return;
+            if (escolhaUC < 1 || escolhaUC > todasUCs.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + todasUCs.size() + ".");
+        } while (escolhaUC < 1 || escolhaUC > todasUCs.size());
         Model.UnidadeCurricular ucEscolhida = todasUCs.get(escolhaUC - 1);
 
         if (!ucEscolhida.isAtiva()) {
@@ -155,13 +216,13 @@ public class GestorView {
             System.out.println("  " + (i + 1) + ". " + momentos.get(i).getNome()
                     + " (" + momentos.get(i).getPeso() + "%)");
         }
-        int escolhaMomento = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
-        if (escolhaMomento == 0) return;
-        if (escolhaMomento < 1 || escolhaMomento > momentos.size()) {
-            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + momentos.size() + ".");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaMomento;
+        do {
+            escolhaMomento = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
+            if (escolhaMomento == 0) return;
+            if (escolhaMomento < 1 || escolhaMomento > momentos.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + momentos.size() + ".");
+        } while (escolhaMomento < 1 || escolhaMomento > momentos.size());
         int indiceMomento = escolhaMomento - 1;
         Model.MomentoAvaliacao momentoEscolhido = momentos.get(indiceMomento);
 
@@ -197,13 +258,13 @@ public class GestorView {
         }
         System.out.println("  " + "─".repeat(55));
 
-        int escolhaAluno = Utils.lerInteiro("  Selecione o aluno (0 para voltar): ", scanner);
-        if (escolhaAluno == 0) return;
-        if (escolhaAluno < 1 || escolhaAluno > alunosDaUC.size()) {
-            System.out.println("  [!] Opção inválida. Selecione entre 1 e " + alunosDaUC.size() + ".");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaAluno;
+        do {
+            escolhaAluno = Utils.lerInteiro("  Selecione o aluno (0 para voltar): ", scanner);
+            if (escolhaAluno == 0) return;
+            if (escolhaAluno < 1 || escolhaAluno > alunosDaUC.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + alunosDaUC.size() + ".");
+        } while (escolhaAluno < 1 || escolhaAluno > alunosDaUC.size());
         Model.Estudante alunoEscolhido = alunosDaUC.get(escolhaAluno - 1);
 
         Model.Inscricao inscricaoAluno = estudanteController.obterInscricaoAtual(alunoEscolhido);

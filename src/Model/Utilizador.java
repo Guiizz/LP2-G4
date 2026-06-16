@@ -1,6 +1,7 @@
 package Model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Utilizador {
 
@@ -77,6 +78,19 @@ public class Utilizador {
 
     public void setPrimeiroLogin(boolean primeiroLogin) {
         this.primeiroLogin = primeiroLogin;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Utilizador)) return false;
+        Utilizador that = (Utilizador) o;
+        return Objects.equals(nif, that.nif);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nif);
     }
 
     @Override

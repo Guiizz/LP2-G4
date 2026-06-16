@@ -48,7 +48,7 @@ public class AvaliacaoView {
                     case 2: listar(); break;
                     case 3: procurarPorUC(); break;
                     case 4: remover(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -60,7 +60,7 @@ public class AvaliacaoView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        Utils.tituloPagina("Registar Avaliação");
+        Utils.tituloPagina("GESTÃO DE AVALIAÇÕES", "Registar Avaliação");
 
         UnidadeCurricular uc = selecionarUC();
         if (uc == null) return;
@@ -69,20 +69,24 @@ public class AvaliacaoView {
         double peso;
         if (momentos == null || momentos.isEmpty()) {
             System.out.println("  [!] A UC não tem momentos de avaliação definidos. Introduza o peso manualmente.");
-            peso = Utils.lerDouble("  Peso (%): ", scanner);
+            do {
+                peso = Utils.lerDouble("  Peso (%): ", scanner);
+                if (peso < 0 || peso > 100)
+                    System.out.println("  [!] O peso deve ser um valor entre 0 e 100.");
+            } while (peso < 0 || peso > 100);
         } else {
             System.out.println("\n  Momentos de avaliação:");
             for (int i = 0; i < momentos.size(); i++) {
                 System.out.println("  " + (i + 1) + ". " + momentos.get(i).getNome()
                         + " (" + momentos.get(i).getPeso() + "%)");
             }
-            int escolha = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
-            if (escolha == 0) return;
-            if (escolha < 1 || escolha > momentos.size()) {
-                System.out.println("  [!] Opção inválida. Selecione entre 1 e " + momentos.size() + ".");
-                Utils.pausar(scanner);
-                return;
-            }
+            int escolha;
+            do {
+                escolha = Utils.lerInteiro("  Selecione o momento (0 para voltar): ", scanner);
+                if (escolha == 0) return;
+                if (escolha < 1 || escolha > momentos.size())
+                    System.out.println("  [!] Opção inválida. Escolha entre 1 e " + momentos.size() + ".");
+            } while (escolha < 1 || escolha > momentos.size());
             peso = momentos.get(escolha - 1).getPeso();
             System.out.println("  Peso: " + peso + "%");
         }
@@ -92,15 +96,24 @@ public class AvaliacaoView {
         List<UnidadeCurricular> ucs = new ArrayList<>();
         ucs.add(uc);
 
-        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, peso, data, 0);
+        String nomeCurso = "";
+        for (Curso c : cursoController.listarCursos()) {
+            if (c.getUnidades().contains(uc)) { nomeCurso = c.getNomeCurso(); break; }
+        }
+        if (nomeCurso.isEmpty()) {
+            System.out.println("  [!] A UC não está associada a nenhum curso.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        Avaliacao a = avaliacaoController.registarAvaliacao(ucs, nomeCurso, data, 0);
         System.out.println("  [✓] Momento de avaliação registado com sucesso.");
         System.out.println("  " + a);
         Utils.pausar(scanner);
     }
 
     private void listar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lista de Avaliações");
+        Utils.tituloPagina("GESTÃO DE AVALIAÇÕES", "Lista de Avaliações");
         ArrayList<Avaliacao> lista = avaliacaoController.listarAvaliacoes();
         if (lista.isEmpty()) { System.out.println("  (sem avaliações registadas)"); Utils.pausar(scanner); return; }
         for (Avaliacao a : lista) { System.out.println(a + "\n"); }
@@ -108,8 +121,7 @@ public class AvaliacaoView {
     }
 
     private void procurarPorUC() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Avaliações por Unidade Curricular");
+        Utils.tituloPagina("GESTÃO DE AVALIAÇÕES", "Avaliações por UC");
 
         UnidadeCurricular uc = selecionarUC();
         if (uc == null) return;
@@ -121,8 +133,7 @@ public class AvaliacaoView {
     }
 
     private void remover() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Remover Avaliação");
+        Utils.tituloPagina("GESTÃO DE AVALIAÇÕES", "Remover Avaliação");
         ArrayList<Avaliacao> lista = avaliacaoController.listarAvaliacoes();
         if (lista.isEmpty()) { System.out.println("  (sem avaliações registadas)"); Utils.pausar(scanner); return; }
 
@@ -130,13 +141,13 @@ public class AvaliacaoView {
             System.out.println("  " + (i + 1) + ". " + lista.get(i));
         }
 
-        int escolha = Utils.lerInteiro("  Selecione a avaliação a remover (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > lista.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione a avaliação a remover (0 para voltar): ", scanner);
+            if (escolha == 0) return;
+            if (escolha < 1 || escolha > lista.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + lista.size() + ".");
+        } while (escolha < 1 || escolha > lista.size());
         Avaliacao alvo = lista.get(escolha - 1);
 
         if (!Utils.confirmar("Remover a avaliação de " + alvo.getDataFormatada() + "?", scanner)) {
@@ -161,13 +172,13 @@ public class AvaliacaoView {
                     + " (Ano " + uc.getAnoCurricular() + ")"
                     + " — " + cursosComUC(uc));
         }
-        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > ucs.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+            if (escolha == 0) return null;
+            if (escolha < 1 || escolha > ucs.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + ucs.size() + ".");
+        } while (escolha < 1 || escolha > ucs.size());
         return ucs.get(escolha - 1);
     }
 
