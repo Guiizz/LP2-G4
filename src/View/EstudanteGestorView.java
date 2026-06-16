@@ -191,13 +191,13 @@ public class EstudanteGestorView {
             System.out.println("  " + (i + 1) + ". " + e.getNome()
                     + " (" + e.getNumMecanografico() + ") — " + curso);
         }
-        int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > lista.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+            if (escolha == 0) return null;
+            if (escolha < 1 || escolha > lista.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + lista.size() + ".");
+        } while (escolha < 1 || escolha > lista.size());
         return lista.get(escolha - 1);
     }
 
@@ -215,11 +215,13 @@ public class EstudanteGestorView {
             System.out.println("  " + (i + 1) + ". " + c.getNomeCurso() + " | " + c.getDepartamento().getNome() + " [" + c.getEstado() + "]");
         }
 
-        int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > cursos.size()) {
-            System.out.println("  [!] Opção inválida."); Utils.pausar(scanner); return;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
+            if (escolha == 0) return;
+            if (escolha < 1 || escolha > cursos.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + cursos.size() + ".");
+        } while (escolha < 1 || escolha > cursos.size());
         Curso curso = cursos.get(escolha - 1);
 
         inscricaoController.inscreverEstudante(e, curso, LocalDate.now().getYear());

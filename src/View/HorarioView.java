@@ -40,18 +40,10 @@ public class HorarioView {
             opcao = Utils.mostrarMenu("GESTÃO DE HORÁRIOS", opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1:
-                        verHorario();
-                        break;
-                    case 2:
-                        adicionarBloco();
-                        break;
-                    case 3:
-                        removerBloco();
-                        break;
-                    case 0:
-                        System.out.println("  A voltar...");
-                        break;
+                    case 1: verHorario(); break;
+                    case 2: adicionarBloco(); break;
+                    case 3: removerBloco(); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -63,8 +55,7 @@ public class HorarioView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void verHorario() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Ver Horário");
+        Utils.tituloPagina("GESTÃO DE HORÁRIOS", "Ver Horário");
         Curso curso = selecionarCurso();
         if (curso == null) return;
         int anoCurricular = selecionarAnoCurricular();
@@ -76,8 +67,7 @@ public class HorarioView {
     }
 
     private void adicionarBloco() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Adicionar Bloco ao Horário");
+        Utils.tituloPagina("GESTÃO DE HORÁRIOS", "Adicionar Bloco ao Horário");
 
         Curso curso = selecionarCurso();
         if (curso == null) return;
@@ -101,52 +91,52 @@ public class HorarioView {
         for (int i = 0; i < ucsAno.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + ucsAno.get(i).getNome());
         }
-        int escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
-        if (escolhaUC == 0) return;
-        if (escolhaUC < 1 || escolhaUC > ucsAno.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaUC;
+        do {
+            escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+            if (escolhaUC == 0) return;
+            if (escolhaUC < 1 || escolhaUC > ucsAno.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + ucsAno.size() + ".");
+        } while (escolhaUC < 1 || escolhaUC > ucsAno.size());
         String nomeUC = ucsAno.get(escolhaUC - 1).getNome();
 
         // Dia da semana
         String[] dias = horarioController.getDiasSemana();
         System.out.println("\n  Dia da semana:");
         for (int i = 0; i < dias.length; i++) System.out.println("  " + (i + 1) + ". " + dias[i]);
-        int escolhaDia = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-        if (escolhaDia == 0) return;
-        if (escolhaDia < 1 || escolhaDia > dias.length) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaDia;
+        do {
+            escolhaDia = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+            if (escolhaDia == 0) return;
+            if (escolhaDia < 1 || escolhaDia > dias.length)
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + dias.length + ".");
+        } while (escolhaDia < 1 || escolhaDia > dias.length);
         String diaSemana = dias[escolhaDia - 1];
 
         // Duração
         System.out.println("\n  Duração do bloco:");
         System.out.println("  1. 1 hora");
         System.out.println("  2. 2 horas");
-        int escolhaDuracao = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-        if (escolhaDuracao == 0) return;
-        if (escolhaDuracao < 1 || escolhaDuracao > 2) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaDuracao;
+        do {
+            escolhaDuracao = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+            if (escolhaDuracao == 0) return;
+            if (escolhaDuracao < 1 || escolhaDuracao > 2)
+                System.out.println("  [!] Opção inválida. Escolha 1 ou 2.");
+        } while (escolhaDuracao < 1 || escolhaDuracao > 2);
         int duracao = (escolhaDuracao == 1) ? 60 : 120;
 
         // Hora de início
         String[] horas = horarioController.getHorasValidas(duracao);
         System.out.println("\n  Horas disponíveis para blocos de " + (duracao / 60) + "h:");
         for (int i = 0; i < horas.length; i++) System.out.println("  " + (i + 1) + ". " + horas[i]);
-        int escolhaHora = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-        if (escolhaHora == 0) return;
-        if (escolhaHora < 1 || escolhaHora > horas.length) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolhaHora;
+        do {
+            escolhaHora = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+            if (escolhaHora == 0) return;
+            if (escolhaHora < 1 || escolhaHora > horas.length)
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + horas.length + ".");
+        } while (escolhaHora < 1 || escolhaHora > horas.length);
         String horaInicio = horas[escolhaHora - 1];
 
         System.out.println("\n  ─── Resumo do bloco ───────────────────────");
@@ -167,8 +157,7 @@ public class HorarioView {
     }
 
     private void removerBloco() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Remover Bloco do Horário");
+        Utils.tituloPagina("GESTÃO DE HORÁRIOS", "Remover Bloco do Horário");
         Curso curso = selecionarCurso();
         if (curso == null) return;
         int anoCurricular = selecionarAnoCurricular();
@@ -187,13 +176,13 @@ public class HorarioView {
         for (int i = 0; i < blocos.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + blocos.get(i));
         }
-        int escolha = Utils.lerInteiro("  Selecione o bloco a remover (0 para voltar): ", scanner);
-        if (escolha == 0) return;
-        if (escolha < 1 || escolha > blocos.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione o bloco a remover (0 para voltar): ", scanner);
+            if (escolha == 0) return;
+            if (escolha < 1 || escolha > blocos.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + blocos.size() + ".");
+        } while (escolha < 1 || escolha > blocos.size());
 
         if (!Utils.confirmar("Remover o bloco '" + blocos.get(escolha - 1) + "'?", scanner)) {
             System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
@@ -219,15 +208,15 @@ public class HorarioView {
                     System.out.println("  " + dia + ":");
                     for (BlocoHorario b : blocosDia) {
                         String docente = "";
-                    if (ucController != null) {
-                        for (UnidadeCurricular uc : ucController.listarUnidades()) {
-                            if (uc.getNome().equalsIgnoreCase(b.getNomeUC()) && uc.temDocenteResponsavel()) {
-                                docente = "  [" + uc.getDocenteResponsavel() + "]";
-                                break;
+                        if (ucController != null) {
+                            for (UnidadeCurricular uc : ucController.listarUnidades()) {
+                                if (uc.getNome().equalsIgnoreCase(b.getNomeUC()) && uc.temDocenteResponsavel()) {
+                                    docente = "  [" + uc.getDocenteResponsavel() + "]";
+                                    break;
+                                }
                             }
                         }
-                    }
-                    System.out.println("    " + b.getHoraInicio() + "–" + b.getHoraFim()
+                        System.out.println("    " + b.getHoraInicio() + "–" + b.getHoraFim()
                                 + "  " + b.getNomeUC() + "  (" + (b.getDuracao() / 60) + "h)" + docente);
                     }
                 }
@@ -247,13 +236,13 @@ public class HorarioView {
         for (int i = 0; i < cursos.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + cursos.get(i).getNomeCurso());
         }
-        int escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > cursos.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione o curso (0 para voltar): ", scanner);
+            if (escolha == 0) return null;
+            if (escolha < 1 || escolha > cursos.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + cursos.size() + ".");
+        } while (escolha < 1 || escolha > cursos.size());
         return cursos.get(escolha - 1);
     }
 
@@ -262,6 +251,8 @@ public class HorarioView {
         do {
             opcao = Utils.lerInteiro("  Ano curricular (1, 2 ou 3 | 0 para voltar): ", scanner);
             if (opcao == 0) return 0;
+            if (opcao < 1 || opcao > 3)
+                System.out.println("  [!] Opção inválida. Escolha 1, 2 ou 3.");
         } while (opcao < 1 || opcao > 3);
         return opcao;
     }

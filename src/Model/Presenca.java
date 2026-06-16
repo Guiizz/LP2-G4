@@ -1,6 +1,7 @@
 package Model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Presenca {
 
@@ -61,6 +62,24 @@ public class Presenca {
                 && this.anoLetivo == anoLetivo
                 && this.data.equals(data)
                 && this.horaInicio.equals(horaInicio);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Presenca)) return false;
+        Presenca that = (Presenca) o;
+        return anoLetivo == that.anoLetivo
+                && Objects.equals(numMecanografico, that.numMecanografico)
+                && Objects.equals(nomeUC, that.nomeUC)
+                && Objects.equals(nomeCurso, that.nomeCurso)
+                && Objects.equals(data, that.data)
+                && Objects.equals(horaInicio, that.horaInicio);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(numMecanografico, nomeUC, nomeCurso, anoLetivo, data, horaInicio);
     }
 
     @Override

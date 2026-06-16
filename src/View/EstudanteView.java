@@ -538,7 +538,12 @@ public class EstudanteView {
                 System.out.println("  [!] O pagamento ficará disponível após o curso ser iniciado.");
             } else {
                 if (Utils.confirmar("Deseja efetuar um pagamento?", scanner)) {
-                    double valor = Utils.lerDouble("  Valor a pagar (€): ", scanner);
+                    double valor;
+                    do {
+                        valor = Utils.lerDouble("  Valor a pagar (€): ", scanner);
+                        if (valor <= 0)
+                            System.out.println("  [!] O valor deve ser superior a 0 €.");
+                    } while (valor <= 0);
                     estudanteController.pagarPropina(estudante, valor);
                     System.out.printf("  [✓] Pagamento de %.2f € registado.%n", valor);
                     if (propina.isTotalmentePaga())
