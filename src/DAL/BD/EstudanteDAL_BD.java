@@ -41,6 +41,7 @@ public class EstudanteDAL_BD implements IEstudanteDAL {
         this.conexao      = new ConexaoBD();
         this.cursoDAL     = cursoDAL;
         this.inscricaoDAL = inscricaoDAL;
+        sincronizarContador();
     }
 
     @Override
@@ -151,6 +152,26 @@ public class EstudanteDAL_BD implements IEstudanteDAL {
     // -------------------------------------------------------------------------
     // Auxiliares
     // -------------------------------------------------------------------------
+
+    /**
+     * Ajusta o contador sequencial de Model.Estudante para o maior número
+     * mecanográfico já existente na base de dados + 1, evitando que um novo
+     * estudante seja criado a partir do valor inicial (260001) quando já
+     * existem registos. Espelha o comportamento de EstudanteDAL.carregarDoCSV.
+     */
+    private void sincronizarContador() {
+        int maiorNumero = Estudante.getContadorSequencial();
+        ArrayList<String> numeros = conexao.select(
+                "SELECT numMecanografico FROM Estudante",
+                rs -> rs.getString("numMecanografico"));
+        for (String numMec : numeros) {
+            try {
+                int numero = Integer.parseInt(numMec);
+                if (numero >= maiorNumero) maiorNumero = numero + 1;
+            } catch (NumberFormatException ignored) {}
+        }
+        Estudante.setContadorSequencial(maiorNumero);
+    }
 
     private Estudante mapEstudante(java.sql.ResultSet rs) throws java.sql.SQLException {
         String numMec   = rs.getString("numMecanografico");

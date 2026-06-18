@@ -24,14 +24,11 @@ public class Utils {
     /**
      * Valida a designação de uma entidade não-pessoa (curso, departamento, UC).
      * Aceita uma só palavra (ex: "Informática"), exigindo apenas que não seja
-     * vazia e tenha pelo menos 2 caracteres.
+     * vazia.
      */
     public static void validarDesignacao(String designacao) {
         if (designacao == null || designacao.trim().isEmpty()) {
             throw new IllegalArgumentException("A designação não pode ser vazia.");
-        }
-        if (designacao.trim().length() < 2) {
-            throw new IllegalArgumentException("A designação deve ter pelo menos 2 caracteres.");
         }
     }
 
@@ -42,11 +39,6 @@ public class Utils {
         String[] partes = nome.trim().split("\\s+");
         if (partes.length < 2) {
             throw new IllegalArgumentException("O nome deve conter pelo menos nome e apelido.");
-        }
-        for (String parte : partes) {
-            if (parte.length() < 2) {
-                throw new IllegalArgumentException("Cada parte do nome deve ter pelo menos 2 caracteres.");
-            }
         }
     }
 
