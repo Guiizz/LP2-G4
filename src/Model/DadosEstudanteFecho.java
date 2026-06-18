@@ -15,19 +15,29 @@ public class DadosEstudanteFecho {
     private final int    anoDeCurso;      // da tabela Inscricao
     private final String nomeCurso;       // da tabela Inscricao
     private final boolean propinaPaga;    // valorPago >= valorTotal (calculado em SQL)
-    private final String notasSerialized; // coluna "notas" da tabela Inscricao
+    private final String notasSerialized;         // notas do ano corrente
+    private final String notasAnosAnteriores;     // notas concatenadas de anos anteriores
 
     public DadosEstudanteFecho(String numMecanografico, String nome, int anoAtual,
                                String estado, int anoDeCurso, String nomeCurso,
                                boolean propinaPaga, String notasSerialized) {
-        this.numMecanografico  = numMecanografico;
-        this.nome              = nome;
-        this.anoAtual          = anoAtual;
-        this.estado            = estado;
-        this.anoDeCurso        = anoDeCurso;
-        this.nomeCurso         = nomeCurso;
-        this.propinaPaga       = propinaPaga;
-        this.notasSerialized   = notasSerialized;
+        this(numMecanografico, nome, anoAtual, estado, anoDeCurso, nomeCurso,
+             propinaPaga, notasSerialized, null);
+    }
+
+    public DadosEstudanteFecho(String numMecanografico, String nome, int anoAtual,
+                               String estado, int anoDeCurso, String nomeCurso,
+                               boolean propinaPaga, String notasSerialized,
+                               String notasAnosAnteriores) {
+        this.numMecanografico   = numMecanografico;
+        this.nome               = nome;
+        this.anoAtual           = anoAtual;
+        this.estado             = estado;
+        this.anoDeCurso         = anoDeCurso;
+        this.nomeCurso          = nomeCurso;
+        this.propinaPaga        = propinaPaga;
+        this.notasSerialized    = notasSerialized;
+        this.notasAnosAnteriores = notasAnosAnteriores;
     }
 
     // ── Getters ──────────────────────────────────────────────────────────────
@@ -39,7 +49,8 @@ public class DadosEstudanteFecho {
     public int    getAnoDeCurso()       { return anoDeCurso; }
     public String getNomeCurso()        { return nomeCurso; }
     public boolean isPropinaPaga()      { return propinaPaga; }
-    public String getNotasSerialized()  { return notasSerialized; }
+    public String getNotasSerialized()       { return notasSerialized; }
+    public String getNotasAnosAnteriores()   { return notasAnosAnteriores; }
 
     // ── Lógica derivada (calculada a partir das notas serializadas) ───────────
 
@@ -60,21 +71,21 @@ public class DadosEstudanteFecho {
     }
 
     /**
-     * Calcula a taxa de aprovação (aprovadas / total) a partir das notas serializadas.
-     * Retorna 0.0 se não houver avaliações.
+     * Calcula a taxa de aprovação global (aprovadas / total) combinando o ano
+     * corrente com todos os anos anteriores — equivalente a
+     * Estudante.calcularAproveitamentoGlobal() no modo CSV.
      */
     public double calcularAproveitamento() {
-        if (notasSerialized == null || notasSerialized.isBlank()) return 0.0;
-        String[] pares = notasSerialized.split(",");
-        if (pares.length == 0) return 0.0;
+        String todasNotas = combinarNotas(notasSerialized, notasAnosAnteriores);
+        if (todasNotas == null || todasNotas.isBlank()) return 0.0;
 
         int total = 0;
         int aprovadas = 0;
-        for (String par : pares) {
+        for (String par : todasNotas.split(",")) {
             String[] partes = par.trim().split(":", 2);
             String valor = partes.length > 1 ? partes[1].trim() : par.trim();
             if (valor.equalsIgnoreCase("P")) {
-                total++;                    // pendente conta como reprovação temporária
+                total++;
             } else {
                 try {
                     double nota = Double.parseDouble(valor);
@@ -84,5 +95,11 @@ public class DadosEstudanteFecho {
             }
         }
         return total == 0 ? 0.0 : (double) aprovadas / total;
+    }
+
+    private static String combinarNotas(String atual, String anteriores) {
+        if (atual == null || atual.isBlank()) return anteriores;
+        if (anteriores == null || anteriores.isBlank()) return atual;
+        return atual + "," + anteriores;
     }
 }
