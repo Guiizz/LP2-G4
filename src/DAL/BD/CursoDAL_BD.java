@@ -48,15 +48,17 @@ public class CursoDAL_BD implements ICursoDAL {
 
     @Override
     public void adicionarCurso(Curso curso) {
-        conexao.execute(
-                "INSERT INTO Curso (nomeCurso, siglaDepartamento, estado, valorPropina) " +
-                "VALUES (?, ?, ?, ?)",
-                curso.getNomeCurso(),
-                curso.getDepartamento() != null ? curso.getDepartamento().getSigla() : null,
-                curso.getEstado(),
-                curso.getValorPropina()
-        );
-        guardarUCsDoCurso(curso.getNomeCurso(), curso.getUnidades());
+        conexao.executarEmTransacao(() -> {
+            conexao.execute(
+                    "INSERT INTO Curso (nomeCurso, siglaDepartamento, estado, valorPropina) " +
+                    "VALUES (?, ?, ?, ?)",
+                    curso.getNomeCurso(),
+                    curso.getDepartamento() != null ? curso.getDepartamento().getSigla() : null,
+                    curso.getEstado(),
+                    curso.getValorPropina()
+            );
+            guardarUCsDoCurso(curso.getNomeCurso(), curso.getUnidades());
+        });
         if (curso.getDepartamento() != null) {
             curso.getDepartamento().adicionarCurso(curso);
         }
@@ -64,19 +66,23 @@ public class CursoDAL_BD implements ICursoDAL {
 
     @Override
     public boolean atualizarCurso(Curso cursoAtualizado) {
-        int linhas = conexao.execute(
-                "UPDATE Curso SET siglaDepartamento = ?, estado = ?, valorPropina = ? " +
-                "WHERE nomeCurso = ?",
-                cursoAtualizado.getDepartamento() != null ? cursoAtualizado.getDepartamento().getSigla() : null,
-                cursoAtualizado.getEstado(),
-                cursoAtualizado.getValorPropina(),
-                cursoAtualizado.getNomeCurso()
-        );
-        if (linhas > 0) {
-            conexao.execute("DELETE FROM CursoUC WHERE nomeCurso = ?", cursoAtualizado.getNomeCurso());
-            guardarUCsDoCurso(cursoAtualizado.getNomeCurso(), cursoAtualizado.getUnidades());
-        }
-        return linhas > 0;
+        final boolean[] atualizado = {false};
+        conexao.executarEmTransacao(() -> {
+            int linhas = conexao.execute(
+                    "UPDATE Curso SET siglaDepartamento = ?, estado = ?, valorPropina = ? " +
+                    "WHERE nomeCurso = ?",
+                    cursoAtualizado.getDepartamento() != null ? cursoAtualizado.getDepartamento().getSigla() : null,
+                    cursoAtualizado.getEstado(),
+                    cursoAtualizado.getValorPropina(),
+                    cursoAtualizado.getNomeCurso()
+            );
+            if (linhas > 0) {
+                conexao.execute("DELETE FROM CursoUC WHERE nomeCurso = ?", cursoAtualizado.getNomeCurso());
+                guardarUCsDoCurso(cursoAtualizado.getNomeCurso(), cursoAtualizado.getUnidades());
+                atualizado[0] = true;
+            }
+        });
+        return atualizado[0];
     }
 
     @Override

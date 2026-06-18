@@ -139,6 +139,24 @@ public class ConexaoBD {
         return result;
     }
 
+    /**
+     * Executa um bloco de operações numa única transação.
+     * Se o bloco lançar qualquer exceção, faz rollback automático.
+     */
+    public void executarEmTransacao(Runnable bloco) {
+        try {
+            connect();
+            beginTransaction();
+            bloco.run();
+            commitTransaction();
+        } catch (Exception e) {
+            rollbackTransaction();
+            System.out.println("Erro na transação: " + e.getMessage());
+        } finally {
+            disconnect();
+        }
+    }
+
     public int execute(String sql, Object... params) {
         int rowsAffected = 0;
         try {
