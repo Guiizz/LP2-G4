@@ -127,7 +127,8 @@ public class AvaliacaoBLL {
 
         validarUCs(novasUCs);
         validarPeso(novoPeso);
-        validarData(novaData);
+        if (novaData == null)
+            throw new IllegalArgumentException("A data da avaliação não pode ser nula.");
         Utils.validarNota(novaNota);
 
         Avaliacao avaliacaoNova = new Avaliacao(novasUCs, novoPeso, novaData, novaNota, novaNota >= 10.0);
