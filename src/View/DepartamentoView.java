@@ -43,7 +43,7 @@ public class DepartamentoView {
                     case 3: procurar(); break;
                     case 4: atualizar(); break;
                     case 5: remover();  break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -53,7 +53,7 @@ public class DepartamentoView {
     }
 
     private void registar() {
-        Utils.tituloPagina("Registar Departamento");
+        Utils.tituloPagina("GESTÃO DE DEPARTAMENTOS", "Registar Departamento");
         String nome  = Utils.lerNome("Nome: ", scanner);
         String sigla = Utils.lerSigla("Sigla (3 Letras): ", scanner);
 
@@ -63,8 +63,7 @@ public class DepartamentoView {
     }
 
     private void listar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lista de Departamentos");
+        Utils.tituloPagina("GESTÃO DE DEPARTAMENTOS", "Lista de Departamentos");
         ArrayList<Departamento> lista = departamentoController.listarDepartamentos();
         if (lista.isEmpty()) {
             System.out.println("  (sem departamentos registados)");
@@ -80,8 +79,7 @@ public class DepartamentoView {
     }
 
     private void procurar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Procurar Departamento");
+        Utils.tituloPagina("GESTÃO DE DEPARTAMENTOS", "Procurar Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         System.out.println("\n  " + d.getNome() + " (" + d.getSigla() + ")");
@@ -90,7 +88,7 @@ public class DepartamentoView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("Atualizar Departamento");
+        Utils.tituloPagina("GESTÃO DE DEPARTAMENTOS", "Atualizar Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         System.out.println("  Dados atuais: " + d.getNome() + " (" + d.getSigla() + ")");
@@ -102,7 +100,7 @@ public class DepartamentoView {
     }
 
     private void remover() {
-        Utils.tituloPagina("Remover Departamento");
+        Utils.tituloPagina("GESTÃO DE DEPARTAMENTOS", "Remover Departamento");
         Departamento d = selecionarDepartamento();
         if (d == null) return;
         if (!Utils.confirmar("Remover o departamento '" + d.getNome() + "'?", scanner)) {
@@ -139,13 +137,13 @@ public class DepartamentoView {
                     + " (" + lista.get(i).getSigla() + ")"
                     + " — " + cursos.size() + " curso(s)");
         }
-        int escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > lista.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione (0 para voltar): ", scanner);
+            if (escolha == 0) return null;
+            if (escolha < 1 || escolha > lista.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + lista.size() + ".");
+        } while (escolha < 1 || escolha > lista.size());
         return lista.get(escolha - 1);
     }
 }

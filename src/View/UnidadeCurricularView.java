@@ -58,7 +58,7 @@ public class UnidadeCurricularView {
                     case 4: remover(); break;
                     case 5: gerirMomentos(); break;
                     case 6: iniciarUC(); break;
-                    case 0: System.out.println("  A voltar..."); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -70,7 +70,7 @@ public class UnidadeCurricularView {
     // ── Ações ─────────────────────────────────────────────────────────────────
 
     private void registar() {
-        Utils.tituloPagina("Registar Unidade Curricular");
+        Utils.tituloPagina("UNIDADES CURRICULARES", "Registar Unidade Curricular");
         String nome = Utils.lerCampo("Nome: ", scanner);
         int ano     = Utils.lerInteiro("Ano curricular (1, 2 ou 3): ", scanner);
 
@@ -88,8 +88,7 @@ public class UnidadeCurricularView {
     }
 
     private void listar() {
-        Utils.limparEcra();
-        Utils.tituloPagina("Lista de Unidades Curriculares");
+        Utils.tituloPagina("UNIDADES CURRICULARES", "Lista de Unidades Curriculares");
         ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
         if (lista.isEmpty()) { System.out.println("  (sem unidades curriculares registadas)"); Utils.pausar(scanner); return; }
         for (UnidadeCurricular uc : lista) {
@@ -112,7 +111,7 @@ public class UnidadeCurricularView {
     }
 
     private void atualizar() {
-        Utils.tituloPagina("Atualizar Unidade Curricular");
+        Utils.tituloPagina("UNIDADES CURRICULARES", "Atualizar Unidade Curricular");
         ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
         if (lista.isEmpty()) { System.out.println("  (sem UCs registadas)"); Utils.pausar(scanner); return; }
 
@@ -144,7 +143,7 @@ public class UnidadeCurricularView {
     }
 
     private void remover() {
-        Utils.tituloPagina("Remover Unidade Curricular");
+        Utils.tituloPagina("UNIDADES CURRICULARES", "Remover Unidade Curricular");
         ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
         if (lista.isEmpty()) { System.out.println("  (sem UCs registadas)"); Utils.pausar(scanner); return; }
 
@@ -160,7 +159,7 @@ public class UnidadeCurricularView {
     }
 
     private void gerirMomentos() {
-        Utils.tituloPagina("Gerir Momentos de Avaliação");
+        Utils.tituloPagina("UNIDADES CURRICULARES", "Gerir Momentos de Avaliação");
         ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
         if (lista.isEmpty()) { System.out.println("  [!] Não existem UCs registadas."); Utils.pausar(scanner); return; }
 
@@ -230,8 +229,19 @@ public class UnidadeCurricularView {
             return;
         }
 
+        String nomeCurso = "";
+        for (Curso c : cursoController.listarCursos()) {
+            if (c.getUnidades().contains(uc)) { nomeCurso = c.getNomeCurso(); break; }
+        }
+        if (nomeCurso.isEmpty()) {
+            System.out.println("  [!] A UC não está associada a nenhum curso.");
+            Utils.pausar(scanner);
+            return;
+        }
+
         String nomeMomento = Utils.lerCampo("  Nome do momento (ex: Frequência, Exame, Projeto): ", scanner);
-        unidadeCurricularController.adicionarMomento(uc, nomeMomento);
+        java.util.Date data = Utils.lerDataAvaliacao("  Data do momento (DD/MM/AAAA): ", scanner);
+        unidadeCurricularController.adicionarMomento(uc, nomeMomento, nomeCurso, data);
 
         List<MomentoAvaliacao> atualizados = uc.getMomentosParaAno(anoLetivo);
         System.out.println("  [✓] Momento '" + nomeMomento + "' adicionado. Distribuição atual:");
@@ -256,13 +266,13 @@ public class UnidadeCurricularView {
                     momentosDoAno.get(i).getPeso());
         }
 
-        int escolha = Utils.lerInteiro("  Selecione o momento a remover (0 para voltar): ", scanner);
-        if (escolha == 0) { Utils.pausar(scanner); return; }
-        if (escolha < 1 || escolha > momentosDoAno.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione o momento a remover (0 para voltar): ", scanner);
+            if (escolha == 0) { Utils.pausar(scanner); return; }
+            if (escolha < 1 || escolha > momentosDoAno.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + momentosDoAno.size() + ".");
+        } while (escolha < 1 || escolha > momentosDoAno.size());
 
         MomentoAvaliacao momentoRemover = momentosDoAno.get(escolha - 1);
         // Encontrar o índice real na lista completa da UC
@@ -283,7 +293,7 @@ public class UnidadeCurricularView {
     }
 
     private void iniciarUC() {
-        Utils.tituloPagina("Ativar UC Manualmente");
+        Utils.tituloPagina("UNIDADES CURRICULARES", "Ativar UC Manualmente");
         System.out.println("  Nota: as UCs são ativadas automaticamente ao iniciar o curso,");
         System.out.println("  se tiverem momentos de avaliação válidos (soma = 100%).");
         System.out.println("  Use esta opção apenas para ativar uma UC individualmente.\n");
@@ -322,12 +332,13 @@ public class UnidadeCurricularView {
             System.out.println("  " + (i + 1) + ". " + docentes.get(i).getNome()
                     + " (" + docentes.get(i).getSigla() + ")");
         }
-        int escolha = Utils.lerInteiro("Docente responsável: ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > docentes.size()) {
-            System.out.println("  [!] Opção inválida — docente não atribuído.");
-            return null;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("Docente responsável: ", scanner);
+            if (escolha == 0) return null;
+            if (escolha < 1 || escolha > docentes.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + docentes.size() + " ou 0 para não atribuir.");
+        } while (escolha < 1 || escolha > docentes.size());
         return docentes.get(escolha - 1).getSigla();
     }
 
@@ -345,13 +356,13 @@ public class UnidadeCurricularView {
                     + " (Ano " + uc.getAnoCurricular() + ")"
                     + " — " + cursosComUC(uc));
         }
-        int escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
-        if (escolha == 0) return null;
-        if (escolha < 1 || escolha > lista.size()) {
-            System.out.println("  [!] Opção inválida.");
-            Utils.pausar(scanner);
-            return null;
-        }
+        int escolha;
+        do {
+            escolha = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+            if (escolha == 0) return null;
+            if (escolha < 1 || escolha > lista.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + lista.size() + ".");
+        } while (escolha < 1 || escolha > lista.size());
         return lista.get(escolha - 1);
     }
 }
