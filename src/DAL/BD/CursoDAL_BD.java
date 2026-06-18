@@ -87,19 +87,53 @@ public class CursoDAL_BD implements ICursoDAL {
 
     @Override
     public ArrayList<Curso> listarCursos() {
-        ArrayList<Curso> cursos = conexao.select(
-                "SELECT nomeCurso, siglaDepartamento, estado, valorPropina FROM Curso",
-                rs -> mapCurso(
+        // Uma query com LEFT JOIN carrega cursos e UCs de uma só vez,
+        // evitando N queries separadas (problema N+1).
+        ArrayList<Object[]> rows = conexao.select(
+                "SELECT c.nomeCurso, c.siglaDepartamento, c.estado, c.valorPropina, " +
+                "       cu.nomeUC, u.anoCurricular, u.ects, u.docenteResponsavel, u.ativa " +
+                "FROM   Curso c " +
+                "LEFT   JOIN CursoUC cu ON cu.nomeCurso = c.nomeCurso " +
+                "LEFT   JOIN UnidadeCurricular u ON u.nome = cu.nomeUC " +
+                "ORDER  BY c.nomeCurso",
+                rs -> new Object[]{
                         rs.getString("nomeCurso"),
                         rs.getString("siglaDepartamento"),
                         rs.getString("estado"),
-                        rs.getDouble("valorPropina")
-                )
+                        rs.getDouble("valorPropina"),
+                        rs.getString("nomeUC"),
+                        rs.getObject("anoCurricular"),
+                        rs.getObject("ects"),
+                        rs.getString("docenteResponsavel"),
+                        rs.getObject("ativa")
+                }
         );
-        for (Curso c : cursos) {
-            if (c != null) carregarUCsDoCurso(c);
+
+        java.util.LinkedHashMap<String, Curso> porNome = new java.util.LinkedHashMap<>();
+        for (Object[] row : rows) {
+            String nomeCurso = (String) row[0];
+            Curso curso = porNome.get(nomeCurso);
+            if (curso == null) {
+                curso = mapCurso(nomeCurso, (String) row[1], (String) row[2], (double) row[3]);
+                if (curso != null) porNome.put(nomeCurso, curso);
+            }
+            if (curso != null && row[4] != null) {
+                String nomeUC = (String) row[4];
+                boolean jaAdicionada = curso.getUnidades() != null &&
+                        curso.getUnidades().stream().anyMatch(u -> u.getNome().equalsIgnoreCase(nomeUC));
+                if (!jaAdicionada) {
+                    int anoCurricular = row[5] != null ? (int) row[5] : 0;
+                    int ects          = row[6] != null ? (int) row[6] : 0;
+                    String siglaDoc   = (String) row[7];
+                    boolean ativa     = row[8] != null && (boolean) row[8];
+                    UnidadeCurricular uc = new UnidadeCurricular(nomeUC, anoCurricular, ects,
+                            new ArrayList<>(), siglaDoc != null ? siglaDoc : "");
+                    uc.setAtiva(ativa);
+                    curso.adicionarUnidadeCurricular(uc);
+                }
+            }
         }
-        return cursos;
+        return new ArrayList<>(porNome.values());
     }
 
     @Override
