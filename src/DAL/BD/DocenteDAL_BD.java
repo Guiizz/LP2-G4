@@ -110,15 +110,10 @@ public class DocenteDAL_BD implements IDocenteDAL {
 
     @Override
     public Docente procurarPorEmail(String email) {
-        ArrayList<Docente> r = conexao.select(
-                "SELECT sigla, nome, dataNascimento, nif, morada, ucsLecionadas, password, primeiroLogin " +
-                "FROM Docente WHERE email = ?",
-                rs -> mapDocente(rs.getString("sigla"), rs.getString("nome"),
-                        rs.getDate("dataNascimento").toLocalDate(), rs.getString("nif"),
-                        rs.getString("morada"), rs.getString("ucsLecionadas"),
-                        rs.getString("password"), rs.getBoolean("primeiroLogin")),
-                email);
-        return r.isEmpty() ? null : r.get(0);
+        if (email == null || !email.contains("@")) return null;
+        // O email do docente é sempre sigla@issmf.pt — derivar a sigla a partir do email
+        String sigla = email.substring(0, email.indexOf('@'));
+        return procurarPorSigla(sigla);
     }
 
     // -------------------------------------------------------------------------
