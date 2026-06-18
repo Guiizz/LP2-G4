@@ -239,7 +239,18 @@ public class EstudanteBLL {
         if (estudante == null || estudante.getInscricoes() == null || estudante.getInscricoes().isEmpty()) {
             return null;
         }
-
+        // Preferir a inscrição cujo ano letivo está atualmente aberto.
+        // Se nenhuma coincidir (ex: fecho feito mas novo ano ainda não aberto),
+        // devolver a mais recente para não bloquear o acesso do estudante.
+        AnoLetivo anoAberto = anoLetivoDAL.procurarAnoAberto();
+        if (anoAberto != null) {
+            for (int i = estudante.getInscricoes().size() - 1; i >= 0; i--) {
+                Inscricao insc = estudante.getInscricoes().get(i);
+                if (insc != null && insc.getAnoLetivo() == anoAberto.getAno()) {
+                    return insc;
+                }
+            }
+        }
         return estudante.getInscricoes().get(estudante.getInscricoes().size() - 1);
     }
 
