@@ -60,4 +60,24 @@ public class MomentoAvaliacaoDAL_BD implements IMomentoAvaliacaoDAL {
     public void removerPorUC(String nomeUC) {
         conexao.execute("DELETE FROM MomentoAvaliacao WHERE nomeUC = ?", nomeUC);
     }
+
+    @Override
+    public java.util.Map<String, List<MomentoAvaliacao>> listarTodosPorUC() {
+        // Retorna pares [nomeUC, MomentoAvaliacao] e agrupa em Java — uma única query.
+        ArrayList<String[]> pares = conexao.select(
+                "SELECT nomeUC, nome, peso, anoLetivo FROM MomentoAvaliacao ORDER BY nomeUC, id",
+                rs -> new String[]{
+                        rs.getString("nomeUC"),
+                        rs.getString("nome"),
+                        String.valueOf(rs.getDouble("peso")),
+                        String.valueOf(rs.getInt("anoLetivo"))
+                }
+        );
+        java.util.Map<String, List<MomentoAvaliacao>> resultado = new java.util.LinkedHashMap<>();
+        for (String[] par : pares) {
+            MomentoAvaliacao m = new MomentoAvaliacao(par[1], Double.parseDouble(par[2]), Integer.parseInt(par[3]));
+            resultado.computeIfAbsent(par[0], k -> new ArrayList<>()).add(m);
+        }
+        return resultado;
+    }
 }
