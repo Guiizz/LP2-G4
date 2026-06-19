@@ -441,7 +441,7 @@ public class CursoBLL {
             for (Inscricao inscricao : estudante.getInscricoes()) {
                 if (inscricao.getCurso() == null) continue;
                 if (!inscricao.getCurso().getNomeCurso().equalsIgnoreCase(curso.getNomeCurso())) continue;
-                if (inscricao.isPropinaPaga()) continue;
+                if (inscricao.getPropina() == null || inscricao.isPropinaPaga()) continue;
 
                 inscricao.getPropina().setValorTotal(curso.getValorPropina());
                 alterado = true;

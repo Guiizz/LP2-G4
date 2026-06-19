@@ -193,6 +193,7 @@ public class DocenteView {
         for (Curso c : cursoController.listarCursos()) {
             for (int ano = 1; ano <= 3; ano++) {
                 Horario h = horarioController.obterHorario(c.getNomeCurso(), ano, anoLetivo);
+                if (h == null) continue;
                 List<BlocoHorario> blocos = new ArrayList<>();
                 for (BlocoHorario b : h.getBlocos()) {
                     for (String nome : nomesUCs) {
@@ -608,6 +609,11 @@ public class DocenteView {
         }
 
         Horario horario = horarioController.obterHorario(nomeCurso, ucEscolhida.getAnoCurricular(), anoLetivo);
+        if (horario == null) {
+            System.out.println("  [!] Não existe horário definido para este curso/ano.");
+            Utils.pausar(scanner);
+            return;
+        }
         List<BlocoHorario> blocos = new ArrayList<>();
         for (BlocoHorario b : horario.getBlocos()) {
             if (b.getNomeUC().equalsIgnoreCase(ucEscolhida.getNome())) blocos.add(b);

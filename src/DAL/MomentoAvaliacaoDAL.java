@@ -28,4 +28,10 @@ public class MomentoAvaliacaoDAL implements IMomentoAvaliacaoDAL {
     public void removerPorUC(String nomeUC) {
         // No-op.
     }
+
+    @Override
+    public java.util.Map<String, List<MomentoAvaliacao>> listarTodosPorUC() {
+        // No-op: momentos carregados directamente pela UnidadeCurricularDAL.
+        return new java.util.LinkedHashMap<>();
+    }
 }

@@ -66,13 +66,27 @@ public class UnidadeCurricularDAL_BD implements IUnidadeCurricularDAL {
 
     @Override
     public ArrayList<UnidadeCurricular> listarUnidades() {
+        // LEFT JOIN com Docente: obtém sigla e nome do docente na mesma query,
+        // sem query separada por UC.
         ArrayList<UnidadeCurricular> unidades = conexao.select(
-                "SELECT nome, anoCurricular, ects, docenteResponsavel, ativa FROM UnidadeCurricular",
+                "SELECT uc.nome, uc.anoCurricular, uc.ects, uc.docenteResponsavel, uc.ativa " +
+                "FROM   UnidadeCurricular uc " +
+                "LEFT   JOIN Docente d ON d.sigla = uc.docenteResponsavel",
                 rs -> mapUC(rs.getString("nome"), rs.getInt("anoCurricular"),
                             rs.getInt("ects"), rs.getString("docenteResponsavel"), rs.getBoolean("ativa"))
         );
-        for (UnidadeCurricular uc : unidades) {
-            carregarMomentos(uc);
+        if (unidades.isEmpty()) return unidades;
+
+        // Carregar TODOS os momentos de uma só vez (evita N queries — uma por UC).
+        java.util.Map<String, UnidadeCurricular> porNome = new java.util.LinkedHashMap<>();
+        for (UnidadeCurricular uc : unidades) porNome.put(uc.getNome(), uc);
+
+        java.util.Map<String, List<MomentoAvaliacao>> momentosPorUC = momentoDAL.listarTodosPorUC();
+        for (java.util.Map.Entry<String, List<MomentoAvaliacao>> entry : momentosPorUC.entrySet()) {
+            UnidadeCurricular uc = porNome.get(entry.getKey());
+            if (uc != null) {
+                for (MomentoAvaliacao m : entry.getValue()) uc.adicionarMomento(m);
+            }
         }
         return unidades;
     }

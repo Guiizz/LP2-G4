@@ -110,6 +110,10 @@ public class InscricaoDAL implements IInscricaoDAL {
         return null;
     }
 
+    private static final java.text.SimpleDateFormat SDF_INSC = new java.text.SimpleDateFormat("dd-MM-yyyy");
+
+    // Formato: "nomeUC:nota:dd-MM-yyyy" ou "nomeUC:P:dd-MM-yyyy"
+    // O campo data é opcional para compatibilidade com ficheiros antigos.
     private String serializarAvaliacoes(ArrayList<Avaliacao> avaliacoes) {
         if (avaliacoes == null || avaliacoes.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
@@ -120,7 +124,8 @@ public class InscricaoDAL implements IInscricaoDAL {
                 nomeUC = av.getUc().get(0).getNome().replace(",", "-").replace(":", "-");
             }
             String nota = (av == null || !av.isLancada()) ? "P" : String.valueOf(av.getNota());
-            sb.append(nomeUC).append(":").append(nota);
+            String data = (av != null && av.getData() != null) ? SDF_INSC.format(av.getData()) : "";
+            sb.append(nomeUC).append(":").append(nota).append(":").append(data);
             if (i < avaliacoes.size() - 1) sb.append(",");
         }
         return sb.toString();
@@ -132,11 +137,15 @@ public class InscricaoDAL implements IInscricaoDAL {
         for (String par : notas.split(",")) {
             par = par.trim();
             if (par.isEmpty()) continue;
-            String[] partes = par.split(":", 2);
-            String nomeUC = partes.length > 1 ? partes[0].trim() : "";
+            // Formato esperado: "nomeUC:nota:dd-MM-yyyy"  (data é opcional)
+            String[] partes = par.split(":", 3);
+            String nomeUC  = partes.length > 0 ? partes[0].trim() : "";
             String notaStr = partes.length > 1 ? partes[1].trim() : par;
+            Date data = null;
+            if (partes.length > 2 && !partes[2].isBlank()) {
+                try { data = SDF_INSC.parse(partes[2].trim()); } catch (Exception ignored) {}
+            }
 
-            // Recuperar a UC pelo nome para não perder a associação ao recarregar
             ArrayList<UnidadeCurricular> ucs = new ArrayList<>();
             if (!nomeUC.isEmpty() && curso != null && curso.getUnidades() != null) {
                 for (UnidadeCurricular uc : curso.getUnidades()) {
@@ -145,11 +154,11 @@ public class InscricaoDAL implements IInscricaoDAL {
             }
 
             if (notaStr.equalsIgnoreCase("P")) {
-                avaliacoes.add(new Avaliacao(ucs, 100, new Date()));
+                avaliacoes.add(new Avaliacao(ucs, 100, data));
             } else {
                 try {
                     double nota = Double.parseDouble(notaStr);
-                    avaliacoes.add(new Avaliacao(ucs, 100, new Date(), nota, nota >= 10));
+                    avaliacoes.add(new Avaliacao(ucs, 100, data, nota, nota >= 10));
                 } catch (NumberFormatException ignored) {}
             }
         }

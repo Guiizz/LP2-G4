@@ -229,6 +229,11 @@ public class EstudanteView {
         System.out.println();
 
         Horario horario = horarioController.obterHorario(nomeCurso, insc.getAnoDeCurso(), anoLetivo);
+        if (horario == null) {
+            System.out.println("  [!] Não existe horário definido para o seu curso/ano.");
+            Utils.pausar(scanner);
+            return;
+        }
         List<String> ucsNoHorario = new ArrayList<>();
         for (BlocoHorario b : horario.getBlocos()) {
             if (!ucsNoHorario.contains(b.getNomeUC())) ucsNoHorario.add(b.getNomeUC());
@@ -280,6 +285,11 @@ public class EstudanteView {
         int anoLetivo = (anoAberto != null) ? anoAberto.getAno() : insc.getAnoLetivo();
         Horario horario = horarioController.obterHorario(
                 insc.getCurso().getNomeCurso(), insc.getAnoDeCurso(), anoLetivo);
+        if (horario == null) {
+            System.out.println("  [!] Não existe horário definido para o seu curso/ano.");
+            Utils.pausar(scanner);
+            return;
+        }
         new HorarioView(horarioController, cursoController, null, anoLetivoController, scanner)
                 .imprimirHorario(horario);
         Utils.pausar(scanner);
@@ -303,7 +313,7 @@ public class EstudanteView {
         String nomeCurso = insc.getCurso().getNomeCurso();
 
         Horario horario = horarioController.obterHorario(nomeCurso, insc.getAnoDeCurso(), anoLetivo);
-        if (horario.getBlocos().isEmpty()) {
+        if (horario == null || horario.getBlocos().isEmpty()) {
             System.out.println("  [!] Não existe horário definido para o seu curso/ano.");
             Utils.pausar(scanner);
             return;
@@ -371,6 +381,11 @@ public class EstudanteView {
         int anoLetivo = anoAberto.getAno();
         String nomeCurso = insc.getCurso().getNomeCurso();
         Horario horario = horarioController.obterHorario(nomeCurso, insc.getAnoDeCurso(), anoLetivo);
+        if (horario == null) {
+            System.out.println("  [!] Não existe horário definido para o seu curso/ano.");
+            Utils.pausar(scanner);
+            return;
+        }
 
         System.out.println("\n  Curso: " + nomeCurso + " | " + insc.getAnoDeCurso() + ".º Ano | " + anoLetivo + "/" + (anoLetivo + 1));
 

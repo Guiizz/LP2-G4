@@ -19,4 +19,10 @@ public interface IMomentoAvaliacaoDAL {
 
     /** Remove todos os momentos de uma UC (usado ao remover a UC). */
     void removerPorUC(String nomeUC);
+
+    /**
+     * Devolve todos os momentos agrupados por UC: chave = nomeUC.
+     * Usado para carregar momentos de todas as UCs numa única query.
+     */
+    java.util.Map<String, List<MomentoAvaliacao>> listarTodosPorUC();
 }

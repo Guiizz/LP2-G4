@@ -110,7 +110,7 @@ public class PresencaBLL {
         List<RegistoAula> aulas = registoAulaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo);
         List<RegistoAula> semPresenca = new ArrayList<>();
         for (RegistoAula r : aulas) {
-            if (r.isTerminada()) continue; // aula terminada já não aceita presença
+            if (!r.isTerminada()) continue; // só aulas terminadas têm faltas definitivas
             if (!presencaDAL.existe(numMecanografico, nomeUC, nomeCurso,
                     anoLetivo, r.getData(), r.getHoraInicio())) {
                 semPresenca.add(r);

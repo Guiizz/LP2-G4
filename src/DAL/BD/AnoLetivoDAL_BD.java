@@ -113,7 +113,16 @@ public class AnoLetivoDAL_BD implements IAnoLetivoDAL {
                 "       i.anoDeCurso, i.nomeCurso, i.notas, " +
                 "       CASE WHEN ISNULL(p.valorTotal, 0) > 0 " +
                 "                 AND p.valorPago >= p.valorTotal THEN 1 ELSE 0 " +
-                "       END AS propinaPaga " +
+                "       END AS propinaPaga, " +
+                // Concatenar notas de todos os anos anteriores para calcular aproveitamento global
+                "       STUFF(( " +
+                "           SELECT ',' + ia.notas " +
+                "           FROM   Inscricao ia " +
+                "           WHERE  ia.numMecanografico = e.numMecanografico " +
+                "             AND  ia.anoLetivo        < ? " +
+                "             AND  ia.notas IS NOT NULL " +
+                "             AND  ia.notas            <> '' " +
+                "           FOR XML PATH(''), TYPE).value('.','NVARCHAR(MAX)'), 1, 1, '') AS notasAnteriores " +
                 "FROM   Estudante  e " +
                 "INNER  JOIN Inscricao i " +
                 "       ON  e.numMecanografico = i.numMecanografico " +
@@ -131,9 +140,10 @@ public class AnoLetivoDAL_BD implements IAnoLetivoDAL {
                         rs.getInt("anoDeCurso"),
                         rs.getString("nomeCurso"),
                         rs.getBoolean("propinaPaga"),
-                        rs.getString("notas")
+                        rs.getString("notas"),
+                        rs.getString("notasAnteriores")
                 ),
-                anoLetivo
+                anoLetivo, anoLetivo   // dois parâmetros: um para subquery, outro para JOIN
         );
     }
 
