@@ -322,6 +322,23 @@ public class Utils {
     }
 
     /**
+     * Valida que a data de fim de um ano letivo não é anterior à data de início.
+     * Lança IllegalArgumentException se a regra for violada.
+     */
+    public static void validarDataFimNaoAnteriorAInicio(LocalDate dataInicio, LocalDate dataFim) {
+        if (dataInicio == null) {
+            throw new IllegalArgumentException("A data de início não pode ser nula.");
+        }
+        if (dataFim == null) {
+            throw new IllegalArgumentException("A data de fim não pode ser nula.");
+        }
+        if (dataFim.isBefore(dataInicio)) {
+            throw new IllegalArgumentException(
+                    "A data de fim (" + dataFim + ") não pode ser anterior à data de início (" + dataInicio + ").");
+        }
+    }
+
+    /**
      * Lê uma data no formato DD/MM/AAAA (java.util.Date — usado em Avaliacao).
      * Se o utilizador escrever "0", cancela o registo.
      */
