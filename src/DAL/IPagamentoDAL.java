@@ -18,4 +18,10 @@ public interface IPagamentoDAL {
 
     /** Remove todos os pagamentos de uma inscrição. */
     void removerPorInscricao(String numMecanografico, int anoLetivo);
+
+    /**
+     * Devolve todos os pagamentos agrupados por inscrição: chave = "numMecanografico|anoLetivo".
+     * Usado para carregar pagamentos de todas as inscrições numa única query.
+     */
+    java.util.Map<String, List<Pagamento>> listarTodosAgrupados();
 }

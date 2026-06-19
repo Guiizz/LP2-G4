@@ -63,4 +63,25 @@ public class PagamentoDAL_BD implements IPagamentoDAL {
                 numMecanografico, anoLetivo
         );
     }
+
+    @Override
+    public java.util.Map<String, List<Pagamento>> listarTodosAgrupados() {
+        ArrayList<Object[]> linhas = conexao.select(
+                "SELECT numMecanografico, anoLetivo, valor, data FROM Pagamento " +
+                "ORDER BY numMecanografico, anoLetivo, id",
+                rs -> new Object[]{
+                        rs.getString("numMecanografico"),
+                        rs.getInt("anoLetivo"),
+                        rs.getDouble("valor"),
+                        rs.getDate("data").toLocalDate()
+                }
+        );
+        java.util.Map<String, List<Pagamento>> resultado = new java.util.HashMap<>();
+        for (Object[] linha : linhas) {
+            String chave = linha[0] + "|" + linha[1];
+            Pagamento p = new Pagamento((double) linha[2], (LocalDate) linha[3]);
+            resultado.computeIfAbsent(chave, k -> new ArrayList<>()).add(p);
+        }
+        return resultado;
+    }
 }

@@ -24,4 +24,10 @@ public class PropinaDAL implements IPropinaDAL {
     public void removerPropina(String numMecanografico, int anoLetivo) {
         // No-op.
     }
+
+    @Override
+    public java.util.Map<String, Propina> listarTodas() {
+        // No-op: propina reconstituída pela InscricaoDAL ao carregar a inscrição.
+        return new java.util.HashMap<>();
+    }
 }

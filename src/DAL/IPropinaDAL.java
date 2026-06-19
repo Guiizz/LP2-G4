@@ -16,4 +16,11 @@ public interface IPropinaDAL {
 
     /** Remove a propina (e os seus pagamentos) de uma inscrição. */
     void removerPropina(String numMecanografico, int anoLetivo);
+
+    /**
+     * Devolve todas as propinas (já com histórico de pagamentos reconstituído)
+     * agrupadas por inscrição: chave = "numMecanografico|anoLetivo".
+     * Usado para carregar propinas de todas as inscrições numa única query.
+     */
+    java.util.Map<String, Propina> listarTodas();
 }
