@@ -91,17 +91,19 @@ public class UnidadeCurricularView {
         Utils.tituloPagina("UNIDADES CURRICULARES", "Lista de Unidades Curriculares");
         ArrayList<UnidadeCurricular> lista = unidadeCurricularController.listarUnidades();
         if (lista.isEmpty()) { System.out.println("  (sem unidades curriculares registadas)"); Utils.pausar(scanner); return; }
+        // Carregar todos os cursos uma única vez (evita 1 query por UC)
+        ArrayList<Curso> todosCursos = cursoController.listarCursos();
         for (UnidadeCurricular uc : lista) {
             System.out.println(uc);
-            System.out.println("  Cursos: " + cursosComUC(uc));
+            System.out.println("  Cursos: " + cursosComUC(uc, todosCursos));
             System.out.println();
         }
         Utils.pausar(scanner);
     }
 
-    private String cursosComUC(UnidadeCurricular uc) {
+    private String cursosComUC(UnidadeCurricular uc, ArrayList<Curso> todosCursos) {
         StringBuilder sb = new StringBuilder();
-        for (Curso c : cursoController.listarCursos()) {
+        for (Curso c : todosCursos) {
             if (c.getUnidades().contains(uc)) {
                 if (sb.length() > 0) sb.append(", ");
                 sb.append(c.getNomeCurso());
@@ -350,11 +352,12 @@ public class UnidadeCurricularView {
     }
 
     private UnidadeCurricular selecionarUC(ArrayList<UnidadeCurricular> lista) {
+        ArrayList<Curso> todosCursos = cursoController.listarCursos();
         for (int i = 0; i < lista.size(); i++) {
             UnidadeCurricular uc = lista.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
                     + " (Ano " + uc.getAnoCurricular() + ")"
-                    + " — " + cursosComUC(uc));
+                    + " — " + cursosComUC(uc, todosCursos));
         }
         int escolha;
         do {

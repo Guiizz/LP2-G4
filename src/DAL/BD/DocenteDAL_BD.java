@@ -68,12 +68,17 @@ public class DocenteDAL_BD implements IDocenteDAL {
 
     @Override
     public ArrayList<Docente> listarDocentes() {
+        // Carregar todas as UCs uma única vez (evita 1+ queries por UC lecionada por docente).
+        java.util.Map<String, UnidadeCurricular> ucsPorNome = new java.util.HashMap<>();
+        for (UnidadeCurricular uc : ucDAL.listarUnidades()) {
+            ucsPorNome.put(uc.getNome().toLowerCase(), uc);
+        }
         return conexao.select(
                 "SELECT sigla, nome, dataNascimento, nif, morada, ucsLecionadas, password, primeiroLogin FROM Docente",
                 rs -> mapDocente(rs.getString("sigla"), rs.getString("nome"),
                         rs.getDate("dataNascimento").toLocalDate(), rs.getString("nif"),
                         rs.getString("morada"), rs.getString("ucsLecionadas"),
-                        rs.getString("password"), rs.getBoolean("primeiroLogin"))
+                        rs.getString("password"), rs.getBoolean("primeiroLogin"), ucsPorNome)
         );
     }
 
@@ -126,6 +131,23 @@ public class DocenteDAL_BD implements IDocenteDAL {
         if (nomesUCs != null && !nomesUCs.isBlank()) {
             for (String nomeUC : nomesUCs.split(",")) {
                 UnidadeCurricular uc = ucDAL.procurarPorNome(nomeUC.trim());
+                if (uc != null) unidades.add(uc);
+            }
+        }
+        Docente d = new Docente(nome, dataNasc, nif, morada, sigla, unidades);
+        d.setPassword(password);
+        d.setPrimeiroLogin(primeiroLogin);
+        return d;
+    }
+
+    /** Variante usada em listagens: resolve as UCs a partir de um mapa pré-carregado, sem queries extra. */
+    private Docente mapDocente(String sigla, String nome, LocalDate dataNasc, String nif,
+                                String morada, String nomesUCs, String password, boolean primeiroLogin,
+                                java.util.Map<String, UnidadeCurricular> ucsPorNome) {
+        List<UnidadeCurricular> unidades = new ArrayList<>();
+        if (nomesUCs != null && !nomesUCs.isBlank()) {
+            for (String nomeUC : nomesUCs.split(",")) {
+                UnidadeCurricular uc = ucsPorNome.get(nomeUC.trim().toLowerCase());
                 if (uc != null) unidades.add(uc);
             }
         }

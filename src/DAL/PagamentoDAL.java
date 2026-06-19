@@ -26,4 +26,9 @@ public class PagamentoDAL implements IPagamentoDAL {
     public void removerPorInscricao(String numMecanografico, int anoLetivo) {
         // No-op.
     }
+
+    @Override
+    public java.util.Map<String, List<Pagamento>> listarTodosAgrupados() {
+        return new java.util.HashMap<>();
+    }
 }

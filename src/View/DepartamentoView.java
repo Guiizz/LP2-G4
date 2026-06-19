@@ -70,9 +70,11 @@ public class DepartamentoView {
             Utils.pausar(scanner);
             return;
         }
+        // Carregar todos os cursos uma única vez (evita 1 query por departamento)
+        ArrayList<Curso> todosCursos = cursoController.listarCursos();
         for (Departamento d : lista) {
             System.out.println("\n  " + d.getNome() + " (" + d.getSigla() + ")");
-            mostrarCursosDoDepartamento(d);
+            mostrarCursosDoDepartamento(d, todosCursos);
         }
         System.out.println();
         Utils.pausar(scanner);
@@ -112,7 +114,11 @@ public class DepartamentoView {
     }
 
     private void mostrarCursosDoDepartamento(Departamento d) {
-        ArrayList<Curso> cursos = cursoController.listarCursosPorDepartamento(d);
+        mostrarCursosDoDepartamento(d, cursoController.listarCursos());
+    }
+
+    private void mostrarCursosDoDepartamento(Departamento d, ArrayList<Curso> todosCursos) {
+        ArrayList<Curso> cursos = filtrarCursosDoDepartamento(d, todosCursos);
         if (cursos.isEmpty()) {
             System.out.println("  Cursos: (sem cursos associados)");
         } else {
@@ -123,6 +129,16 @@ public class DepartamentoView {
         }
     }
 
+    private ArrayList<Curso> filtrarCursosDoDepartamento(Departamento d, ArrayList<Curso> todosCursos) {
+        ArrayList<Curso> resultado = new ArrayList<>();
+        for (Curso c : todosCursos) {
+            if (c.getDepartamento() != null && c.getDepartamento().getSigla().equalsIgnoreCase(d.getSigla())) {
+                resultado.add(c);
+            }
+        }
+        return resultado;
+    }
+
     private Departamento selecionarDepartamento() {
         ArrayList<Departamento> lista = departamentoController.listarDepartamentos();
         if (lista.isEmpty()) {
@@ -130,9 +146,11 @@ public class DepartamentoView {
             Utils.pausar(scanner);
             return null;
         }
+        // Carregar todos os cursos uma única vez (evita 1 query por departamento)
+        ArrayList<Curso> todosCursos = cursoController.listarCursos();
         System.out.println("\n  Departamentos disponíveis:");
         for (int i = 0; i < lista.size(); i++) {
-            ArrayList<Curso> cursos = cursoController.listarCursosPorDepartamento(lista.get(i));
+            ArrayList<Curso> cursos = filtrarCursosDoDepartamento(lista.get(i), todosCursos);
             System.out.println("  " + (i + 1) + ". " + lista.get(i).getNome()
                     + " (" + lista.get(i).getSigla() + ")"
                     + " — " + cursos.size() + " curso(s)");

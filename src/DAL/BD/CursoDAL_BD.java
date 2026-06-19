@@ -12,27 +12,6 @@ import java.util.List;
 
 /**
  * Implementação da persistência de Curso em base de dados (SQL Server).
- *
- * Esquema esperado:
- *   CREATE TABLE Curso (
- *       nomeCurso         VARCHAR(100) NOT NULL,
- *       siglaDepartamento VARCHAR(10)  NOT NULL,
- *       estado            VARCHAR(20)  NOT NULL DEFAULT 'PENDENTE',
- *       valorPropina      FLOAT        NOT NULL DEFAULT 0,
- *       CONSTRAINT PK_Curso PRIMARY KEY (nomeCurso),
- *       CONSTRAINT FK_Curso_Departamento FOREIGN KEY (siglaDepartamento)
- *           REFERENCES Departamento(sigla)
- *   );
- *
- *   CREATE TABLE CursoUC (
- *       nomeCurso VARCHAR(100) NOT NULL,
- *       nomeUC    VARCHAR(100) NOT NULL,
- *       CONSTRAINT PK_CursoUC PRIMARY KEY (nomeCurso, nomeUC),
- *       CONSTRAINT FK_CursoUC_Curso FOREIGN KEY (nomeCurso)
- *           REFERENCES Curso(nomeCurso) ON DELETE CASCADE ON UPDATE CASCADE,
- *       CONSTRAINT FK_CursoUC_UnidadeCurricular FOREIGN KEY (nomeUC)
- *           REFERENCES UnidadeCurricular(nome) ON DELETE NO ACTION ON UPDATE CASCADE
- *   );
  */
 public class CursoDAL_BD implements ICursoDAL {
 
@@ -87,18 +66,22 @@ public class CursoDAL_BD implements ICursoDAL {
 
     @Override
     public ArrayList<Curso> listarCursos() {
-        // Uma query com LEFT JOIN carrega cursos e UCs de uma só vez,
-        // evitando N queries separadas (problema N+1).
+        // Uma query única com todos os JOINs necessários:
+        // Curso + Departamento + CursoUC + UnidadeCurricular.
+        // Elimina por completo o problema N+1 (sem queries por curso nem por UC).
         ArrayList<Object[]> rows = conexao.select(
-                "SELECT c.nomeCurso, c.siglaDepartamento, c.estado, c.valorPropina, " +
+                "SELECT c.nomeCurso, c.siglaDepartamento, dep.nome AS nomeDep, " +
+                "       c.estado, c.valorPropina, " +
                 "       cu.nomeUC, u.anoCurricular, u.ects, u.docenteResponsavel, u.ativa " +
                 "FROM   Curso c " +
-                "LEFT   JOIN CursoUC cu ON cu.nomeCurso = c.nomeCurso " +
+                "LEFT   JOIN Departamento dep ON dep.sigla = c.siglaDepartamento " +
+                "LEFT   JOIN CursoUC cu       ON cu.nomeCurso = c.nomeCurso " +
                 "LEFT   JOIN UnidadeCurricular u ON u.nome = cu.nomeUC " +
                 "ORDER  BY c.nomeCurso",
                 rs -> new Object[]{
                         rs.getString("nomeCurso"),
                         rs.getString("siglaDepartamento"),
+                        rs.getString("nomeDep"),
                         rs.getString("estado"),
                         rs.getDouble("valorPropina"),
                         rs.getString("nomeUC"),
@@ -114,18 +97,25 @@ public class CursoDAL_BD implements ICursoDAL {
             String nomeCurso = (String) row[0];
             Curso curso = porNome.get(nomeCurso);
             if (curso == null) {
-                curso = mapCurso(nomeCurso, (String) row[1], (String) row[2], (double) row[3]);
-                if (curso != null) porNome.put(nomeCurso, curso);
+                String siglaDep = (String) row[1];
+                String nomeDep  = (String) row[2];
+                if (siglaDep == null || nomeDep == null) continue;
+                Departamento dep = new Departamento(nomeDep, siglaDep);
+                curso = new Curso(nomeCurso, dep);
+                curso.setEstado((String) row[3]);
+                curso.setValorPropina((double) row[4]);
+                dep.adicionarCurso(curso);
+                porNome.put(nomeCurso, curso);
             }
-            if (curso != null && row[4] != null) {
-                String nomeUC = (String) row[4];
+            if (row[5] != null) {
+                String nomeUC = (String) row[5];
                 boolean jaAdicionada = curso.getUnidades() != null &&
                         curso.getUnidades().stream().anyMatch(u -> u.getNome().equalsIgnoreCase(nomeUC));
                 if (!jaAdicionada) {
-                    int anoCurricular = row[5] != null ? (int) row[5] : 0;
-                    int ects          = row[6] != null ? (int) row[6] : 0;
-                    String siglaDoc   = (String) row[7];
-                    boolean ativa     = row[8] != null && (boolean) row[8];
+                    int anoCurricular = row[6] != null ? (int) row[6] : 0;
+                    int ects          = row[7] != null ? (int) row[7] : 0;
+                    String siglaDoc   = (String) row[8];
+                    boolean ativa     = row[9] != null && (boolean) row[9];
                     UnidadeCurricular uc = new UnidadeCurricular(nomeUC, anoCurricular, ects,
                             new ArrayList<>(), siglaDoc != null ? siglaDoc : "");
                     uc.setAtiva(ativa);

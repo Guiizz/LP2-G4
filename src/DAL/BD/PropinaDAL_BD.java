@@ -5,6 +5,7 @@ import DAL.IPropinaDAL;
 import Model.Pagamento;
 import Model.Propina;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -100,5 +101,40 @@ public class PropinaDAL_BD implements IPropinaDAL {
                 "DELETE FROM Propina WHERE numMecanografico = ? AND anoLetivo = ?",
                 numMecanografico, anoLetivo
         );
+    }
+
+    @Override
+    public java.util.Map<String, Propina> listarTodas() {
+        // Duas queries totais (propinas + pagamentos) em vez de 2 por inscrição.
+        ArrayList<Object[]> linhas = conexao.select(
+                "SELECT numMecanografico, anoLetivo, valorTotal, valorPago FROM Propina",
+                rs -> new Object[]{
+                        rs.getString("numMecanografico"),
+                        rs.getInt("anoLetivo"),
+                        rs.getDouble("valorTotal"),
+                        rs.getDouble("valorPago")
+                }
+        );
+        java.util.Map<String, List<Pagamento>> pagamentosPorChave = pagamentoDAL.listarTodosAgrupados();
+
+        java.util.Map<String, Propina> resultado = new java.util.HashMap<>();
+        for (Object[] linha : linhas) {
+            String numMec      = (String) linha[0];
+            int anoLetivo       = (int) linha[1];
+            double valorTotal   = (double) linha[2];
+            double valorPago    = (double) linha[3];
+            String chave         = numMec + "|" + anoLetivo;
+
+            Propina propina = new Propina(valorTotal);
+            List<Pagamento> historico = pagamentosPorChave.getOrDefault(chave, java.util.Collections.emptyList());
+            for (Pagamento p : historico) {
+                try { propina.pagar(p.getValor()); } catch (IllegalArgumentException ignored) {}
+            }
+            if (Double.compare(propina.getValorPago(), valorPago) != 0 && valorPago > 0 && historico.isEmpty()) {
+                try { propina.pagar(Math.min(valorPago, propina.getSaldoEmDebito())); } catch (IllegalArgumentException ignored) {}
+            }
+            resultado.put(chave, propina);
+        }
+        return resultado;
     }
 }

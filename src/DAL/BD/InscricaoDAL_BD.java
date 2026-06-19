@@ -40,35 +40,51 @@ public class InscricaoDAL_BD implements IInscricaoDAL {
 
     @Override
     public void carregarInscricoes(ArrayList<Estudante> estudantes, ICursoDAL cursoDAL) {
+        if (estudantes.isEmpty()) return;
+
+        // Pré-carregar cursos e propinas/pagamentos uma única vez (em vez de
+        // 1 query de curso + 1 de propina + 1 de pagamentos por CADA inscrição).
+        java.util.Map<String, Curso> cursosPorNome = new java.util.HashMap<>();
+        for (Curso c : cursoDAL.listarCursos()) cursosPorNome.put(c.getNomeCurso(), c);
+
+        java.util.Map<String, Propina> propinasPorChave = propinaDAL.listarTodas();
+
+        // Uma única query para as inscrições de TODOS os estudantes.
+        ArrayList<Object[]> linhas = conexao.select(
+                "SELECT numMecanografico, anoLetivo, anoDeCurso, nomeCurso, notas " +
+                "FROM Inscricao ORDER BY numMecanografico, anoLetivo",
+                rs -> new Object[]{
+                        rs.getString("numMecanografico"),
+                        rs.getInt("anoLetivo"),
+                        rs.getInt("anoDeCurso"),
+                        rs.getString("nomeCurso"),
+                        rs.getString("notas")
+                }
+        );
+
+        java.util.Map<String, ArrayList<Inscricao>> inscricoesPorEstudante = new java.util.HashMap<>();
+        for (Object[] linha : linhas) {
+            String numMec    = (String) linha[0];
+            int anoLetivo     = (int) linha[1];
+            int anoDeCurso    = (int) linha[2];
+            String nomeCurso  = (String) linha[3];
+            String notas      = (String) linha[4];
+
+            Curso curso = cursosPorNome.get(nomeCurso);
+            if (curso == null) continue;
+
+            Inscricao inscricao = new Inscricao(anoLetivo, anoDeCurso, curso);
+            Propina propina = propinasPorChave.get(numMec + "|" + anoLetivo);
+            if (propina != null) inscricao.setPropina(propina);
+            inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
+
+            inscricoesPorEstudante.computeIfAbsent(numMec, k -> new ArrayList<>()).add(inscricao);
+        }
+
         for (Estudante estudante : estudantes) {
-            ArrayList<Inscricao> inscricoes = conexao.select(
-                    "SELECT anoLetivo, anoDeCurso, nomeCurso, notas " +
-                    "FROM Inscricao WHERE numMecanografico = ? ORDER BY anoLetivo",
-                    rs -> {
-                        int anoLetivo    = rs.getInt("anoLetivo");
-                        int anoDeCurso   = rs.getInt("anoDeCurso");
-                        String nomeCurso = rs.getString("nomeCurso");
-                        String notas     = rs.getString("notas");
-
-                        Curso curso = cursoDAL.procurarPorNome(nomeCurso);
-                        if (curso == null) return null;
-
-                        Inscricao inscricao = new Inscricao(anoLetivo, anoDeCurso, curso);
-
-                        // Carregar propina completa (com histórico de pagamentos)
-                        Propina propina = propinaDAL.carregarPropina(
-                                estudante.getNumMecanografico(), anoLetivo);
-                        if (propina != null) {
-                            inscricao.setPropina(propina);
-                        }
-
-                        inscricao.setAvaliacoes(deserializarAvaliacoes(notas));
-                        return inscricao;
-                    },
-                    estudante.getNumMecanografico()
-            );
-            for (Inscricao i : inscricoes) {
-                if (i != null) estudante.adicionarInscricao(i);
+            ArrayList<Inscricao> inscricoes = inscricoesPorEstudante.get(estudante.getNumMecanografico());
+            if (inscricoes != null) {
+                for (Inscricao i : inscricoes) estudante.adicionarInscricao(i);
             }
         }
     }
