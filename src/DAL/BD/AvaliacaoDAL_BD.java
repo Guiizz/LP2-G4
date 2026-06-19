@@ -21,6 +21,7 @@ import java.util.List;
  *       nota     FLOAT         NOT NULL DEFAULT 0,
  *       aprovado BIT           NOT NULL DEFAULT 0,
  *       lancada  BIT           NOT NULL DEFAULT 0,
+ *       nomeCurso VARCHAR(100) NULL,
  *       CONSTRAINT PK_Avaliacao PRIMARY KEY (id)
  *   );
  *
@@ -47,12 +48,13 @@ public class AvaliacaoDAL_BD implements IAvaliacaoDAL {
     @Override
     public void adicionarAvaliacao(Avaliacao avaliacao) {
         int id = conexao.create(
-                "INSERT INTO Avaliacao (peso, data, nota, aprovado, lancada) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO Avaliacao (peso, data, nota, aprovado, lancada, nomeCurso) VALUES (?, ?, ?, ?, ?, ?)",
                 avaliacao.getPeso(),
                 avaliacao.getData() != null ? new Date(avaliacao.getData().getTime()) : null,
                 avaliacao.getNota(),
                 avaliacao.isAprovado(),
-                avaliacao.isLancada()
+                avaliacao.isLancada(),
+                avaliacao.getNomeCurso()
         );
         avaliacao.setId(id);
         guardarUCsAvaliacao(id, avaliacao.getUc());
@@ -61,13 +63,14 @@ public class AvaliacaoDAL_BD implements IAvaliacaoDAL {
     @Override
     public ArrayList<Avaliacao> listarAvaliacoes() {
         ArrayList<Avaliacao> avaliacoes = conexao.select(
-                "SELECT id, peso, data, nota, aprovado, lancada FROM Avaliacao",
+                "SELECT id, peso, data, nota, aprovado, lancada, nomeCurso FROM Avaliacao",
                 rs -> {
                     int id       = rs.getInt("id");
                     double peso  = rs.getDouble("peso");
                     Date data    = rs.getDate("data");
                     double nota  = rs.getDouble("nota");
                     boolean lanc = rs.getBoolean("lancada");
+                    String nomeCurso = rs.getString("nomeCurso");
 
                     Avaliacao av = lanc
                             ? new Avaliacao(new ArrayList<>(), peso,
@@ -76,6 +79,7 @@ public class AvaliacaoDAL_BD implements IAvaliacaoDAL {
                             : new Avaliacao(new ArrayList<>(), peso,
                                     data != null ? new java.util.Date(data.getTime()) : null);
                     av.setId(id);
+                    av.setNomeCurso(nomeCurso);
                     return av;
                 }
         );
@@ -116,12 +120,13 @@ public class AvaliacaoDAL_BD implements IAvaliacaoDAL {
         if (id == 0) return false;
 
         int linhas = conexao.execute(
-                "UPDATE Avaliacao SET peso = ?, data = ?, nota = ?, aprovado = ?, lancada = ? WHERE id = ?",
+                "UPDATE Avaliacao SET peso = ?, data = ?, nota = ?, aprovado = ?, lancada = ?, nomeCurso = ? WHERE id = ?",
                 avaliacaoNova.getPeso(),
                 avaliacaoNova.getData() != null ? new Date(avaliacaoNova.getData().getTime()) : null,
                 avaliacaoNova.getNota(),
                 avaliacaoNova.isAprovado(),
                 avaliacaoNova.isLancada(),
+                avaliacaoNova.getNomeCurso(),
                 id
         );
         if (linhas > 0) {
