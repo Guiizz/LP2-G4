@@ -3,6 +3,7 @@ package BLL;
 import DAL.IAnoLetivoDAL;
 import Model.*;
 import DAL.HistoricoAnoLetivoDAL;
+import Utils.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,11 +39,12 @@ public class AnoLetivoBLL {
         return historicoAnoLetivoDAL.listarHistorico();
     }
 
-    public AnoLetivo abrirAnoLetivo(int ano) {
+    public AnoLetivo abrirAnoLetivo(int ano, LocalDate dataAbertura) {
         if (ano < 2000) throw new IllegalArgumentException("Ano letivo invalido.");
+        if (dataAbertura == null) throw new IllegalArgumentException("A data de abertura nao pode ser nula.");
         if (anoLetivoDAL.procurarAnoAberto() != null) throw new IllegalArgumentException("Ja existe um ano letivo aberto.");
         if (anoLetivoDAL.procurarPorAno(ano) != null) throw new IllegalArgumentException("Ja existe um registo para o ano letivo " + ano + "/" + (ano+1) + ".");
-        AnoLetivo al = new AnoLetivo(ano, LocalDate.now());
+        AnoLetivo al = new AnoLetivo(ano, dataAbertura);
         anoLetivoDAL.adicionarAnoLetivo(al);
         return al;
     }
@@ -51,10 +53,11 @@ public class AnoLetivoBLL {
     // Fecho de Ano Letivo - path BD (leitura SQL estruturada)
     // =========================================================================
 
-    public RelatorioFechoAnoLetivo fecharAnoAtual() {
+    public RelatorioFechoAnoLetivo fecharAnoAtual(LocalDate dataFecho) {
         AnoLetivo anoAberto = anoLetivoDAL.procurarAnoAberto();
         if (anoAberto == null)
             throw new IllegalArgumentException("Nao existe ano letivo aberto para fechar.");
+        Utils.validarDataFimNaoAnteriorAInicio(anoAberto.getDataAbertura(), dataFecho);
 
         ArrayList<DadosEstudanteFecho> dados = anoLetivoDAL.carregarDadosParaFecho(anoAberto.getAno());
 
@@ -70,7 +73,7 @@ public class AnoLetivoBLL {
 
         anoLetivoDAL.persistirResultadoFecho(anoAberto.getAno(), numMecsAvancar, numMecsConcluir);
 
-        anoAberto.fechar(LocalDate.now());
+        anoAberto.fechar(dataFecho);
         anoLetivoDAL.atualizarAnoLetivo(anoAberto);
 
         String caminho = historicoAnoLetivoDAL.exportarFecho(anoAberto, relatorio);
@@ -82,15 +85,16 @@ public class AnoLetivoBLL {
     // Fecho de Ano Letivo - path CSV (objetos em memoria)
     // =========================================================================
 
-    public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes) {
+    public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes, LocalDate dataFecho) {
         AnoLetivo anoAtual = anoLetivoDAL.procurarAnoAberto();
         if (anoAtual == null)   throw new IllegalArgumentException("Nao existe ano letivo aberto para fechar.");
         if (estudantes == null) throw new IllegalArgumentException("Lista de estudantes invalida.");
+        Utils.validarDataFimNaoAnteriorAInicio(anoAtual.getDataAbertura(), dataFecho);
 
         RelatorioFechoAnoLetivo relatorio = new RelatorioFechoAnoLetivo();
         for (Estudante e : estudantes) processarEstudanteNoFecho(e, anoAtual, relatorio);
 
-        anoAtual.fechar(LocalDate.now());
+        anoAtual.fechar(dataFecho);
         anoLetivoDAL.atualizarAnoLetivo(anoAtual);
 
         String caminho = historicoAnoLetivoDAL.exportarFecho(anoAtual, relatorio);

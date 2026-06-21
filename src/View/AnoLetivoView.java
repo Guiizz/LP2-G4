@@ -162,8 +162,9 @@ public class AnoLetivoView {
 
         int anoSugerido = LocalDate.now().getYear();
         int ano = Utils.lerInteiro("Ano de início (ex.: " + anoSugerido + "): ", scanner);
+        LocalDate dataAbertura = Utils.lerData("Data de início (AAAA-MM-DD): ", scanner);
 
-        AnoLetivo novo = anoLetivoController.abrirAnoLetivo(ano);
+        AnoLetivo novo = anoLetivoController.abrirAnoLetivo(ano, dataAbertura);
 
         System.out.println("  [✓] Ano letivo " + novo.getDesignacao() + " aberto com sucesso.");
         Utils.pausar(scanner);
@@ -181,7 +182,11 @@ public class AnoLetivoView {
         }
 
         System.out.println("  Ano letivo ativo: " + atual.getDesignacao());
+        System.out.println("  Data de início: " + atual.getDataAbertura());
         System.out.println("  Esta operação fecha o ano letivo, avança estudantes aprovados e marca concluídos do 3.º ano.");
+
+        LocalDate dataFecho = Utils.lerData("Data de fim (AAAA-MM-DD): ", scanner);
+        Utils.validarDataFimNaoAnteriorAInicio(atual.getDataAbertura(), dataFecho);
 
         if (!Utils.confirmar("Confirmar fecho do ano letivo?", scanner)) {
             System.out.println("  Operação cancelada."); Utils.pausar(scanner); return;
@@ -192,11 +197,11 @@ public class AnoLetivoView {
         if (ModoPersistencia.isBaseDados()) {
             // Path BD: um único JOIN lê Estudante+Inscricao+Propina;
             // UPDATE/INSERT feitos directamente em SQL pelo DAL.
-            relatorio = anoLetivoController.fecharAnoAtual();
+            relatorio = anoLetivoController.fecharAnoAtual(dataFecho);
         } else {
             // Path CSV: carrega objetos Estudante e persiste manualmente.
             ArrayList<Estudante> estudantes = estudanteController.listarEstudante();
-            relatorio = anoLetivoController.fecharAnoAtual(estudantes);
+            relatorio = anoLetivoController.fecharAnoAtual(estudantes, dataFecho);
             for (Estudante estudante : estudantes) {
                 estudanteController.guardarEstadoEstudante(estudante);
             }

@@ -165,12 +165,14 @@ public class AvaliacaoView {
             Utils.pausar(scanner);
             return null;
         }
+        // Carregar todos os cursos uma única vez (evita 1 query por UC)
+        ArrayList<Curso> todosCursos = cursoController.listarCursos();
         System.out.println("  UCs disponíveis:");
         for (int i = 0; i < ucs.size(); i++) {
             UnidadeCurricular uc = ucs.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
                     + " (Ano " + uc.getAnoCurricular() + ")"
-                    + " — " + cursosComUC(uc));
+                    + " — " + cursosComUC(uc, todosCursos));
         }
         int escolha;
         do {
@@ -182,9 +184,9 @@ public class AvaliacaoView {
         return ucs.get(escolha - 1);
     }
 
-    private String cursosComUC(UnidadeCurricular uc) {
+    private String cursosComUC(UnidadeCurricular uc, ArrayList<Curso> todosCursos) {
         StringBuilder sb = new StringBuilder();
-        for (Curso c : cursoController.listarCursos()) {
+        for (Curso c : todosCursos) {
             if (c.getUnidades().contains(uc)) {
                 if (sb.length() > 0) sb.append(", ");
                 sb.append(c.getNomeCurso());

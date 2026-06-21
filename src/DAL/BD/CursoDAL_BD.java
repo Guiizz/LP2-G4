@@ -66,17 +66,13 @@ public class CursoDAL_BD implements ICursoDAL {
 
     @Override
     public ArrayList<Curso> listarCursos() {
-        // Uma query única com todos os JOINs necessários:
-        // Curso + Departamento + CursoUC + UnidadeCurricular.
-        // Elimina por completo o problema N+1 (sem queries por curso nem por UC).
+        // Curso + Departamento + associações CursoUC numa única query.
         ArrayList<Object[]> rows = conexao.select(
                 "SELECT c.nomeCurso, c.siglaDepartamento, dep.nome AS nomeDep, " +
-                "       c.estado, c.valorPropina, " +
-                "       cu.nomeUC, u.anoCurricular, u.ects, u.docenteResponsavel, u.ativa " +
+                "       c.estado, c.valorPropina, cu.nomeUC " +
                 "FROM   Curso c " +
                 "LEFT   JOIN Departamento dep ON dep.sigla = c.siglaDepartamento " +
                 "LEFT   JOIN CursoUC cu       ON cu.nomeCurso = c.nomeCurso " +
-                "LEFT   JOIN UnidadeCurricular u ON u.nome = cu.nomeUC " +
                 "ORDER  BY c.nomeCurso",
                 rs -> new Object[]{
                         rs.getString("nomeCurso"),
@@ -84,13 +80,17 @@ public class CursoDAL_BD implements ICursoDAL {
                         rs.getString("nomeDep"),
                         rs.getString("estado"),
                         rs.getDouble("valorPropina"),
-                        rs.getString("nomeUC"),
-                        rs.getObject("anoCurricular"),
-                        rs.getObject("ects"),
-                        rs.getString("docenteResponsavel"),
-                        rs.getObject("ativa")
+                        rs.getString("nomeUC")
                 }
         );
+
+        // UCs completas (com momentos de avaliação, docente, etc.) carregadas
+        // em lote uma única vez — evita criar UCs "vazias" sem momentos, o que
+        // fazia iniciarCurso() falhar mesmo havendo momentos válidos na BD.
+        java.util.Map<String, UnidadeCurricular> ucsPorNome = new java.util.HashMap<>();
+        for (UnidadeCurricular uc : unidadeCurricularDAL.listarUnidades()) {
+            ucsPorNome.put(uc.getNome(), uc);
+        }
 
         java.util.LinkedHashMap<String, Curso> porNome = new java.util.LinkedHashMap<>();
         for (Object[] row : rows) {
@@ -112,14 +112,8 @@ public class CursoDAL_BD implements ICursoDAL {
                 boolean jaAdicionada = curso.getUnidades() != null &&
                         curso.getUnidades().stream().anyMatch(u -> u.getNome().equalsIgnoreCase(nomeUC));
                 if (!jaAdicionada) {
-                    int anoCurricular = row[6] != null ? (int) row[6] : 0;
-                    int ects          = row[7] != null ? (int) row[7] : 0;
-                    String siglaDoc   = (String) row[8];
-                    boolean ativa     = row[9] != null && (boolean) row[9];
-                    UnidadeCurricular uc = new UnidadeCurricular(nomeUC, anoCurricular, ects,
-                            new ArrayList<>(), siglaDoc != null ? siglaDoc : "");
-                    uc.setAtiva(ativa);
-                    curso.adicionarUnidadeCurricular(uc);
+                    UnidadeCurricular uc = ucsPorNome.get(nomeUC);
+                    if (uc != null) curso.adicionarUnidadeCurricular(uc);
                 }
             }
         }

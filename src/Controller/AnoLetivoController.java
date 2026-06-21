@@ -5,6 +5,7 @@ import Model.AnoLetivo;
 import Model.Estudante;
 import Model.RelatorioFechoAnoLetivo;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,18 +25,18 @@ public class AnoLetivoController {
         return anoLetivoBLL.consultarMaisRecente();
     }
 
-    public AnoLetivo abrirAnoLetivo(int ano) {
-        return anoLetivoBLL.abrirAnoLetivo(ano);
+    public AnoLetivo abrirAnoLetivo(int ano, LocalDate dataAbertura) {
+        return anoLetivoBLL.abrirAnoLetivo(ano, dataAbertura);
     }
 
     /** Path BD: usa leitura SQL estruturada (JOIN + UPDATE/INSERT via SQL). */
-    public RelatorioFechoAnoLetivo fecharAnoAtual() {
-        return anoLetivoBLL.fecharAnoAtual();
+    public RelatorioFechoAnoLetivo fecharAnoAtual(LocalDate dataFecho) {
+        return anoLetivoBLL.fecharAnoAtual(dataFecho);
     }
 
     /** Path CSV: usa objetos Estudante carregados em memória. */
-    public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes) {
-        return anoLetivoBLL.fecharAnoAtual(estudantes);
+    public RelatorioFechoAnoLetivo fecharAnoAtual(List<Estudante> estudantes, LocalDate dataFecho) {
+        return anoLetivoBLL.fecharAnoAtual(estudantes, dataFecho);
     }
 
     public ArrayList<AnoLetivo> listarTodos() {
