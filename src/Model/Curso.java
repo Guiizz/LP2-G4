@@ -3,23 +3,15 @@ package Model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Representa um Curso disponível no ISSMF.
- */
 public class Curso {
 
     private String nomeCurso;
     private Departamento departamento;
     private int duracao;
-    private List <UnidadeCurricular> unidades;
+    private List<UCNoCurso> unidades;
     private String estado;
     private double valorPropina;
 
-    /**
-     * Construtor da classe Curso.
-     * @param nomeCurso O nome do curso.
-     * @param departamento O Departamento que o curso pertence.
-     */
     public Curso(String nomeCurso, Departamento departamento) {
         this.nomeCurso = nomeCurso;
         this.departamento = departamento;
@@ -29,79 +21,42 @@ public class Curso {
         this.valorPropina = 0.0;
     }
 
-    /**
-     * Obtém o nome do curso.
-     * @return O nome do curso.
-     */
-    public String getNomeCurso() {
-        return nomeCurso;
-    }
+    public String getNomeCurso() { return nomeCurso; }
+    public void setNomeCurso(String nomeCurso) { this.nomeCurso = nomeCurso; }
 
-    /**
-     * Define o nome do curso.
-     * @param nomeCurso O novo nome do curso.
-     */
-    public void setNomeCurso(String nomeCurso) {
-        this.nomeCurso = nomeCurso;
-    }
+    public Departamento getDepartamento() { return departamento; }
 
-    /**
-     * Obtém o departamento responsável pelo curso.
-     * @return O objeto Departamento.
-     */
-    public Departamento getDepartamento() {
-        return departamento;
-    }
+    public int getDuracao() { return duracao; }
 
-    /**
-     * Obtém a duração do curso em anos.
-     * @return A duração (Sempre 3 anos).
-     */
-    public int getDuracao() {
-        return duracao;
-    }
+    public List<UCNoCurso> getUCsNoCurso() { return unidades; }
 
-
-    /**
-     * Obtém a lista de todas as unidades curriculares deste curso.
-     * @return Uma lista de Unidades Curriculares.
-     */
     public List<UnidadeCurricular> getUnidades() {
-        return unidades;
+        List<UnidadeCurricular> lista = new ArrayList<>();
+        for (UCNoCurso u : unidades) lista.add(u.getUc());
+        return lista;
     }
 
-    /**
-     * Adiciona uma nova unidade curricular ao curso.
-     * @param uc A Unidade Curricular adicionada.
-     */
-    public void adicionarUnidadeCurricular(UnidadeCurricular uc) {
-        this.unidades.add(uc);
+    public int getAnoCurricularDe(UnidadeCurricular uc) {
+        for (UCNoCurso u : unidades) {
+            if (u.getUc().equals(uc)) return u.getAnoCurricular();
+        }
+        return -1;
+    }
+
+    public void adicionarUnidadeCurricular(UnidadeCurricular uc, int anoCurricular) {
+        this.unidades.add(new UCNoCurso(uc, anoCurricular));
     }
 
     public void removerUnidadeCurricular(UnidadeCurricular uc) {
-        this.unidades.remove(uc);
+        unidades.removeIf(u -> u.getUc().equals(uc));
     }
 
-    public String getEstado() {
-        return estado;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+    public double getValorPropina() { return valorPropina; }
+    public void setValorPropina(double valorPropina) { this.valorPropina = valorPropina; }
 
-    public double getValorPropina() {
-        return valorPropina;
-    }
-
-    public void setValorPropina(double valorPropina) {
-        this.valorPropina = valorPropina;
-    }
-
-    /**
-     * Formato de texto da ficha Curso.
-     * @return Uma String formatada com os detalhes do curso.
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -118,11 +73,11 @@ public class Curso {
             for (int ano = 1; ano <= duracao; ano++) {
                 sb.append("  Ano ").append(ano).append(": ");
                 boolean temUC = false;
-                for (UnidadeCurricular uc : unidades) {
-                    if (uc.getAnoCurricular() == ano) {
+                for (UCNoCurso u : unidades) {
+                    if (u.getAnoCurricular() == ano) {
                         if (temUC) sb.append(", ");
-                        sb.append(uc.getNome());
-                        if (uc.isAtiva()) sb.append(" [A]");
+                        sb.append(u.getUc().getNome());
+                        if (u.getUc().isAtiva()) sb.append(" [A]");
                         temUC = true;
                     }
                 }
@@ -136,12 +91,8 @@ public class Curso {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Curso)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Curso)) return false;
         Curso that = (Curso) o;
         return nomeCurso != null && nomeCurso.equalsIgnoreCase(that.nomeCurso);
     }

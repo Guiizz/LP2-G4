@@ -150,8 +150,14 @@ public class CursoView {
         UnidadeCurricular uc = selecionarUC("UCs disponíveis (excluindo já associadas)", c);
         if (uc == null) return;
 
-        cursoController.adicionarUnidadeCurricular(c, uc);
-        System.out.println("  [✓] UC '" + uc.getNome() + "' adicionada ao curso '" + c.getNomeCurso() + "'.");
+        int ano;
+        do {
+            ano = Utils.lerInteiro("  Em que ano curricular fica esta UC? (1-3): ", scanner);
+            if (ano < 1 || ano > 3) System.out.println("  [!] Escolha 1, 2 ou 3.");
+        } while (ano < 1 || ano > 3);
+
+        cursoController.adicionarUnidadeCurricular(c, uc, ano);
+        System.out.println("  [✓] UC '" + uc.getNome() + "' adicionada ao ano " + ano + " do curso '" + c.getNomeCurso() + "'.");
         Utils.pausar(scanner);
     }
 
@@ -296,7 +302,7 @@ public class CursoView {
         for (int i = 0; i < ucs.size(); i++) {
             UnidadeCurricular u = ucs.get(i);
             System.out.println("  " + (i + 1) + ". " + u.getNome()
-                    + " (Ano " + u.getAnoCurricular() + ")"
+                    + " (Ano " + c.getAnoCurricularDe(u) + ")"
                     + (u.isAtiva() ? " [ATIVA]" : ""));
         }
         int escolha;
@@ -364,8 +370,7 @@ public class CursoView {
         }
         System.out.println("\n  " + titulo + ":");
         for (int i = 0; i < ucs.size(); i++) {
-            System.out.println("  " + (i + 1) + ". " + ucs.get(i).getNome()
-                    + " (Ano " + ucs.get(i).getAnoCurricular() + ")");
+            System.out.println("  " + (i + 1) + ". " + ucs.get(i).getNome());
         }
         int escolha;
         do {

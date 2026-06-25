@@ -186,7 +186,6 @@ public class GestorView {
         for (int i = 0; i < todasUCs.size(); i++) {
             Model.UnidadeCurricular uc = todasUCs.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " | " + (uc.isAtiva() ? "Ativa" : "Inativa"));
         }
         int escolhaUC;
@@ -232,12 +231,12 @@ public class GestorView {
             Model.Inscricao insc = estudanteController.obterInscricaoAtual(e);
             if (insc != null && insc.getCurso() != null
                     && insc.getCurso().getUnidades().contains(ucEscolhida)
-                    && insc.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
+                    && insc.getAnoDeCurso() == insc.getCurso().getAnoCurricularDe(ucEscolhida)) {
                 alunosDaUC.add(e);
             }
         }
         if (alunosDaUC.isEmpty()) {
-            System.out.println("  [!] Não existem alunos inscritos no " + ucEscolhida.getAnoCurricular() + ".º ano desta UC.");
+            System.out.println("  [!] Não existem alunos inscritos nesta UC.");
             Utils.pausar(scanner);
             return;
         }

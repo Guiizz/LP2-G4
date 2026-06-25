@@ -2,6 +2,7 @@ package DAL;
 
 import Model.Curso;
 import Model.Departamento;
+import Model.UCNoCurso;
 import Model.UnidadeCurricular;
 import Utils.Utils;
 
@@ -90,9 +91,20 @@ public class CursoDAL implements ICursoDAL {
             curso.setValorPropina(valorPropina);
 
             if (!nomesUCs.isBlank()) {
-                for (String nomeUC : nomesUCs.split(",")) {
-                    UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC.trim());
-                    if (uc != null) curso.adicionarUnidadeCurricular(uc);
+                for (String entrada : nomesUCs.split(",")) {
+                    entrada = entrada.trim();
+                    String nomeUC;
+                    int anoCurricular = 1;
+                    int at = entrada.lastIndexOf('@');
+                    if (at >= 0) {
+                        nomeUC = entrada.substring(0, at).trim();
+                        try { anoCurricular = Integer.parseInt(entrada.substring(at + 1).trim()); }
+                        catch (NumberFormatException ignored) {}
+                    } else {
+                        nomeUC = entrada;
+                    }
+                    UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC);
+                    if (uc != null) curso.adicionarUnidadeCurricular(uc, anoCurricular);
                 }
             }
 
@@ -105,12 +117,13 @@ public class CursoDAL implements ICursoDAL {
         try (PrintWriter pw = Utils.abrirEscritorCSV(FICHEIRO_CSV, CABECALHO)) {
             for (Curso curso : cursos) {
                 String siglaDepartamento = curso.getDepartamento() != null ? curso.getDepartamento().getSigla() : "";
-                List<UnidadeCurricular> ucs = curso.getUnidades();
+                List<UCNoCurso> ucsNoCurso = curso.getUCsNoCurso();
                 StringBuilder nomesUCs = new StringBuilder();
-                if (ucs != null) {
-                    for (int i = 0; i < ucs.size(); i++) {
-                        nomesUCs.append(ucs.get(i).getNome());
-                        if (i < ucs.size() - 1) nomesUCs.append(",");
+                if (ucsNoCurso != null) {
+                    for (int i = 0; i < ucsNoCurso.size(); i++) {
+                        UCNoCurso u = ucsNoCurso.get(i);
+                        nomesUCs.append(u.getUc().getNome()).append("@").append(u.getAnoCurricular());
+                        if (i < ucsNoCurso.size() - 1) nomesUCs.append(",");
                     }
                 }
                 pw.println(

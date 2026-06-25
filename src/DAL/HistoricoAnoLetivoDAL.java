@@ -4,6 +4,7 @@ import Model.AnoLetivo;
 import Model.RelatorioFechoAnoLetivo;
 
 import java.io.*;
+import java.time.format.DateTimeFormatter;
 import Utils.Utils;
 
 public class HistoricoAnoLetivoDAL {
@@ -11,6 +12,7 @@ public class HistoricoAnoLetivoDAL {
     private static final String FICHEIRO_CSV = "csv/historico_fecho_anos_letivos.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "anoLetivo;dataFecho;estadoFinal;estudantesAvancados;estudantesMantidos;estudantesConcluidos;detalhes";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public HistoricoAnoLetivoDAL() {
         Utils.criarFicheiroSeNaoExistir(FICHEIRO_CSV, CABECALHO);
@@ -37,7 +39,7 @@ public class HistoricoAnoLetivoDAL {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FICHEIRO_CSV, true))) {
             pw.println(
                     limparCampo(anoLetivo.getDesignacao())          + SEPARADOR +
-                            limparCampo(String.valueOf(anoLetivo.getDataFecho())) + SEPARADOR +
+                            limparCampo(anoLetivo.getDataFecho().format(FMT)) + SEPARADOR +
                             limparCampo(anoLetivo.getEstado())              + SEPARADOR +
                             relatorio.getEstudantesAvancados()              + SEPARADOR +
                             relatorio.getEstudantesMantidos()               + SEPARADOR +

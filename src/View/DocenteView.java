@@ -172,7 +172,6 @@ public class DocenteView {
                 }
                 String cursosStr = cursos.length() > 0 ? cursos.toString() : "sem curso";
                 System.out.println("  - " + uc.getNome()
-                        + " (Ano " + uc.getAnoCurricular() + ")"
                         + " | " + (uc.isAtiva() ? "Ativa" : "Inativa")
                         + " | " + cursosStr);
                 encontrou = true;
@@ -238,7 +237,6 @@ public class DocenteView {
             UnidadeCurricular uc = minhasUCs.get(i);
             List<MomentoAvaliacao> m = uc.getMomentosParaAno(anoLetivo);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " | " + m.size() + "/3 momentos"
                     + " | " + String.format("%.0f%%", uc.somaPesosParaAno(anoLetivo)));
         }
@@ -388,7 +386,6 @@ public class DocenteView {
         for (int i = 0; i < minhasUCs.size(); i++) {
             UnidadeCurricular uc = minhasUCs.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " | Momentos: " + uc.getMomentosParaAno(anoLetivo).size() + "/3"
                     + " | Estado: " + (uc.isAtiva() ? "Ativa" : "Inativa"));
         }
@@ -439,12 +436,12 @@ public class DocenteView {
             Inscricao inscricao = estudanteController.obterInscricaoAtual(e);
             if (inscricao != null && inscricao.getCurso() != null
                     && inscricao.getCurso().getUnidades().contains(ucEscolhida)
-                    && inscricao.getAnoDeCurso() == ucEscolhida.getAnoCurricular()) {
+                    && inscricao.getAnoDeCurso() == inscricao.getCurso().getAnoCurricularDe(ucEscolhida)) {
                 alunosDaUC.add(e);
             }
         }
         if (alunosDaUC.isEmpty()) {
-            System.out.println("  [!] Não existem alunos inscritos no ano " + ucEscolhida.getAnoCurricular() + ".");
+            System.out.println("  [!] Não existem alunos inscritos nesta UC.");
             Utils.pausar(scanner);
             return;
         }
@@ -503,7 +500,6 @@ public class DocenteView {
         for (int i = 0; i < minhasUCs.size(); i++) {
             UnidadeCurricular uc = minhasUCs.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " | " + (uc.isAtiva() ? "Ativa" : "Inativa"));
         }
 
@@ -521,7 +517,6 @@ public class DocenteView {
         List<MomentoAvaliacao> momentos = ucEscolhida.getMomentosParaAno(anoLetivo);
 
         System.out.println("\n  UC: " + ucEscolhida.getNome()
-                + " | Ano curricular: " + ucEscolhida.getAnoCurricular()
                 + " | Ano letivo: " + (anoLetivo > 0 ? anoLetivo + "/" + (anoLetivo + 1) : "(sem ano aberto)"));
 
         if (momentos.isEmpty()) {
@@ -544,7 +539,7 @@ public class DocenteView {
             Inscricao inscricao = estudanteController.obterInscricaoAtual(e);
             if (inscricao == null || inscricao.getCurso() == null) continue;
             if (!inscricao.getCurso().getUnidades().contains(ucEscolhida)) continue;
-            if (inscricao.getAnoDeCurso() != ucEscolhida.getAnoCurricular()) continue;
+            if (inscricao.getAnoDeCurso() != inscricao.getCurso().getAnoCurricularDe(ucEscolhida)) continue;
 
             System.out.printf("  %-12s %-22s", e.getNumMecanografico(), e.getNome());
             double somaFinal = 0;
@@ -602,8 +597,9 @@ public class DocenteView {
         UnidadeCurricular ucEscolhida = minhasUCs.get(escolhaUC - 1);
 
         String nomeCurso = null;
+        Curso cursoEncontrado = null;
         for (Curso c : cursoController.listarCursos()) {
-            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); break; }
+            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); cursoEncontrado = c; break; }
         }
         if (nomeCurso == null) {
             System.out.println("  [!] A UC não está associada a nenhum curso.");
@@ -611,7 +607,8 @@ public class DocenteView {
             return;
         }
 
-        Horario horario = horarioController.obterHorario(nomeCurso, ucEscolhida.getAnoCurricular(), anoLetivo);
+        int anoUC = cursoEncontrado.getAnoCurricularDe(ucEscolhida);
+        Horario horario = horarioController.obterHorario(nomeCurso, anoUC, anoLetivo);
         if (horario == null) {
             System.out.println("  [!] Não existe horário definido para este curso/ano.");
             Utils.pausar(scanner);
@@ -672,8 +669,9 @@ public class DocenteView {
         UnidadeCurricular ucEscolhida = minhasUCs.get(escolhaUC - 1);
 
         String nomeCurso = null;
+        Curso cursoPresencas = null;
         for (Curso c : cursoController.listarCursos()) {
-            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); break; }
+            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); cursoPresencas = c; break; }
         }
         if (nomeCurso == null) {
             System.out.println("  [!] A UC não está associada a nenhum curso.");
@@ -699,7 +697,7 @@ public class DocenteView {
             Inscricao insc = estudanteController.obterInscricaoAtual(e);
             if (insc == null || insc.getCurso() == null) continue;
             if (!insc.getCurso().getNomeCurso().equalsIgnoreCase(nomeCurso)) continue;
-            if (insc.getAnoDeCurso() != ucEscolhida.getAnoCurricular()) continue;
+            if (insc.getAnoDeCurso() != cursoPresencas.getAnoCurricularDe(ucEscolhida)) continue;
             long presentes = 0;
             for (Presenca p : presencas) {
                 if (p.getNumMecanografico().equals(e.getNumMecanografico()) && p.isPresente()) presentes++;
@@ -742,8 +740,9 @@ public class DocenteView {
         UnidadeCurricular ucEscolhida = minhasUCs.get(escolhaUC - 1);
 
         String nomeCurso = null;
+        Curso cursoTerminar = null;
         for (Curso c : cursoController.listarCursos()) {
-            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); break; }
+            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); cursoTerminar = c; break; }
         }
         if (nomeCurso == null) {
             System.out.println("  [!] A UC não está associada a nenhum curso.");
@@ -781,7 +780,7 @@ public class DocenteView {
             Inscricao insc = estudanteController.obterInscricaoAtual(e);
             if (insc == null || insc.getCurso() == null) continue;
             if (!insc.getCurso().getNomeCurso().equalsIgnoreCase(nomeCurso)) continue;
-            if (insc.getAnoDeCurso() != ucEscolhida.getAnoCurricular()) continue;
+            if (insc.getAnoDeCurso() != cursoTerminar.getAnoCurricularDe(ucEscolhida)) continue;
             numMecanograficos.add(e.getNumMecanografico());
         }
 

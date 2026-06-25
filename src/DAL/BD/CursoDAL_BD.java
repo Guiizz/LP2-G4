@@ -5,6 +5,7 @@ import DAL.IDepartamentoDAL;
 import DAL.IUnidadeCurricularDAL;
 import Model.Curso;
 import Model.Departamento;
+import Model.UCNoCurso;
 import Model.UnidadeCurricular;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class CursoDAL_BD implements ICursoDAL {
                     curso.getEstado(),
                     curso.getValorPropina()
             );
-            guardarUCsDoCurso(curso.getNomeCurso(), curso.getUnidades());
+            guardarUCsDoCurso(curso.getNomeCurso(), curso.getUCsNoCurso());
         });
         if (curso.getDepartamento() != null) {
             curso.getDepartamento().adicionarCurso(curso);
@@ -57,7 +58,7 @@ public class CursoDAL_BD implements ICursoDAL {
             );
             if (linhas > 0) {
                 conexao.execute("DELETE FROM CursoUC WHERE nomeCurso = ?", cursoAtualizado.getNomeCurso());
-                guardarUCsDoCurso(cursoAtualizado.getNomeCurso(), cursoAtualizado.getUnidades());
+                guardarUCsDoCurso(cursoAtualizado.getNomeCurso(), cursoAtualizado.getUCsNoCurso());
                 atualizado[0] = true;
             }
         });
@@ -113,7 +114,7 @@ public class CursoDAL_BD implements ICursoDAL {
                         curso.getUnidades().stream().anyMatch(u -> u.getNome().equalsIgnoreCase(nomeUC));
                 if (!jaAdicionada) {
                     UnidadeCurricular uc = ucsPorNome.get(nomeUC);
-                    if (uc != null) curso.adicionarUnidadeCurricular(uc);
+                    if (uc != null) curso.adicionarUnidadeCurricular(uc, 1);
                 }
             }
         }
@@ -160,12 +161,12 @@ public class CursoDAL_BD implements ICursoDAL {
         return curso;
     }
 
-    private void guardarUCsDoCurso(String nomeCurso, List<UnidadeCurricular> ucs) {
+    private void guardarUCsDoCurso(String nomeCurso, List<UCNoCurso> ucs) {
         if (ucs == null) return;
-        for (UnidadeCurricular uc : ucs) {
+        for (UCNoCurso u : ucs) {
             conexao.execute(
-                    "INSERT INTO CursoUC (nomeCurso, nomeUC) VALUES (?, ?)",
-                    nomeCurso, uc.getNome()
+                    "INSERT INTO CursoUC (nomeCurso, nomeUC, anoCurricular) VALUES (?, ?, ?)",
+                    nomeCurso, u.getUc().getNome(), u.getAnoCurricular()
             );
         }
     }
@@ -178,7 +179,7 @@ public class CursoDAL_BD implements ICursoDAL {
         );
         for (String nomeUC : nomesUCs) {
             UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC);
-            if (uc != null) curso.adicionarUnidadeCurricular(uc);
+            if (uc != null) curso.adicionarUnidadeCurricular(uc, 1);
         }
     }
 }

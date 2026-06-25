@@ -6,6 +6,7 @@ import Utils.Utils;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class DocenteDAL implements IDocenteDAL {
     private static final String FICHEIRO_CSV = "csv/docentes.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "nome;dataNascimento;nif;morada;sigla;ucsLecionadas;password;primeiroLogin";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private ArrayList<Docente> docentes;
     private IUnidadeCurricularDAL unidadeCurricularDAL;
@@ -81,7 +83,7 @@ public class DocenteDAL implements IDocenteDAL {
             if (campos.length < 8) continue;
             try {
                 String nome = campos[0];
-                LocalDate dataNascimento = LocalDate.parse(campos[1]);
+                LocalDate dataNascimento = LocalDate.parse(campos[1], FMT);
                 String nif = campos[2];
                 String morada = campos[3];
                 String sigla = campos[4];
@@ -120,7 +122,7 @@ public class DocenteDAL implements IDocenteDAL {
                 }
                 pw.println(
                         docente.getNome()           + SEPARADOR +
-                                docente.getDataNascimento() + SEPARADOR +
+                                docente.getDataNascimento().format(FMT) + SEPARADOR +
                                 docente.getNif()            + SEPARADOR +
                                 docente.getMorada()         + SEPARADOR +
                                 docente.getSigla()          + SEPARADOR +

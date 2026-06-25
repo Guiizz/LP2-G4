@@ -1,12 +1,12 @@
-nome;anoCurricular;ects;docenteResponsavel;momentos;ativa
-Estatistica;1;6;MFP;;false
-Matemática Aplicada;1;6;MFP;;false
-Algebra;1;6;MFP;;false
-Fisica Aplicada;1;6;AVA;;false
-Robotica 1;1;6;AVZ;;false
-Robotica 2;2;6;AVZ;;false
-Algoritmia e Programação;2;6;AVA;;false
-Inteligência Artificial;2;6;;;false
-Projeto e Estàgio;3;6;AVA;;false
-unidade unidade;1;6;nom;;false
-NOm num;1;6;;;false
+nome;ects;docenteResponsavel;momentos;ativa
+Estatistica;6;MFP;;false
+Matemática Aplicada;6;MFP;;false
+Algebra;6;MFP;;false
+Fisica Aplicada;6;AVA;;false
+Robotica 1;6;AVZ;;false
+Robotica 2;6;AVZ;;false
+Algoritmia e Programação;6;AVA;;false
+Inteligência Artificial;6;;;false
+Projeto e Estàgio;6;AVA;;false
+unidade unidade;6;nom;;false
+NOm num;6;;;false

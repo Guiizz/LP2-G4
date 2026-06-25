@@ -36,10 +36,9 @@ public class UnidadeCurricularDAL_BD implements IUnidadeCurricularDAL {
     @Override
     public void adicionarUnidade(UnidadeCurricular unidade) {
         conexao.execute(
-                "INSERT INTO UnidadeCurricular (nome, anoCurricular, ects, docenteResponsavel, ativa) " +
-                "VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO UnidadeCurricular (nome, ects, docenteResponsavel, ativa) " +
+                "VALUES (?, ?, ?, ?)",
                 unidade.getNome(),
-                unidade.getAnoCurricular(),
                 unidade.getEts(),
                 unidade.getDocenteResponsavel(),
                 unidade.isAtiva()
@@ -50,9 +49,8 @@ public class UnidadeCurricularDAL_BD implements IUnidadeCurricularDAL {
     @Override
     public boolean atualizarUnidade(UnidadeCurricular unidadeAtualizada) {
         int linhas = conexao.execute(
-                "UPDATE UnidadeCurricular SET anoCurricular = ?, ects = ?, docenteResponsavel = ?, ativa = ? " +
+                "UPDATE UnidadeCurricular SET ects = ?, docenteResponsavel = ?, ativa = ? " +
                 "WHERE nome = ?",
-                unidadeAtualizada.getAnoCurricular(),
                 unidadeAtualizada.getEts(),
                 unidadeAtualizada.getDocenteResponsavel(),
                 unidadeAtualizada.isAtiva(),
@@ -69,10 +67,10 @@ public class UnidadeCurricularDAL_BD implements IUnidadeCurricularDAL {
         // LEFT JOIN com Docente: obtém sigla e nome do docente na mesma query,
         // sem query separada por UC.
         ArrayList<UnidadeCurricular> unidades = conexao.select(
-                "SELECT uc.nome, uc.anoCurricular, uc.ects, uc.docenteResponsavel, uc.ativa " +
+                "SELECT uc.nome, uc.ects, uc.docenteResponsavel, uc.ativa " +
                 "FROM   UnidadeCurricular uc " +
                 "LEFT   JOIN Docente d ON d.sigla = uc.docenteResponsavel",
-                rs -> mapUC(rs.getString("nome"), rs.getInt("anoCurricular"),
+                rs -> mapUC(rs.getString("nome"),
                             rs.getInt("ects"), rs.getString("docenteResponsavel"), rs.getBoolean("ativa"))
         );
         if (unidades.isEmpty()) return unidades;
@@ -100,9 +98,9 @@ public class UnidadeCurricularDAL_BD implements IUnidadeCurricularDAL {
     @Override
     public UnidadeCurricular procurarPorNome(String nome) {
         ArrayList<UnidadeCurricular> resultados = conexao.select(
-                "SELECT nome, anoCurricular, ects, docenteResponsavel, ativa " +
+                "SELECT nome, ects, docenteResponsavel, ativa " +
                 "FROM UnidadeCurricular WHERE nome = ?",
-                rs -> mapUC(rs.getString("nome"), rs.getInt("anoCurricular"),
+                rs -> mapUC(rs.getString("nome"),
                             rs.getInt("ects"), rs.getString("docenteResponsavel"), rs.getBoolean("ativa")),
                 nome
         );
@@ -125,9 +123,9 @@ public class UnidadeCurricularDAL_BD implements IUnidadeCurricularDAL {
     // Auxiliares
     // -------------------------------------------------------------------------
 
-    private UnidadeCurricular mapUC(String nome, int anoCurricular, int ects,
+    private UnidadeCurricular mapUC(String nome, int ects,
                                     String siglaDocente, boolean ativa) {
-        UnidadeCurricular uc = new UnidadeCurricular(nome, anoCurricular, ects,
+        UnidadeCurricular uc = new UnidadeCurricular(nome, ects,
                 new ArrayList<>(), siglaDocente != null ? siglaDocente : "");
         if (siglaDocente != null && !siglaDocente.isBlank())
             uc.setDocenteResponsavel(siglaDocente);

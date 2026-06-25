@@ -77,7 +77,7 @@ public class HorarioView {
 
         List<UnidadeCurricular> ucsAno = new ArrayList<>();
         for (UnidadeCurricular uc : ucController.listarUnidades()) {
-            if (uc.getAnoCurricular() == anoCurricular && curso.getUnidades().contains(uc)) {
+            if (curso.getAnoCurricularDe(uc) == anoCurricular && curso.getUnidades().contains(uc)) {
                 ucsAno.add(uc);
             }
         }

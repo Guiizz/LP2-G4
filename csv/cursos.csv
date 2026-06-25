@@ -1,5 +1,5 @@
 nomeCurso;siglaDepartamento;nomesUCs;estado;valorPropina
-Eletrónica e computadores;EEE;Estatistica;PENDENTE;1200.0
+Eletrónica e computadores;EEE;Estatistica@1;PENDENTE;1200.0
 Eletronica e Robotica;EEE;;PENDENTE;1000.0
 Mecanização de Robots;EEM;;PENDENTE;600.0
-Curso curso;DDD;Estatistica,Matemática Aplicada,Algebra,Fisica Aplicada,Robotica 1,Inteligência Artificial;PENDENTE;6000.0
+Curso curso;DDD;Estatistica@1,Matemática Aplicada@1,Algebra@1,Fisica Aplicada@1,Robotica 1@1,Inteligência Artificial@2;PENDENTE;6000.0

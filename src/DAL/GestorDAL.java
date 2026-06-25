@@ -4,6 +4,7 @@ import Model.Gestor;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import Utils.PasswordUtils;
@@ -18,6 +19,7 @@ public class GestorDAL implements IGestorDAL {
     private static final String FICHEIRO_CSV = "csv/gestores.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "nome;nif;dataNascimento;morada;email;password;primeiroLogin";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private ArrayList<Gestor> gestores;
 
@@ -79,7 +81,7 @@ public class GestorDAL implements IGestorDAL {
 
             String nome              = campos[0];
             String nif               = campos[1];
-            LocalDate dataNascimento = LocalDate.parse(campos[2]);
+            LocalDate dataNascimento = LocalDate.parse(campos[2], FMT);
             String morada            = campos[3];
             String email             = campos[4];
             String password          = campos[5];
@@ -100,7 +102,7 @@ public class GestorDAL implements IGestorDAL {
                 pw.println(
                         gestor.getNome()           + SEPARADOR +
                                 gestor.getNif()            + SEPARADOR +
-                                gestor.getDataNascimento() + SEPARADOR +
+                                gestor.getDataNascimento().format(FMT) + SEPARADOR +
                                 gestor.getMorada()         + SEPARADOR +
                                 gestor.getEmail()          + SEPARADOR +
                                 gestor.getPassword()       + SEPARADOR +
