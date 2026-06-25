@@ -6,6 +6,7 @@ import Utils.Utils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class JustificacaoDAL implements IJustificacaoDAL {
     private static final String SEPARADOR = ";";
     private static final String CABECALHO =
             "numMecanografico;nomeUC;nomeCurso;anoLetivo;dataAula;horaInicio;nomeTipo;estado;dataPedido";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private List<JustificacaoFalta> justificacoes;
 
@@ -75,11 +77,11 @@ public class JustificacaoDAL implements IJustificacaoDAL {
                         campos[1],
                         campos[2],
                         Integer.parseInt(campos[3]),
-                        LocalDate.parse(campos[4]),
+                        LocalDate.parse(campos[4], FMT),
                         campos[5],
                         campos[6],
                         campos[7],
-                        LocalDate.parse(campos[8])
+                        LocalDate.parse(campos[8], FMT)
                 ));
             } catch (Exception e) {
                 System.err.println("Erro ao carregar justificações do CSV: " + e.getMessage());
@@ -94,11 +96,11 @@ public class JustificacaoDAL implements IJustificacaoDAL {
                         + j.getNomeUC() + SEPARADOR
                         + j.getNomeCurso() + SEPARADOR
                         + j.getAnoLetivo() + SEPARADOR
-                        + j.getDataAula() + SEPARADOR
+                        + j.getDataAula().format(FMT) + SEPARADOR
                         + j.getHoraInicio() + SEPARADOR
                         + j.getNomeTipoJustificacao() + SEPARADOR
                         + j.getEstado() + SEPARADOR
-                        + j.getDataPedido());
+                        + j.getDataPedido().format(FMT));
             }
         } catch (IOException e) {
             System.err.println("Erro ao guardar justificações no CSV: " + e.getMessage());

@@ -6,6 +6,7 @@ import Utils.Utils;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class AnoLetivoDAL implements IAnoLetivoDAL {
     private static final String FICHEIRO_CSV = "csv/anos_letivos.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "ano;estado;dataAbertura;dataFecho";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final ArrayList<AnoLetivo> anosLetivos;
 
@@ -104,9 +106,9 @@ public class AnoLetivoDAL implements IAnoLetivoDAL {
             try {
                 int ano = Integer.parseInt(campos[0]);
                 String estado = campos[1];
-                LocalDate dataAbertura = LocalDate.parse(campos[2]);
+                LocalDate dataAbertura = LocalDate.parse(campos[2], FMT);
                 LocalDate dataFecho = campos.length >= 4 && !campos[3].isBlank()
-                        ? LocalDate.parse(campos[3]) : null;
+                        ? LocalDate.parse(campos[3], FMT) : null;
                 anosLetivos.add(new AnoLetivo(ano, estado, dataAbertura, dataFecho));
             } catch (NumberFormatException e) {
                 System.err.println("Erro ao carregar anos letivos do CSV: " + e.getMessage());
@@ -120,8 +122,8 @@ public class AnoLetivoDAL implements IAnoLetivoDAL {
                 pw.println(
                         a.getAno() + SEPARADOR +
                                 a.getEstado() + SEPARADOR +
-                                a.getDataAbertura() + SEPARADOR +
-                                (a.getDataFecho() == null ? "" : a.getDataFecho())
+                                a.getDataAbertura().format(FMT) + SEPARADOR +
+                                (a.getDataFecho() == null ? "" : a.getDataFecho().format(FMT))
                 );
             }
         } catch (IOException e) {

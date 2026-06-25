@@ -171,7 +171,6 @@ public class AvaliacaoView {
         for (int i = 0; i < ucs.size(); i++) {
             UnidadeCurricular uc = ucs.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " — " + cursosComUC(uc, todosCursos));
         }
         int escolha;

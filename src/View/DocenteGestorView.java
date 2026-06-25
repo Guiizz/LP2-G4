@@ -185,7 +185,6 @@ public class DocenteGestorView {
             System.out.println("\n  Atribuições actuais:");
             for (UnidadeCurricular uc : todasUCs) {
                 System.out.println("  - " + uc.getNome()
-                        + " (Ano " + uc.getAnoCurricular() + ")"
                         + " → " + uc.getDocenteResponsavel());
             }
             Utils.pausar(scanner);
@@ -228,7 +227,6 @@ public class DocenteGestorView {
         for (int i = 0; i < lista.size(); i++) {
             UnidadeCurricular uc = lista.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " — " + cursosComUC(uc));
         }
         int escolha;

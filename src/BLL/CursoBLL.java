@@ -147,7 +147,7 @@ public class CursoBLL {
     // Unidades Curriculares
     // -------------------------------------------------------------------------
 
-    public void adicionarUnidadeCurricular(Curso curso, UnidadeCurricular uc) {
+    public void adicionarUnidadeCurricular(Curso curso, UnidadeCurricular uc, int anoCurricular) {
         if (curso == null) {
             throw new IllegalArgumentException("O curso não pode ser nulo.");
         }
@@ -160,9 +160,9 @@ public class CursoBLL {
                             "' porque já foi iniciado.");
         }
 
-        if (uc.getAnoCurricular() < 1 || uc.getAnoCurricular() > DURACAO_CURSO) {
+        if (anoCurricular < 1 || anoCurricular > DURACAO_CURSO) {
             throw new IllegalArgumentException(
-                    "O ano curricular da UC deve estar entre 1 e " + DURACAO_CURSO + ".");
+                    "O ano curricular deve estar entre 1 e " + DURACAO_CURSO + ".");
         }
 
         if (curso.getUnidades().contains(uc)) {
@@ -171,17 +171,17 @@ public class CursoBLL {
         }
 
         int ucsNesteAno = 0;
-        for (UnidadeCurricular u : curso.getUnidades()) {
-            if (u.getAnoCurricular() == uc.getAnoCurricular()) ucsNesteAno++;
+        for (UCNoCurso u : curso.getUCsNoCurso()) {
+            if (u.getAnoCurricular() == anoCurricular) ucsNesteAno++;
         }
 
         if (ucsNesteAno >= MAX_UCS_POR_ANO) {
             throw new IllegalArgumentException(
                     "O curso já atingiu o limite de " + MAX_UCS_POR_ANO +
-                            " unidades curriculares para o ano " + uc.getAnoCurricular() + ".");
+                            " unidades curriculares para o ano " + anoCurricular + ".");
         }
 
-        curso.adicionarUnidadeCurricular(uc);
+        curso.adicionarUnidadeCurricular(uc, anoCurricular);
         cursoDAL.atualizarCurso(curso);
     }
 
@@ -213,9 +213,9 @@ public class CursoBLL {
         }
 
         List<UnidadeCurricular> resultado = new ArrayList<>();
-        for (UnidadeCurricular uc : curso.getUnidades()) {
-            if (uc.getAnoCurricular() == anoCurricular) {
-                resultado.add(uc);
+        for (UCNoCurso u : curso.getUCsNoCurso()) {
+            if (u.getAnoCurricular() == anoCurricular) {
+                resultado.add(u.getUc());
             }
         }
         return resultado;
@@ -269,7 +269,7 @@ public class CursoBLL {
         }
 
         int ucsNesteAno = 0;
-        for (UnidadeCurricular u : curso.getUnidades()) {
+        for (UCNoCurso u : curso.getUCsNoCurso()) {
             if (u.getAnoCurricular() == anoCurricular) ucsNesteAno++;
         }
         return MAX_UCS_POR_ANO - ucsNesteAno;
@@ -349,10 +349,10 @@ public class CursoBLL {
         for (int ano = 1; ano <= DURACAO_CURSO; ano++) {
             boolean temUC = false;
             boolean temUCComMomentos = false;
-            for (UnidadeCurricular uc : curso.getUnidades()) {
-                if (uc.getAnoCurricular() == ano) {
+            for (UCNoCurso u : curso.getUCsNoCurso()) {
+                if (u.getAnoCurricular() == ano) {
                     temUC = true;
-                    if (uc.momentosValidosParaAno(anoLetivo, curso.getNomeCurso())) {
+                    if (u.getUc().momentosValidosParaAno(anoLetivo, curso.getNomeCurso())) {
                         temUCComMomentos = true;
                     }
                 }

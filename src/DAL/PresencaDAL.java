@@ -6,6 +6,7 @@ import Utils.Utils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class PresencaDAL implements IPresencaDAL {
     private static final String FICHEIRO_CSV = "csv/presencas.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "numMecanografico;nomeUC;nomeCurso;anoLetivo;data;horaInicio;presente";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private List<Presenca> presencas;
 
@@ -70,7 +72,7 @@ public class PresencaDAL implements IPresencaDAL {
                         campos[1],
                         campos[2],
                         Integer.parseInt(campos[3]),
-                        LocalDate.parse(campos[4]),
+                        LocalDate.parse(campos[4], FMT),
                         campos[5],
                         Boolean.parseBoolean(campos[6])
                 ));
@@ -87,7 +89,7 @@ public class PresencaDAL implements IPresencaDAL {
                         + p.getNomeUC() + SEPARADOR
                         + p.getNomeCurso() + SEPARADOR
                         + p.getAnoLetivo() + SEPARADOR
-                        + p.getData() + SEPARADOR
+                        + p.getData().format(FMT) + SEPARADOR
                         + p.getHoraInicio() + SEPARADOR
                         + p.isPresente());
             }

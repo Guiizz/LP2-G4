@@ -32,7 +32,7 @@ class AvaliacaoBLLTest {
     private static final Date DATA_PASSADA = toDate(LocalDate.of(2024, 1,  1));
     private static final Date DATA_FORA    = toDate(LocalDate.of(2030, 1,  1));
 
-    private static final UnidadeCurricular UC_MAT = new UnidadeCurricular("Matemática", 1, 6);
+    private static final UnidadeCurricular UC_MAT = new UnidadeCurricular("Matemática", 6);
     private static final String CURSO = "Informática";
 
     @BeforeEach

@@ -68,11 +68,10 @@ public class UnidadeCurricularView {
     private void registar() {
         Utils.tituloPagina("UNIDADES CURRICULARES", "Registar Unidade Curricular");
         String nome = Utils.lerCampo("Nome: ", scanner);
-        int ano     = Utils.lerInteiro("Ano curricular (1, 2 ou 3): ", scanner);
 
         String siglaDocente = selecionarDocente();
 
-        UnidadeCurricular uc = new UnidadeCurricular(nome, ano, 0);
+        UnidadeCurricular uc = new UnidadeCurricular(nome, 0);
         if (siglaDocente != null) {
             uc.setDocenteResponsavel(siglaDocente);
         }
@@ -118,13 +117,6 @@ public class UnidadeCurricularView {
 
         String novoNome = Utils.lerCampo("  Novo nome (Enter para manter): ", scanner);
         if (!novoNome.isEmpty()) uc.setNome(novoNome);
-
-        System.out.print("  Novo ano curricular (Enter para manter): ");
-        String anoStr = scanner.nextLine().trim();
-        if (!anoStr.isEmpty()) {
-            try { uc.setAnoCurricular(Integer.parseInt(anoStr)); }
-            catch (NumberFormatException e) { System.out.println("  [!] Ano inválido — mantido."); }
-        }
 
         String docenteAtual = uc.temDocenteResponsavel() ? uc.getDocenteResponsavel() : "(por atribuir)";
         System.out.println("  Docente responsável atual: " + docenteAtual);
@@ -221,7 +213,6 @@ public class UnidadeCurricularView {
         for (int i = 0; i < lista.size(); i++) {
             UnidadeCurricular uc = lista.get(i);
             System.out.println("  " + (i + 1) + ". " + uc.getNome()
-                    + " (Ano " + uc.getAnoCurricular() + ")"
                     + " — " + cursosComUC(uc, todosCursos));
         }
         int escolha;

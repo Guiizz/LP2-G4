@@ -42,8 +42,8 @@ public class CursoController {
         return cursoBLL.listarCursosPorDepartamento(departamento);
     }
 
-    public void adicionarUnidadeCurricular(Curso curso, UnidadeCurricular uc) {
-        cursoBLL.adicionarUnidadeCurricular(curso, uc);
+    public void adicionarUnidadeCurricular(Curso curso, UnidadeCurricular uc, int anoCurricular) {
+        cursoBLL.adicionarUnidadeCurricular(curso, uc, anoCurricular);
     }
 
     public void removerUnidadeCurricular(Curso curso, UnidadeCurricular uc) {

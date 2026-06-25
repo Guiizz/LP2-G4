@@ -6,6 +6,7 @@ import Utils.Utils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class RegistoAulaDAL implements IRegistoAulaDAL {
     private static final String FICHEIRO_CSV = "csv/aulas_marcadas.csv";
     private static final String SEPARADOR = ";";
     private static final String CABECALHO = "siglaDocente;nomeUC;nomeCurso;anoLetivo;data;horaInicio;terminada";
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private List<RegistoAula> registos;
 
@@ -86,7 +88,7 @@ public class RegistoAulaDAL implements IRegistoAulaDAL {
                         campos[1],
                         campos[2],
                         Integer.parseInt(campos[3]),
-                        LocalDate.parse(campos[4]),
+                        LocalDate.parse(campos[4], FMT),
                         campos[5],
                         terminada
                 ));
@@ -103,7 +105,7 @@ public class RegistoAulaDAL implements IRegistoAulaDAL {
                         + r.getNomeUC() + SEPARADOR
                         + r.getNomeCurso() + SEPARADOR
                         + r.getAnoLetivo() + SEPARADOR
-                        + r.getData() + SEPARADOR
+                        + r.getData().format(FMT) + SEPARADOR
                         + r.getHoraInicio() + SEPARADOR
                         + r.isTerminada());
             }

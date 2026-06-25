@@ -12,7 +12,7 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
 
     private static final String FICHEIRO_CSV = "csv/unidades_curriculares.csv";
     private static final String SEPARADOR = ";";
-    private static final String CABECALHO = "nome;anoCurricular;ects;docenteResponsavel;momentos;ativa";
+    private static final String CABECALHO = "nome;ects;docenteResponsavel;momentos;ativa";
 
     private ArrayList<UnidadeCurricular> unidades;
 
@@ -30,7 +30,7 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
     public boolean atualizarUnidade(UnidadeCurricular unidadeAtualizada) {
         for (int i = 0; i < unidades.size(); i++) {
             UnidadeCurricular atual = unidades.get(i);
-            if (atual.getNome().equalsIgnoreCase(unidadeAtualizada.getNome()) && atual.getAnoCurricular() == unidadeAtualizada.getAnoCurricular()) {
+            if (atual.getNome().equalsIgnoreCase(unidadeAtualizada.getNome())) {
                 unidades.set(i, unidadeAtualizada);
                 guardarNoCSV();
                 return true;
@@ -69,17 +69,16 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
     private void carregarDoCSV() {
         unidades.clear();
         for (String[] campos : Utils.lerLinhasCSV(FICHEIRO_CSV, SEPARADOR)) {
-            if (campos.length < 3) continue;
+            if (campos.length < 2) continue;
 
             String nome = campos[0];
-            int anoCurricular = Integer.parseInt(campos[1]);
-            int ects = Integer.parseInt(campos[2]);
-            String sigla = campos.length >= 4 ? campos[3] : "";
+            int ects = Integer.parseInt(campos[1]);
+            String sigla = campos.length >= 3 ? campos[2] : "";
 
-            UnidadeCurricular uc = new UnidadeCurricular(nome, anoCurricular, ects, new ArrayList<>(), sigla);
+            UnidadeCurricular uc = new UnidadeCurricular(nome, ects, new ArrayList<>(), sigla);
             if (!sigla.isEmpty()) uc.setDocenteResponsavel(sigla);
 
-            String momentosStr = campos.length >= 5 ? campos[4] : "";
+            String momentosStr = campos.length >= 4 ? campos[3] : "";
             if (!momentosStr.isBlank()) {
                 for (String parte : momentosStr.split("\\|")) {
                     String[] mv = parte.split(":");
@@ -108,7 +107,7 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
                 }
             }
 
-            boolean ativa = campos.length >= 6 && Boolean.parseBoolean(campos[5]);
+            boolean ativa = campos.length >= 5 && Boolean.parseBoolean(campos[4]);
             uc.setAtiva(ativa);
 
             unidades.add(uc);
@@ -137,7 +136,6 @@ public class UnidadeCurricularDAL implements IUnidadeCurricularDAL {
 
                 pw.println(
                         uc.getNome() + SEPARADOR +
-                                uc.getAnoCurricular() + SEPARADOR +
                                 uc.getEts() + SEPARADOR +
                                 (uc.getDocenteResponsavel() != null ? uc.getDocenteResponsavel() : "") + SEPARADOR +
                                 momentosSB + SEPARADOR +
