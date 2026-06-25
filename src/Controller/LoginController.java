@@ -3,6 +3,11 @@ package Controller;
 import Config.ModoPersistencia;
 import DAL.*;
 import DAL.BD.AnoLetivoDAL_BD;
+import DAL.BD.HorarioDAL_BD;
+import DAL.BD.PresencaDAL_BD;
+import DAL.BD.RegistoAulaDAL_BD;
+import DAL.BD.JustificacaoDAL_BD;
+import DAL.BD.TipoJustificacaoDAL_BD;
 import DAL.BD.AvaliacaoDAL_BD;
 import DAL.BD.CursoDAL_BD;
 import DAL.BD.DepartamentoDAL_BD;
@@ -66,11 +71,21 @@ public class LoginController {
         IAnoLetivoDAL anoLetivoDAL = ModoPersistencia.isBaseDados()
                 ? new AnoLetivoDAL_BD()
                 : new AnoLetivoDAL();
-        DAL.HorarioDAL horarioDAL = new DAL.HorarioDAL();
-        DAL.RegistoAulaDAL registoAulaDAL = new DAL.RegistoAulaDAL();
-        DAL.PresencaDAL presencaDAL = new DAL.PresencaDAL();
-        DAL.TipoJustificacaoDAL tipoJustDAL = new DAL.TipoJustificacaoDAL();
-        DAL.JustificacaoDAL justificacaoDAL = new DAL.JustificacaoDAL();
+        IHorarioDAL horarioDAL = ModoPersistencia.isBaseDados()
+                ? new HorarioDAL_BD()
+                : new DAL.HorarioDAL();
+        IRegistoAulaDAL registoAulaDAL = ModoPersistencia.isBaseDados()
+                ? new RegistoAulaDAL_BD()
+                : new DAL.RegistoAulaDAL();
+        IPresencaDAL presencaDAL = ModoPersistencia.isBaseDados()
+                ? new PresencaDAL_BD()
+                : new DAL.PresencaDAL();
+        ITipoJustificacaoDAL tipoJustDAL = ModoPersistencia.isBaseDados()
+                ? new TipoJustificacaoDAL_BD()
+                : new DAL.TipoJustificacaoDAL();
+        IJustificacaoDAL justificacaoDAL = ModoPersistencia.isBaseDados()
+                ? new JustificacaoDAL_BD()
+                : new DAL.JustificacaoDAL();
 
         UnidadeCurricularBLL ucBLL = new UnidadeCurricularBLL(ucDAL, anoLetivoDAL);
         DepartamentoBLL depBLL = new DepartamentoBLL(depDAL);

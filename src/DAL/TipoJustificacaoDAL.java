@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TipoJustificacaoDAL {
+public class TipoJustificacaoDAL implements ITipoJustificacaoDAL {
 
     private static final String FICHEIRO_CSV = "csv/tipos_justificacao.csv";
     private static final String SEPARADOR = ";";

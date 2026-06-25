@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JustificacaoDAL {
+public class JustificacaoDAL implements IJustificacaoDAL {
 
     private static final String FICHEIRO_CSV = "csv/justificacoes.csv";
     private static final String SEPARADOR = ";";
