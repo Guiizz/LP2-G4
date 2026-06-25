@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HorarioDAL {
+public class HorarioDAL implements IHorarioDAL {
 
     private static final String FICHEIRO_CSV = "csv/horarios.csv";
     private static final String SEPARADOR = ";";

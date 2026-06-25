@@ -1,7 +1,6 @@
 package BLL;
 
-import DAL.HorarioDAL;
-import DAL.UnidadeCurricularDAL;
+import DAL.IHorarioDAL;
 import DAL.IUnidadeCurricularDAL;
 import Model.BlocoHorario;
 import Model.Horario;
@@ -20,10 +19,10 @@ public class HorarioBLL {
     private static final int MAX_MIN_DIA = 5 * 60;       // 300 min = 5h
     private static final int MAX_MIN_UC = 6 * 60;       // 360 min = 6h
 
-    private final HorarioDAL horarioDAL;
+    private final IHorarioDAL horarioDAL;
     private final IUnidadeCurricularDAL ucDAL;
 
-    public HorarioBLL(HorarioDAL horarioDAL, IUnidadeCurricularDAL ucDAL) {
+    public HorarioBLL(IHorarioDAL horarioDAL, IUnidadeCurricularDAL ucDAL) {
         this.horarioDAL = horarioDAL;
         this.ucDAL = ucDAL;
     }

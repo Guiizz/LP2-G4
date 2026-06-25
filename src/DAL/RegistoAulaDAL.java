@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegistoAulaDAL {
+public class RegistoAulaDAL implements IRegistoAulaDAL {
 
     private static final String FICHEIRO_CSV = "csv/aulas_marcadas.csv";
     private static final String SEPARADOR = ";";
@@ -41,8 +41,13 @@ public class RegistoAulaDAL {
         return null;
     }
 
-    /** Persiste o estado atual da lista (usar após alterar uma aula em memória). */
+    @Override
     public void guardar() {
+        guardarNoCSV();
+    }
+
+    @Override
+    public void guardarRegisto(RegistoAula registo) {
         guardarNoCSV();
     }
 

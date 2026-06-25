@@ -1,7 +1,7 @@
 package BLL;
 
-import DAL.JustificacaoDAL;
-import DAL.TipoJustificacaoDAL;
+import DAL.IJustificacaoDAL;
+import DAL.ITipoJustificacaoDAL;
 import Model.JustificacaoFalta;
 import Model.TipoJustificacao;
 
@@ -10,10 +10,10 @@ import java.util.List;
 
 public class JustificacaoBLL {
 
-    private final JustificacaoDAL justificacaoDAL;
-    private final TipoJustificacaoDAL tipoDAL;
+    private final IJustificacaoDAL justificacaoDAL;
+    private final ITipoJustificacaoDAL tipoDAL;
 
-    public JustificacaoBLL(JustificacaoDAL justificacaoDAL, TipoJustificacaoDAL tipoDAL) {
+    public JustificacaoBLL(IJustificacaoDAL justificacaoDAL, ITipoJustificacaoDAL tipoDAL) {
         this.justificacaoDAL = justificacaoDAL;
         this.tipoDAL = tipoDAL;
     }

@@ -105,8 +105,9 @@ public class DocenteView {
                 "Ver os meus Alunos",
                 "Lançar Nota",
                 "Ver Resultados da UC",
-                "Marcar Presença em Aula",
-                "Ver Presenças dos Alunos"
+                "Iniciar Aula",
+                "Ver Presenças dos Alunos",
+                "Terminar Aula"
         };
         int opcao;
         do {
@@ -119,6 +120,7 @@ public class DocenteView {
                     case 3: verResultados(docente); break;
                     case 4: marcarPresenca(docente); break;
                     case 5: verPresencasAlunos(docente); break;
+                    case 6: terminarAula(docente); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
@@ -157,11 +159,12 @@ public class DocenteView {
     private void verUCs(Docente docente) {
         Utils.tituloPagina("AS MINHAS UCS", "As minhas Unidades Curriculares");
         ArrayList<UnidadeCurricular> todasUCs = unidadeCurricularController.listarUnidades();
+        List<Curso> todosCursos = cursoController.listarCursos();
         boolean encontrou = false;
         for (UnidadeCurricular uc : todasUCs) {
             if (docente.getSigla().equalsIgnoreCase(uc.getDocenteResponsavel())) {
                 StringBuilder cursos = new StringBuilder();
-                for (Curso c : cursoController.listarCursos()) {
+                for (Curso c : todosCursos) {
                     if (c.getUnidades().contains(uc)) {
                         if (cursos.length() > 0) cursos.append(", ");
                         cursos.append(c.getNomeCurso());
@@ -705,6 +708,88 @@ public class DocenteView {
                     e.getNumMecanografico(), e.getNome(), presentes, aulas.size());
         }
         System.out.println("  " + "─".repeat(55));
+        Utils.pausar(scanner);
+    }
+
+    private void terminarAula(Docente docente) {
+        Utils.tituloPagina("OS MEUS ALUNOS", "Terminar Aula");
+        AnoLetivo anoAberto = anoLetivoController.consultarAnoAtual();
+        if (anoAberto == null) {
+            System.out.println("  [!] Não existe um ano letivo aberto.");
+            Utils.pausar(scanner);
+            return;
+        }
+        int anoLetivo = anoAberto.getAno();
+
+        ArrayList<UnidadeCurricular> minhasUCs = minhasUCs(docente);
+        if (minhasUCs.isEmpty()) {
+            System.out.println("  [!] Não tem UCs atribuídas.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("\n  As suas UCs:");
+        for (int i = 0; i < minhasUCs.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + minhasUCs.get(i).getNome());
+        }
+        int escolhaUC;
+        do {
+            escolhaUC = Utils.lerInteiro("  Selecione a UC (0 para voltar): ", scanner);
+            if (escolhaUC == 0) return;
+            if (escolhaUC < 1 || escolhaUC > minhasUCs.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + minhasUCs.size() + ".");
+        } while (escolhaUC < 1 || escolhaUC > minhasUCs.size());
+        UnidadeCurricular ucEscolhida = minhasUCs.get(escolhaUC - 1);
+
+        String nomeCurso = null;
+        for (Curso c : cursoController.listarCursos()) {
+            if (c.getUnidades().contains(ucEscolhida)) { nomeCurso = c.getNomeCurso(); break; }
+        }
+        if (nomeCurso == null) {
+            System.out.println("  [!] A UC não está associada a nenhum curso.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        List<RegistoAula> todasAulas = presencaController.listarAulasPorUC(ucEscolhida.getNome(), nomeCurso, anoLetivo);
+        List<RegistoAula> aulasEmCurso = new ArrayList<>();
+        for (RegistoAula r : todasAulas) {
+            if (!r.isTerminada()) aulasEmCurso.add(r);
+        }
+        if (aulasEmCurso.isEmpty()) {
+            System.out.println("  [!] Não há aulas em curso para esta UC.");
+            Utils.pausar(scanner);
+            return;
+        }
+
+        System.out.println("\n  Aulas em curso:");
+        for (int i = 0; i < aulasEmCurso.size(); i++) {
+            RegistoAula r = aulasEmCurso.get(i);
+            System.out.println("  " + (i + 1) + ". " + r.getData() + " às " + r.getHoraInicio());
+        }
+        int escolhaAula;
+        do {
+            escolhaAula = Utils.lerInteiro("  Selecione a aula (0 para voltar): ", scanner);
+            if (escolhaAula == 0) return;
+            if (escolhaAula < 1 || escolhaAula > aulasEmCurso.size())
+                System.out.println("  [!] Opção inválida. Escolha entre 1 e " + aulasEmCurso.size() + ".");
+        } while (escolhaAula < 1 || escolhaAula > aulasEmCurso.size());
+        RegistoAula aulaEscolhida = aulasEmCurso.get(escolhaAula - 1);
+
+        List<String> numMecanograficos = new ArrayList<>();
+        for (Estudante e : estudanteController.listarEstudante()) {
+            Inscricao insc = estudanteController.obterInscricaoAtual(e);
+            if (insc == null || insc.getCurso() == null) continue;
+            if (!insc.getCurso().getNomeCurso().equalsIgnoreCase(nomeCurso)) continue;
+            if (insc.getAnoDeCurso() != ucEscolhida.getAnoCurricular()) continue;
+            numMecanograficos.add(e.getNumMecanografico());
+        }
+
+        int faltas = presencaController.terminarAula(
+                ucEscolhida.getNome(), nomeCurso, anoLetivo,
+                aulaEscolhida.getData(), aulaEscolhida.getHoraInicio(),
+                numMecanograficos);
+        System.out.println("  [✓] Aula terminada. Faltas registadas: " + faltas + ".");
         Utils.pausar(scanner);
     }
 

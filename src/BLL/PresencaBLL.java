@@ -1,20 +1,22 @@
 package BLL;
 
-import DAL.RegistoAulaDAL;
-import DAL.PresencaDAL;
+import DAL.IRegistoAulaDAL;
+import DAL.IPresencaDAL;
 import Model.RegistoAula;
 import Model.Presenca;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PresencaBLL {
 
-    private final RegistoAulaDAL registoAulaDAL;
-    private final PresencaDAL presencaDAL;
+    private final IRegistoAulaDAL registoAulaDAL;
+    private final IPresencaDAL presencaDAL;
 
-    public PresencaBLL(RegistoAulaDAL registoAulaDAL, PresencaDAL presencaDAL) {
+    public PresencaBLL(IRegistoAulaDAL registoAulaDAL, IPresencaDAL presencaDAL) {
         this.registoAulaDAL = registoAulaDAL;
         this.presencaDAL = presencaDAL;
     }
@@ -77,7 +79,7 @@ public class PresencaBLL {
         }
 
         aula.setTerminada(true);
-        registoAulaDAL.guardar();
+        registoAulaDAL.guardarRegisto(aula);
         return faltas;
     }
 
@@ -108,11 +110,19 @@ public class PresencaBLL {
 
     public List<RegistoAula> listarAulasSemPresencaEstudante(String numMecanografico, String nomeUC, String nomeCurso, int anoLetivo) {
         List<RegistoAula> aulas = registoAulaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo);
+
+        // Carrega todas as presenças do estudante nesta UC de uma vez (evita N queries)
+        Set<String> chaves = new HashSet<>();
+        for (Presenca p : presencaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo)) {
+            if (p.getNumMecanografico().equals(numMecanografico)) {
+                chaves.add(p.getData() + "|" + p.getHoraInicio());
+            }
+        }
+
         List<RegistoAula> semPresenca = new ArrayList<>();
         for (RegistoAula r : aulas) {
-            if (!r.isTerminada()) continue; // só aulas terminadas têm faltas definitivas
-            if (!presencaDAL.existe(numMecanografico, nomeUC, nomeCurso,
-                    anoLetivo, r.getData(), r.getHoraInicio())) {
+            if (!r.isTerminada()) continue;
+            if (!chaves.contains(r.getData() + "|" + r.getHoraInicio())) {
                 semPresenca.add(r);
             }
         }
