@@ -53,6 +53,7 @@ public class DocenteView {
         String[] opcoes = {
                 "As minhas UCs",
                 "Os meus Alunos",
+                "Presenças",
                 "A minha Conta"
         };
 
@@ -64,7 +65,8 @@ public class DocenteView {
                 switch (opcao) {
                     case 1: menuMinhasUCs(docente); break;
                     case 2: menuAlunos(docente); break;
-                    case 3: menuConta(docente); break;
+                    case 3: menuPresencas(docente); break;
+                    case 4: menuConta(docente); break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -104,10 +106,7 @@ public class DocenteView {
         String[] opcoes = {
                 "Ver os meus Alunos",
                 "Lançar Nota",
-                "Ver Resultados da UC",
-                "Iniciar Aula",
-                "Ver Presenças dos Alunos",
-                "Terminar Aula"
+                "Ver Resultados da UC"
         };
         int opcao;
         do {
@@ -118,9 +117,30 @@ public class DocenteView {
                     case 1: verAlunos(docente); break;
                     case 2: lancarAvaliacao(docente); break;
                     case 3: verResultados(docente); break;
-                    case 4: marcarPresenca(docente); break;
-                    case 5: verPresencasAlunos(docente); break;
-                    case 6: terminarAula(docente); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuPresencas(Docente docente) {
+        String[] opcoes = {
+                "Iniciar Aula",
+                "Ver Presenças dos Alunos",
+                "Terminar Aula"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("PRESENÇAS", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: marcarPresenca(docente); break;
+                    case 2: verPresencasAlunos(docente); break;
+                    case 3: terminarAula(docente); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
