@@ -43,6 +43,10 @@ public class PresencaController {
         return presencaBLL.listarAulasSemPresencaEstudante(numMecanografico, nomeUC, nomeCurso, anoLetivo);
     }
 
+    public List<RegistoAula> listarAulasAtivasSemPresencaEstudante(String numMecanografico, String nomeUC, String nomeCurso, int anoLetivo) {
+        return presencaBLL.listarAulasAtivasSemPresencaEstudante(numMecanografico, nomeUC, nomeCurso, anoLetivo);
+    }
+
     public int terminarAula(String nomeUC, String nomeCurso, int anoLetivo,
                             java.time.LocalDate data, String horaInicio,
                             List<String> numMecanograficosInscritos) {

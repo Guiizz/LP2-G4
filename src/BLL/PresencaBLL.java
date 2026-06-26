@@ -108,24 +108,51 @@ public class PresencaBLL {
         return presencaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo);
     }
 
+    /**
+     * Aulas terminadas onde o estudante ficou com falta (Presença=false).
+     * Usado em verAssiduidade e justificarFalta.
+     */
     public List<RegistoAula> listarAulasSemPresencaEstudante(String numMecanografico, String nomeUC, String nomeCurso, int anoLetivo) {
         List<RegistoAula> aulas = registoAulaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo);
 
-        // Carrega todas as presenças do estudante nesta UC de uma vez (evita N queries)
-        Set<String> chaves = new HashSet<>();
+        Set<String> faltasChaves = new HashSet<>();
         for (Presenca p : presencaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo)) {
-            if (p.getNumMecanografico().equals(numMecanografico)) {
-                chaves.add(p.getData() + "|" + p.getHoraInicio());
+            if (p.getNumMecanografico().equals(numMecanografico) && !p.isPresente()) {
+                faltasChaves.add(p.getData() + "|" + p.getHoraInicio());
             }
         }
 
-        List<RegistoAula> semPresenca = new ArrayList<>();
+        List<RegistoAula> faltas = new ArrayList<>();
         for (RegistoAula r : aulas) {
             if (!r.isTerminada()) continue;
-            if (!chaves.contains(r.getData() + "|" + r.getHoraInicio())) {
-                semPresenca.add(r);
+            if (faltasChaves.contains(r.getData() + "|" + r.getHoraInicio())) {
+                faltas.add(r);
             }
         }
-        return semPresenca;
+        return faltas;
+    }
+
+    /**
+     * Aulas ativas (não terminadas) onde o estudante ainda não marcou presença.
+     * Usado em marcarPresença — o estudante marca durante a aula.
+     */
+    public List<RegistoAula> listarAulasAtivasSemPresencaEstudante(String numMecanografico, String nomeUC, String nomeCurso, int anoLetivo) {
+        List<RegistoAula> aulas = registoAulaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo);
+
+        Set<String> marcadas = new HashSet<>();
+        for (Presenca p : presencaDAL.listarPorUCeCurso(nomeUC, nomeCurso, anoLetivo)) {
+            if (p.getNumMecanografico().equals(numMecanografico)) {
+                marcadas.add(p.getData() + "|" + p.getHoraInicio());
+            }
+        }
+
+        List<RegistoAula> ativas = new ArrayList<>();
+        for (RegistoAula r : aulas) {
+            if (r.isTerminada()) continue;
+            if (!marcadas.contains(r.getData() + "|" + r.getHoraInicio())) {
+                ativas.add(r);
+            }
+        }
+        return ativas;
     }
 }

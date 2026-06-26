@@ -40,17 +40,9 @@ public class EstudanteView {
 
     public void iniciar(Estudante estudante) {
         String[] opcoes = {
-                "Ver a minha Ficha",
-                "Ver as minhas Inscrições",
-                "Ver as minhas Avaliações",
-                "Atualizar a minha Morada",
-                "Propinas",
-                "Ver o meu Horário",
-                "Marcar a minha Presença",
-                "Ver a minha Assiduidade",
-                "Justificar Falta",
-                "Ver as minhas Justificações",
-                "Alterar Password"
+                "A minha Área",
+                "Presenças e Faltas",
+                "A minha Conta"
         };
 
         int opcao;
@@ -59,42 +51,86 @@ public class EstudanteView {
             opcao = Utils.mostrarMenu("ÁREA DO ESTUDANTE — " + estudante.getNome(), opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1:
-                        verFicha(estudante);
-                        break;
-                    case 2:
-                        new InscricaoView(inscricaoController, scanner).iniciar(estudante);
-                        break;
-                    case 3:
-                        verAvaliacoes(estudante);
-                        break;
-                    case 4:
-                        atualizar(estudante);
-                        break;
-                    case 5:
-                        verPropinas(estudante);
-                        break;
-                    case 6:
-                        verHorario(estudante);
-                        break;
-                    case 7:
-                        marcarPresenca(estudante);
-                        break;
-                    case 8:
-                        verAssiduidade(estudante);
-                        break;
-                    case 9:
-                        justificarFalta(estudante);
-                        break;
-                    case 10:
-                        verJustificacoes(estudante);
-                        break;
-                    case 11:
-                        alterarPassword(estudante);
-                        break;
-                    case 0:
-                        System.out.println("  A terminar sessão...");
-                        break;
+                    case 1: menuMinhaArea(estudante); break;
+                    case 2: menuPresencasEFaltas(estudante); break;
+                    case 3: menuMinhaConta(estudante); break;
+                    case 0: System.out.println("  A terminar sessão..."); break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuMinhaArea(Estudante estudante) {
+        String[] opcoes = {
+                "Ver a minha Ficha",
+                "Inscrições",
+                "Avaliações",
+                "Horário",
+                "Propinas"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("A MINHA ÁREA", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: verFicha(estudante); break;
+                    case 2: new InscricaoView(inscricaoController, scanner).iniciar(estudante); break;
+                    case 3: verAvaliacoes(estudante); break;
+                    case 4: verHorario(estudante); break;
+                    case 5: verPropinas(estudante); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuPresencasEFaltas(Estudante estudante) {
+        String[] opcoes = {
+                "Marcar Presença",
+                "Ver Assiduidade",
+                "Justificar Falta",
+                "Ver Justificações"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("PRESENÇAS E FALTAS", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: marcarPresenca(estudante); break;
+                    case 2: verAssiduidade(estudante); break;
+                    case 3: justificarFalta(estudante); break;
+                    case 4: verJustificacoes(estudante); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuMinhaConta(Estudante estudante) {
+        String[] opcoes = {
+                "Atualizar Morada",
+                "Alterar Password"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("A MINHA CONTA", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: atualizar(estudante); break;
+                    case 2: alterarPassword(estudante); break;
+                    case 0: break;
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("  [!] " + e.getMessage());
@@ -248,11 +284,11 @@ public class EstudanteView {
         System.out.println("  " + "─".repeat(62));
         for (String nomeUC : ucsNoHorario) {
             List<RegistoAula> todasAulas = presencaController.listarAulasPorUC(nomeUC, nomeCurso, anoLetivo);
+            long total = todasAulas.stream().filter(r -> r.isTerminada()).count();
             List<RegistoAula> faltas = presencaController.listarAulasSemPresencaEstudante(
                     estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
-            int total = todasAulas.size();
             int faltasCount = faltas.size();
-            int presentes = total - faltasCount;
+            long presentes = total - faltasCount;
             String presenca = total > 0 ? presentes + "/" + total : "—";
             String estado = total == 0 ? "—" : (faltasCount == 0 ? "✓ Sem faltas" : "[!] " + faltasCount + " falta(s)");
             System.out.printf("  %-28s %-12s %-8d %s%n", nomeUC, presenca, faltasCount, estado);
@@ -339,10 +375,10 @@ public class EstudanteView {
         }
         String nomeUC = ucsNoHorario.get(escolhaUC - 1);
 
-        // Aulas marcadas pelo docente onde o estudante ainda não marcou presença
-        List<RegistoAula> aulasPorMarcar = presencaController.listarAulasSemPresencaEstudante(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
+        // Aulas ativas (iniciadas pelo docente) onde o estudante ainda não marcou presença
+        List<RegistoAula> aulasPorMarcar = presencaController.listarAulasAtivasSemPresencaEstudante(estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
         if (aulasPorMarcar.isEmpty()) {
-            System.out.println("  (sem aulas disponíveis para marcar presença nesta UC)");
+            System.out.println("  (nenhuma aula em curso para marcar presença — aguarde que o docente inicie a aula)");
             Utils.pausar(scanner);
             return;
         }

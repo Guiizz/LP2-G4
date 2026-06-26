@@ -2,6 +2,7 @@ package View;
 
 import Controller.*;
 import Model.Gestor;
+import Utils.PasswordUtils;
 import Utils.Utils;
 
 import java.util.Scanner;
@@ -55,7 +56,7 @@ public class GestorView {
                     case 2: menuAcademico(); break;
                     case 3: menuPessoas(); break;
                     case 4: menuAvaliacoes(); break;
-                    case 5: verFicha(gestor); break;
+                    case 5: menuConta(gestor); break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -95,7 +96,8 @@ public class GestorView {
         String[] opcoes = {
                 "Cursos",
                 "Unidades Curriculares",
-                "Horários"
+                "Horários",
+                "Momentos de Avaliação"
         };
         int opcao;
         do {
@@ -106,6 +108,7 @@ public class GestorView {
                     case 1: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
                     case 2: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar(); break;
                     case 3: new HorarioView(horarioController, cursoController, unidadeCurricularController, anoLetivoController, scanner).iniciar(); break;
+                    case 4: new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
@@ -139,7 +142,6 @@ public class GestorView {
 
     private void menuAvaliacoes() {
         String[] opcoes = {
-                "Momentos de Avaliação",
                 "Lançar Nota a Aluno",
                 "Justificações de Faltas"
         };
@@ -149,9 +151,30 @@ public class GestorView {
             opcao = Utils.mostrarMenu("AVALIAÇÕES", opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1: new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
-                    case 2: lancarNota(); break;
-                    case 3: new JustificacaoGestorView(justificacaoController, scanner).iniciar(); break;
+                    case 1: lancarNota(); break;
+                    case 2: new JustificacaoGestorView(justificacaoController, scanner).iniciar(); break;
+                    case 0: break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [!] " + e.getMessage());
+                Utils.pausar(scanner);
+            }
+        } while (opcao != 0);
+    }
+
+    private void menuConta(Gestor gestor) {
+        String[] opcoes = {
+                "Ver a minha Ficha",
+                "Alterar Password"
+        };
+        int opcao;
+        do {
+            Utils.limparEcra();
+            opcao = Utils.mostrarMenu("A MINHA CONTA", opcoes, scanner);
+            try {
+                switch (opcao) {
+                    case 1: verFicha(gestor); break;
+                    case 2: alterarPassword(gestor); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
@@ -167,6 +190,38 @@ public class GestorView {
         Utils.tituloPagina("A MINHA CONTA", "A minha Ficha");
         System.out.println("\n" + gestor);
         Utils.pausar(scanner);
+    }
+
+    private void alterarPassword(Gestor gestor) {
+        Utils.tituloPagina("A MINHA CONTA", "Alterar Password");
+        System.out.print("  Password atual: ");
+        String atual = lerPasswordMascarada();
+        System.out.print("  Nova password : ");
+        String nova = lerPasswordMascarada();
+        System.out.print("  Confirmar     : ");
+        String confirmar = lerPasswordMascarada();
+
+        if (!PasswordUtils.verificarPassword(atual, gestor.getPassword())) {
+            System.out.println("  [!] A password atual está incorreta.");
+            Utils.pausar(scanner);
+            return;
+        }
+        if (!nova.equals(confirmar)) {
+            System.out.println("  [!] As passwords não coincidem.");
+            Utils.pausar(scanner);
+            return;
+        }
+        gestorController.alterarPassword(gestor, nova);
+        System.out.println("  [✓] Password alterada com sucesso.");
+        Utils.pausar(scanner);
+    }
+
+    private String lerPasswordMascarada() {
+        if (System.console() != null) {
+            char[] chars = System.console().readPassword();
+            return chars != null ? new String(chars) : "";
+        }
+        return scanner.nextLine().trim();
     }
 
     private void lancarNota() {
