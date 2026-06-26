@@ -70,7 +70,7 @@ public class CursoDAL_BD implements ICursoDAL {
         // Curso + Departamento + associações CursoUC numa única query.
         ArrayList<Object[]> rows = conexao.select(
                 "SELECT c.nomeCurso, c.siglaDepartamento, dep.nome AS nomeDep, " +
-                "       c.estado, c.valorPropina, cu.nomeUC " +
+                "       c.estado, c.valorPropina, cu.nomeUC, cu.anoCurricular " +
                 "FROM   Curso c " +
                 "LEFT   JOIN Departamento dep ON dep.sigla = c.siglaDepartamento " +
                 "LEFT   JOIN CursoUC cu       ON cu.nomeCurso = c.nomeCurso " +
@@ -81,7 +81,8 @@ public class CursoDAL_BD implements ICursoDAL {
                         rs.getString("nomeDep"),
                         rs.getString("estado"),
                         rs.getDouble("valorPropina"),
-                        rs.getString("nomeUC")
+                        rs.getString("nomeUC"),
+                        rs.getObject("anoCurricular")
                 }
         );
 
@@ -110,11 +111,12 @@ public class CursoDAL_BD implements ICursoDAL {
             }
             if (row[5] != null) {
                 String nomeUC = (String) row[5];
+                int anoCurricular = row[6] instanceof Number ? ((Number) row[6]).intValue() : 1;
                 boolean jaAdicionada = curso.getUnidades() != null &&
                         curso.getUnidades().stream().anyMatch(u -> u.getNome().equalsIgnoreCase(nomeUC));
                 if (!jaAdicionada) {
                     UnidadeCurricular uc = ucsPorNome.get(nomeUC);
-                    if (uc != null) curso.adicionarUnidadeCurricular(uc, 1);
+                    if (uc != null) curso.adicionarUnidadeCurricular(uc, anoCurricular);
                 }
             }
         }
@@ -172,14 +174,16 @@ public class CursoDAL_BD implements ICursoDAL {
     }
 
     private void carregarUCsDoCurso(Curso curso) {
-        ArrayList<String> nomesUCs = conexao.select(
-                "SELECT nomeUC FROM CursoUC WHERE nomeCurso = ?",
-                rs -> rs.getString("nomeUC"),
+        ArrayList<Object[]> rows = conexao.select(
+                "SELECT nomeUC, anoCurricular FROM CursoUC WHERE nomeCurso = ?",
+                rs -> new Object[]{ rs.getString("nomeUC"), rs.getInt("anoCurricular") },
                 curso.getNomeCurso()
         );
-        for (String nomeUC : nomesUCs) {
+        for (Object[] row : rows) {
+            String nomeUC = (String) row[0];
+            int anoCurricular = (int) row[1];
             UnidadeCurricular uc = unidadeCurricularDAL.procurarPorNome(nomeUC);
-            if (uc != null) curso.adicionarUnidadeCurricular(uc, 1);
+            if (uc != null) curso.adicionarUnidadeCurricular(uc, anoCurricular);
         }
     }
 }

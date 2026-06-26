@@ -280,18 +280,31 @@ public class EstudanteView {
             return;
         }
 
-        System.out.printf("  %-28s %-12s %-8s %s%n", "UC", "Presença", "Faltas", "Estado");
-        System.out.println("  " + "─".repeat(62));
         for (String nomeUC : ucsNoHorario) {
             List<RegistoAula> todasAulas = presencaController.listarAulasPorUC(nomeUC, nomeCurso, anoLetivo);
-            long total = todasAulas.stream().filter(r -> r.isTerminada()).count();
+            List<RegistoAula> terminadas = new ArrayList<>();
+            for (RegistoAula r : todasAulas) { if (r.isTerminada()) terminadas.add(r); }
+            long total = terminadas.size();
             List<RegistoAula> faltas = presencaController.listarAulasSemPresencaEstudante(
                     estudante.getNumMecanografico(), nomeUC, nomeCurso, anoLetivo);
             int faltasCount = faltas.size();
             long presentes = total - faltasCount;
             String presenca = total > 0 ? presentes + "/" + total : "—";
             String estado = total == 0 ? "—" : (faltasCount == 0 ? "✓ Sem faltas" : "[!] " + faltasCount + " falta(s)");
-            System.out.printf("  %-28s %-12s %-8d %s%n", nomeUC, presenca, faltasCount, estado);
+
+            System.out.println("  " + "─".repeat(62));
+            System.out.printf("  %-28s %-12s %-8s %s%n", nomeUC, presenca, faltasCount + " falta(s)", estado);
+
+            if (!terminadas.isEmpty()) {
+                java.util.Set<String> faltasChaves = new java.util.HashSet<>();
+                for (RegistoAula f : faltas) faltasChaves.add(f.getData() + "|" + f.getHoraInicio());
+                for (RegistoAula aula : terminadas) {
+                    boolean faltou = faltasChaves.contains(aula.getData() + "|" + aula.getHoraInicio());
+                    System.out.printf("    %-12s %-8s  %s%n",
+                            aula.getData(), aula.getHoraInicio(),
+                            faltou ? "✗ Falta" : "✓ Presente");
+                }
+            }
         }
         System.out.println("  " + "─".repeat(62));
         Utils.pausar(scanner);
