@@ -39,8 +39,7 @@ public class GestorView {
 
     public void iniciar(Gestor gestor) {
         String[] opcoes = {
-                "Administração",
-                "Gestão Académica",
+                "Académico",
                 "Pessoas",
                 "Avaliações",
                 "A minha Conta"
@@ -52,11 +51,10 @@ public class GestorView {
             opcao = Utils.mostrarMenu("ÁREA DO GESTOR [" + gestor.getEmail() + "]", opcoes, "Sair", scanner);
             try {
                 switch (opcao) {
-                    case 1: menuAdministracao(); break;
-                    case 2: menuAcademico(); break;
-                    case 3: menuPessoas(); break;
-                    case 4: menuAvaliacoes(); break;
-                    case 5: menuConta(gestor); break;
+                    case 1: menuAcademico(); break;
+                    case 2: menuPessoas(); break;
+                    case 3: menuAvaliacoes(); break;
+                    case 4: menuConta(gestor); break;
                     case 0: System.out.println("  A terminar sessão..."); break;
                 }
             } catch (IllegalArgumentException e) {
@@ -68,32 +66,10 @@ public class GestorView {
 
     // ── Submenus ──────────────────────────────────────────────────────────────
 
-    private void menuAdministracao() {
+    private void menuAcademico() {
         String[] opcoes = {
                 "Ano Letivo",
                 "Departamentos",
-                "Gestores"
-        };
-        int opcao;
-        do {
-            Utils.limparEcra();
-            opcao = Utils.mostrarMenu("ADMINISTRAÇÃO", opcoes, scanner);
-            try {
-                switch (opcao) {
-                    case 1: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
-                    case 2: new DepartamentoView(departamentoController, cursoController, scanner).iniciar(); break;
-                    case 3: new GestorMenuView(gestorController, scanner).iniciar(); break;
-                    case 0: break;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println("  [!] " + e.getMessage());
-                Utils.pausar(scanner);
-            }
-        } while (opcao != 0);
-    }
-
-    private void menuAcademico() {
-        String[] opcoes = {
                 "Cursos",
                 "Unidades Curriculares",
                 "Horários",
@@ -102,13 +78,15 @@ public class GestorView {
         int opcao;
         do {
             Utils.limparEcra();
-            opcao = Utils.mostrarMenu("GESTÃO ACADÉMICA", opcoes, scanner);
+            opcao = Utils.mostrarMenu("ACADÉMICO", opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
-                    case 2: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar(); break;
-                    case 3: new HorarioView(horarioController, cursoController, unidadeCurricularController, anoLetivoController, scanner).iniciar(); break;
-                    case 4: new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
+                    case 1: new AnoLetivoView(anoLetivoController, estudanteController, scanner).iniciar(); break;
+                    case 2: new DepartamentoView(departamentoController, cursoController, scanner).iniciar(); break;
+                    case 3: new CursoView(cursoController, departamentoController, unidadeCurricularController, estudanteController, scanner).iniciar(); break;
+                    case 4: new UnidadeCurricularView(unidadeCurricularController, docenteController, anoLetivoController, cursoController, scanner).iniciar(); break;
+                    case 5: new HorarioView(horarioController, cursoController, unidadeCurricularController, anoLetivoController, scanner).iniciar(); break;
+                    case 6: new AvaliacaoView(avaliacaoController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
@@ -120,6 +98,7 @@ public class GestorView {
 
     private void menuPessoas() {
         String[] opcoes = {
+                "Gestores",
                 "Docentes",
                 "Estudantes"
         };
@@ -129,8 +108,9 @@ public class GestorView {
             opcao = Utils.mostrarMenu("PESSOAS", opcoes, scanner);
             try {
                 switch (opcao) {
-                    case 1: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
-                    case 2: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar(); break;
+                    case 1: new GestorMenuView(gestorController, scanner).iniciar(); break;
+                    case 2: new DocenteGestorView(docenteController, estudanteController, unidadeCurricularController, cursoController, scanner).iniciar(); break;
+                    case 3: new EstudanteGestorView(estudanteController, cursoController, inscricaoController, docenteController, scanner).iniciar(); break;
                     case 0: break;
                 }
             } catch (IllegalArgumentException e) {
